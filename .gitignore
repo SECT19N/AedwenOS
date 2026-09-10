@@ -1,0 +1,5 @@
+# archiso build artefacts
+/work/
+/out/
+*.iso
+*.log

@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Creates the passwordless live user on first boot of the live medium.
+set -euo pipefail
+
+grep -qx /usr/bin/fish /etc/shells || echo /usr/bin/fish >> /etc/shells
+
+if ! id aedwen &>/dev/null; then
+    useradd --create-home --uid 1000 --user-group \
+            --groups wheel,network,video,audio,storage,input \
+            --shell /usr/bin/fish aedwen
+fi
+
+# passwordless login for the live session
+passwd --delete aedwen
+passwd --delete root
+
+# regenerate locale (locale.gen is shipped by the profile)
+locale-gen || true
+
+touch /var/lib/aedwen-live-setup.done

@@ -1,0 +1,175 @@
+#!/usr/bin/env bash
+#
+# AedwenOS command-line installer.
+# The graphical path is Calamares; this script is the scripted / hands-on route.
+#
+#   sudo aedwen-install /dev/sdX
+#
+# Disk layout:  GPT  ->  1 GiB FAT32 EFI system partition (/boot)  +  Btrfs root
+#   kernel:      linux-zen
+#   initramfs:   dracut (pkgbase-named images, driven by pacman hooks)
+#   bootloader:  Limine (UEFI); kernel + initramfs are stored on the ESP
+#   shell:       fish for the user, bash for root (fallback)
+#   AUR helper:  paru, from the chaotic-aur repository (enabled on the target)
+set -euo pipefail
+
+DISK="${1:-}"
+HOSTNAME="${HOSTNAME:-aedwenos}"
+USERNAME="${USERNAME:-aedwen}"
+TIMEZONE="${TIMEZONE:-UTC}"
+LOCALE="${LOCALE:-en_US.UTF-8}"
+KEYMAP="${KEYMAP:-us}"
+
+CHAOTIC_KEY="3056513887B78AEB"
+
+die() { echo "error: $*" >&2; exit 1; }
+
+[[ $EUID -eq 0 ]] || die "run as root"
+[[ -b "$DISK" ]] || die "usage: aedwen-install /dev/sdX"
+
+lsblk -o NAME,SIZE,MODEL "$DISK"
+read -rp "ERASE ALL DATA on $DISK ? type YES: " ok
+[[ "$ok" == "YES" ]] || die "aborted"
+
+# ---------------------------------------------------------------- partitioning
+wipefs -a "$DISK"
+sgdisk -Z "$DISK"
+sgdisk -n1:0:+1GiB -t1:ef00 -c1:EFI \
+       -n2:0:0     -t2:8304 -c2:aedwen_root "$DISK"
+partprobe "$DISK"
+
+p() { [[ "$DISK" == *[0-9] ]] && echo "${DISK}p$1" || echo "${DISK}$1"; }
+ESP="$(p 1)"; ROOT="$(p 2)"
+
+mkfs.fat -F32 -n EFI "$ESP"
+
+# ---------------------------------------------------------------- Btrfs root
+mkfs.btrfs -f -L aedwen_root "$ROOT"
+mount "$ROOT" /mnt
+for sv in @ @home @log @pkg @snapshots; do btrfs subvolume create "/mnt/$sv"; done
+umount /mnt
+
+o="noatime,compress=zstd:1,ssd,space_cache=v2"
+mount -o "$o,subvol=@" "$ROOT" /mnt
+mkdir -p /mnt/{home,var/log,var/cache/pacman/pkg,.snapshots,boot}
+mount -o "$o,subvol=@home"      "$ROOT" /mnt/home
+mount -o "$o,subvol=@log"       "$ROOT" /mnt/var/log
+mount -o "$o,subvol=@pkg"       "$ROOT" /mnt/var/cache/pacman/pkg
+mount -o "$o,subvol=@snapshots" "$ROOT" /mnt/.snapshots
+mount "$ESP" /mnt/boot
+
+# ---------------------------------------------------------------- base system
+# This set mirrors the non-"LIVE ONLY" entries in iso/packages.x86_64.
+pacstrap -K /mnt \
+    base base-devel linux-zen linux-zen-headers linux-firmware sof-firmware \
+    intel-ucode amd-ucode dracut \
+    btrfs-progs dosfstools e2fsprogs exfatprogs ntfs-3g \
+    limine efibootmgr \
+    networkmanager iwd wireless-regdb openssh \
+    pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber \
+    plasma-desktop plasma-nm plasma-pa plasma-workspace kscreen \
+    sddm konsole dolphin kate xdg-desktop-portal-kde xdg-user-dirs \
+    noto-fonts noto-fonts-emoji ttf-dejavu \
+    fish git nano vim sudo reflector
+
+genfstab -U /mnt >> /mnt/etc/fstab
+ROOT_UUID="$(blkid -s UUID -o value "$ROOT")"
+
+# ---------------------------------------------------------------- dracut initramfs
+# The live medium builds its own initramfs with mkinitcpio; the installed system
+# uses dracut. Carry the helper + config over and register the pacman hooks.
+install -Dm755 /usr/local/bin/aedwen-dracut.sh /mnt/usr/local/bin/aedwen-dracut.sh
+install -Dm644 /etc/dracut.conf.d/aedwen.conf /mnt/etc/dracut.conf.d/aedwen.conf
+
+install -Dm644 /dev/stdin /mnt/etc/pacman.d/hooks/90-dracut-install.hook <<'HOOK'
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Target = usr/lib/modules/*/pkgbase
+
+[Action]
+Description = Regenerating dracut initramfs...
+When = PostTransaction
+Exec = /usr/local/bin/aedwen-dracut.sh install
+NeedsTargets
+HOOK
+
+install -Dm644 /dev/stdin /mnt/etc/pacman.d/hooks/60-dracut-remove.hook <<'HOOK'
+[Trigger]
+Type = Path
+Operation = Remove
+Target = usr/lib/modules/*/pkgbase
+
+[Action]
+Description = Removing dracut initramfs...
+When = PreTransaction
+Exec = /usr/local/bin/aedwen-dracut.sh remove
+NeedsTargets
+HOOK
+
+arch-chroot /mnt /bin/bash -euo pipefail <<CHROOT
+ln -sf "/usr/share/zoneinfo/$TIMEZONE" /etc/localtime
+hwclock --systohc || true
+echo "$LOCALE UTF-8" > /etc/locale.gen
+locale-gen
+echo "LANG=$LOCALE"   > /etc/locale.conf
+echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
+echo "$HOSTNAME"      > /etc/hostname
+
+# initramfs (dracut) -- pkgbase-named images matching the Limine entry
+/usr/local/bin/aedwen-dracut.sh all
+
+# ---- users: fish shell, bash stays available for root ----
+grep -qx /usr/bin/fish /etc/shells || echo /usr/bin/fish >> /etc/shells
+useradd -m -G wheel -s /usr/bin/fish "$USERNAME"
+echo "password for $USERNAME:"; passwd "$USERNAME"
+echo "root password:";          passwd
+echo '%wheel ALL=(ALL:ALL) ALL' > /etc/sudoers.d/10-wheel
+chmod 440 /etc/sudoers.d/10-wheel
+systemctl enable NetworkManager sddm
+
+# ---- chaotic-aur + paru ----
+pacman-key --recv-key "$CHAOTIC_KEY" --keyserver keyserver.ubuntu.com
+pacman-key --lsign-key "$CHAOTIC_KEY"
+pacman -U --noconfirm \
+    'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' \
+    'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
+grep -q '\[chaotic-aur\]' /etc/pacman.conf || printf '\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist\n' >> /etc/pacman.conf
+pacman -Sy --noconfirm paru
+
+# ---- Limine (UEFI) ----
+install -Dm644 /usr/share/limine/BOOTX64.EFI /boot/EFI/BOOT/BOOTX64.EFI
+efibootmgr --create --disk "$DISK" --part 1 \
+    --label "AedwenOS" --loader '\EFI\BOOT\BOOTX64.EFI' --unicode || true
+
+cat > /boot/limine.conf <<LIMINE
+timeout: 3
+
+/AedwenOS (linux-zen)
+    protocol: linux
+    kernel_path: boot():/vmlinuz-linux-zen
+    module_path: boot():/initramfs-linux-zen.img
+    cmdline: root=UUID=$ROOT_UUID rw rootfstype=btrfs rootflags=subvol=@
+LIMINE
+
+# Redeploy the Limine EFI binary automatically whenever the package updates.
+# (Kernel/initramfs paths are static, so kernel upgrades need no action.)
+install -Dm644 /dev/stdin /etc/pacman.d/hooks/95-limine-deploy.hook <<HOOK
+[Trigger]
+Operation = Install
+Operation = Upgrade
+Type = Package
+Target = limine
+
+[Action]
+Description = Deploying Limine to the EFI system partition...
+When = PostTransaction
+Exec = /usr/bin/install -Dm644 /usr/share/limine/BOOTX64.EFI /boot/EFI/BOOT/BOOTX64.EFI
+HOOK
+CHROOT
+
+umount -R /mnt
+echo
+echo "Done. Remove the medium and reboot."
+echo "After first boot: pacman -Syu / paru -Syu  keeps it current -- no reinstall needed."

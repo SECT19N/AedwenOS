@@ -1,0 +1,82 @@
+# Package set for the AedwenOS live/install medium.
+#
+# Model A: this file is the single source of truth for the installed system.
+# Calamares clones the live filesystem to disk (unpackfs) and then removes the
+# packages marked "LIVE ONLY" below (see iso/airootfs/etc/calamares/modules/
+# packages.conf). The command-line installer (aedwen-install) installs the
+# non-LIVE-ONLY set directly.
+
+## base system
+base
+base-devel
+linux-firmware
+sof-firmware
+intel-ucode
+amd-ucode
+dracut                # initramfs generator for the installed system
+
+## kernel: Zen (official repo)
+linux-zen
+linux-zen-headers     # kept for future DKMS modules (e.g. GPU drivers)
+
+## filesystems
+btrfs-progs           # root filesystem
+dosfstools
+e2fsprogs
+exfatprogs
+ntfs-3g
+
+## bootloader
+limine
+efibootmgr
+
+## networking
+networkmanager
+iwd
+wireless-regdb
+openssh
+
+## audio
+pipewire
+pipewire-alsa
+pipewire-pulse
+pipewire-jack
+wireplumber
+
+## desktop -- KDE Plasma
+plasma-desktop
+plasma-nm
+plasma-pa
+plasma-workspace
+kscreen
+sddm
+konsole
+dolphin
+kate
+xdg-desktop-portal-kde
+xdg-user-dirs
+noto-fonts
+noto-fonts-emoji
+ttf-dejavu
+
+## shell + package tools
+fish                  # default user shell (bash from `base` is the fallback)
+paru                  # AUR helper (from chaotic-aur -- see pacman.conf)
+git
+nano
+vim
+sudo
+reflector
+
+## ------------------------------------------------------------------ LIVE ONLY
+## Present on the ISO to run the installer; removed from the installed system.
+mkinitcpio            # LIVE ONLY -- archiso builds the live initramfs with it
+mkinitcpio-archiso    # LIVE ONLY -- archiso live-boot hooks
+syslinux              # LIVE ONLY -- ISO BIOS boot
+edk2-shell            # LIVE ONLY
+calamares             # LIVE ONLY
+ckbcomp               # LIVE ONLY -- calamares keyboard module
+squashfs-tools        # LIVE ONLY
+arch-install-scripts  # LIVE ONLY -- pacstrap/genfstab for the installers
+gptfdisk              # LIVE ONLY
+parted                # LIVE ONLY

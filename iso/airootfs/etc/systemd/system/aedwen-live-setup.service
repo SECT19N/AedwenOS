@@ -1,0 +1,13 @@
+[Unit]
+Description=AedwenOS live medium first-boot setup
+After=systemd-user-sessions.service
+Before=sddm.service
+ConditionPathExists=!/var/lib/aedwen-live-setup.done
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/aedwen-live-setup
+
+[Install]
+WantedBy=multi-user.target

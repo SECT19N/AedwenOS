@@ -1,0 +1,7 @@
+# mkinitcpio preset for the archiso live image (linux-zen).
+ALL_kver="/boot/vmlinuz-linux-zen"
+
+PRESETS=('archiso')
+
+archiso_image="/boot/initramfs-linux-zen.img"
+archiso_options="-A archiso"

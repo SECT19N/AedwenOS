@@ -1,0 +1,27 @@
+---
+componentName: aedwenos
+
+strings:
+    productName:         AedwenOS
+    shortProductName:    AedwenOS
+    version:             rolling
+    shortVersion:        rolling
+    versionedName:       AedwenOS
+    shortVersionedName:  AedwenOS
+    bootloaderEntryName: AedwenOS
+    productUrl:          "https://example.invalid/"
+    supportUrl:          "https://example.invalid/"
+    releaseNotesUrl:     "https://example.invalid/"
+
+images:
+    productLogo:         "logo.png"
+    productIcon:         "logo.png"
+    productWelcome:      "logo.png"
+
+slideshow:              "show.qml"
+
+style:
+    sidebarBackground:    "#1793d1"
+    sidebarText:          "#ffffff"
+    sidebarTextSelect:    "#1793d1"
+    sidebarTextHighlight: "#ffffff"
