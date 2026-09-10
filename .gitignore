@@ -3,3 +3,6 @@
 /out/
 *.iso
 *.log
+
+# AUR packages staged for the [aedwen-local] repo (built by scripts/build-localrepo.sh)
+/iso/localrepo/

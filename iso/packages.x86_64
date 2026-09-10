@@ -5,6 +5,9 @@
 # packages marked "LIVE ONLY" below (see iso/airootfs/etc/calamares/modules/
 # packages.conf). The command-line installer (aedwen-install) installs the
 # non-LIVE-ONLY set directly.
+#
+# NOTE: keep every note on its own line -- this mkarchiso leaves trailing
+# whitespace when it strips an inline "# comment", which breaks the target.
 
 ## base system
 base
@@ -13,14 +16,17 @@ linux-firmware
 sof-firmware
 intel-ucode
 amd-ucode
-dracut                # initramfs generator for the installed system
+# dracut: initramfs generator for the installed system
+dracut
 
 ## kernel: Zen (official repo)
 linux-zen
-linux-zen-headers     # kept for future DKMS modules (e.g. GPU drivers)
+# linux-zen-headers: kept for future DKMS modules (e.g. GPU drivers)
+linux-zen-headers
 
 ## filesystems
-btrfs-progs           # root filesystem
+# btrfs-progs: root filesystem
+btrfs-progs
 dosfstools
 e2fsprogs
 exfatprogs
@@ -60,8 +66,10 @@ noto-fonts-emoji
 ttf-dejavu
 
 ## shell + package tools
-fish                  # default user shell (bash from `base` is the fallback)
-paru                  # AUR helper (from chaotic-aur -- see pacman.conf)
+# fish: default user shell (bash from `base` is the fallback)
+fish
+# paru: AUR helper (from chaotic-aur -- see pacman.conf)
+paru
 git
 nano
 vim
@@ -70,13 +78,18 @@ reflector
 
 ## ------------------------------------------------------------------ LIVE ONLY
 ## Present on the ISO to run the installer; removed from the installed system.
-mkinitcpio            # LIVE ONLY -- archiso builds the live initramfs with it
-mkinitcpio-archiso    # LIVE ONLY -- archiso live-boot hooks
-syslinux              # LIVE ONLY -- ISO BIOS boot
-edk2-shell            # LIVE ONLY
-calamares             # LIVE ONLY
-ckbcomp               # LIVE ONLY -- calamares keyboard module
-squashfs-tools        # LIVE ONLY
-arch-install-scripts  # LIVE ONLY -- pacstrap/genfstab for the installers
-gptfdisk              # LIVE ONLY
-parted                # LIVE ONLY
+## archiso builds the live initramfs with mkinitcpio + the archiso hooks:
+mkinitcpio
+mkinitcpio-archiso
+# syslinux: ISO BIOS boot
+syslinux
+edk2-shell
+# calamares + ckbcomp (its keyboard module): from [aedwen-local], built by
+# scripts/build-localrepo.sh -- no longer in the official repos.
+calamares
+ckbcomp
+squashfs-tools
+# arch-install-scripts: pacstrap/genfstab for the installers
+arch-install-scripts
+gptfdisk
+parted
