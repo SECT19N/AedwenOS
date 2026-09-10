@@ -1,7 +1,12 @@
 # mkinitcpio preset for the archiso live image (linux-zen).
-ALL_kver="/boot/vmlinuz-linux-zen"
+# Mirrors upstream releng's linux.preset -- the archiso_config line is what
+# points mkinitcpio at the archiso HOOKS; without it the live initramfs is
+# built against the plain host config (or fails), which is how you end up
+# with a 0-byte initramfs and a "VFS: unable to mount root fs" panic.
 
 PRESETS=('archiso')
 
+ALL_kver='/boot/vmlinuz-linux-zen'
+archiso_config='/etc/mkinitcpio.conf.d/archiso.conf'
+
 archiso_image="/boot/initramfs-linux-zen.img"
-archiso_options="-A archiso"
