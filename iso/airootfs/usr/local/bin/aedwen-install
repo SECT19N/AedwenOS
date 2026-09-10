@@ -67,12 +67,21 @@ pacstrap -K /mnt \
     limine efibootmgr \
     networkmanager iwd wireless-regdb openssh \
     pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber \
-    plasma-desktop plasma-nm plasma-pa plasma-workspace kscreen \
-    sddm konsole dolphin kate xdg-desktop-portal-kde xdg-user-dirs \
+    plasma-meta plasma-desktop plasma-nm plasma-pa plasma-workspace kscreen \
+    sddm xdg-desktop-portal-kde xdg-user-dirs \
+    konsole dolphin kate kwrite ark gwenview okular spectacle kcalc kfind \
+    filelight kinfocenter plasma-systemmonitor kdeconnect kwalletmanager \
+    kde-gtk-config partitionmanager print-manager power-profiles-daemon bluedevil \
     noto-fonts noto-fonts-emoji ttf-dejavu \
     fish git nano vim sudo reflector
 
 genfstab -U /mnt >> /mnt/etc/fstab
+
+# Carry the AedwenOS pacman.conf + a working mirrorlist onto the target so the
+# installed system can reach the repos on first boot (chaotic-aur is enabled
+# further down once its keyring is trusted).
+install -Dm644 /etc/pacman.conf         /mnt/etc/pacman.conf
+install -Dm644 /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 ROOT_UUID="$(blkid -s UUID -o value "$ROOT")"
 
 # ---------------------------------------------------------------- dracut initramfs

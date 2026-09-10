@@ -17,4 +17,12 @@ passwd --delete root
 # regenerate locale (locale.gen is shipped by the profile)
 locale-gen || true
 
+# Refresh the mirrorlist for local speed when the network is up. The shipped
+# /etc/pacman.d/mirrorlist already has working worldwide mirrors, so this is
+# best-effort only -- pacman/paru work regardless.
+if command -v reflector >/dev/null; then
+    timeout 60 reflector --save /etc/pacman.d/mirrorlist --protocol https \
+             --download-timeout 5 --latest 20 --sort rate || true
+fi
+
 touch /var/lib/aedwen-live-setup.done

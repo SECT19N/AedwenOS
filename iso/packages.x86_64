@@ -50,26 +50,50 @@ pipewire-jack
 wireplumber
 
 ## desktop -- KDE Plasma
+plasma-meta
 plasma-desktop
 plasma-nm
 plasma-pa
 plasma-workspace
 kscreen
 sddm
-konsole
-dolphin
-kate
 xdg-desktop-portal-kde
 xdg-user-dirs
 noto-fonts
 noto-fonts-emoji
 ttf-dejavu
 
+## KDE application suite (curated)
+konsole
+dolphin
+kate
+kwrite
+ark
+gwenview
+okular
+spectacle
+kcalc
+kfind
+filelight
+kinfocenter
+plasma-systemmonitor
+kdeconnect
+kwalletmanager
+kde-gtk-config
+partitionmanager
+print-manager
+power-profiles-daemon
+bluedevil
+
 ## shell + package tools
 # fish: default user shell (bash from `base` is the fallback)
 fish
 # paru: AUR helper (from chaotic-aur -- see pacman.conf)
 paru
+# chaotic-aur repo config, kept on the installed system so [chaotic-aur] in
+# /etc/pacman.conf resolves. The signing key is trusted at ISO build time.
+chaotic-keyring
+chaotic-mirrorlist
 git
 nano
 vim

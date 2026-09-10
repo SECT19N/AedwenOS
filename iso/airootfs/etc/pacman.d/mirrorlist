@@ -1,0 +1,20 @@
+##
+## AedwenOS default mirrorlist.
+##
+## The stock pacman-mirrorlist package ships this file fully commented, which is
+## why a trimmed archiso profile (no reflector / no pacman-init.service) boots
+## with "no servers configured for repository core".  These worldwide/CDN
+## mirrors work from anywhere; run reflector afterwards for local speed:
+##
+##   reflector --save /etc/pacman.d/mirrorlist --protocol https \
+##             --latest 20 --sort rate
+##
+## aedwen-live-setup runs that automatically on the live medium when online.
+##
+
+Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch
+Server = https://mirror.rackspace.com/archlinux/$repo/os/$arch
+Server = https://mirrors.kernel.org/archlinux/$repo/os/$arch
+Server = https://america.mirror.pkgbuild.com/$repo/os/$arch
+Server = https://europe.mirror.pkgbuild.com/$repo/os/$arch
+Server = https://asia.mirror.pkgbuild.com/$repo/os/$arch
