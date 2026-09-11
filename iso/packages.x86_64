@@ -99,6 +99,14 @@ paru
 ## browser
 # zen-browser-bin: prebuilt from chaotic-aur, same repo as paru above
 zen-browser-bin
+# zed-bin: not on chaotic-aur (skipped since `zed` already exists in extra) --
+# built from [aedwen-local] by scripts/build-localrepo.sh instead. Tracks
+# upstream Zed releases faster than the official `zed` package in extra.
+zed-bin
+# octopi: Qt6 pacman/AUR GUI frontend, prebuilt from chaotic-aur. Picked over
+# Plasma Discover, whose pacman support runs through PackageKit's alpm backend
+# and is widely reported as unreliable for real transactions on Arch.
+octopi
 # chaotic-aur repo config, kept on the installed system so [chaotic-aur] in
 # /etc/pacman.conf resolves. The signing key is trusted at ISO build time.
 chaotic-keyring
@@ -108,6 +116,16 @@ nano
 vim
 sudo
 reflector
+
+## developer tooling
+fastfetch
+python
+nodejs
+npm
+kotlin
+# amazon-corretto-25-bin: current LTS JDK. From [aedwen-local], built by
+# scripts/build-localrepo.sh -- not in the official repos or chaotic-aur.
+amazon-corretto-25-bin
 
 ## snapshots + rollback
 # snapper: Btrfs snapshot management. @snapshots is already a dedicated

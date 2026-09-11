@@ -163,7 +163,8 @@ systemctl enable NetworkManager sddm firewalld snapper-timeline.timer snapper-cl
 # fall back to fetching it from a keyserver, retrying across a couple of
 # servers -- and even then we warn rather than abort the whole install.
 pacman-key --init
-pacman-key --populate archlinux chaotic-aur || true
+# keyring name = file stem under /usr/share/pacman/keyrings/ ("chaotic.gpg")
+pacman-key --populate archlinux chaotic || true
 
 if ! pacman-key --finger "$CHAOTIC_KEY" &>/dev/null; then
     echo "warning: chaotic-aur key not found in local keyring data, falling back to network" >&2

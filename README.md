@@ -45,6 +45,7 @@ to install the system to disk.
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `iso/`          | The [archiso](https://gitlab.archlinux.org/archlinux/archiso) profile: the package list and configuration that `mkarchiso` compiles into the live ISO. |
 | `iso/airootfs/` | Files copied verbatim onto the live filesystem (system configuration, the installer script, the Calamares configuration, branding).                    |
+| `scripts/build-localrepo.sh` | Builds packages no longer (or never) published in the official repos or chaotic-aur from the AUR, and stages them in `iso/localrepo/` (the `[aedwen-local]` repo `mkarchiso` pulls from). Must be run before `build.sh` at least once. |
 | `build.sh`      | Convenience wrapper around `mkarchiso`.                                                                                                                |
 | `test-vm.sh`    | Boots the most recently built ISO in QEMU.                                                                                                             |
 
@@ -62,7 +63,9 @@ defined entirely by the files under `iso/`.
 | Root filesystem | Btrfs (subvolume layout, zstd compression)                                                                                                |
 | Desktop         | KDE Plasma on Wayland, with the SDDM display manager                                                                                      |
 | Shell           | fish for the user account; bash (from `base`) for root and as fallback                                                                    |
-| Package tools   | `pacman`, plus `paru` for the AUR (chaotic-aur repository enabled)                                                                        |
+| Package tools   | `pacman`, plus `paru` for the AUR (chaotic-aur repository enabled), and `octopi` (Qt GUI front end) |
+| Editors         | `zed` (from `zed-bin`, the `[aedwen-local]` repo), `kate`/`kwrite`, `vim`, `nano`                                                          |
+| Developer tooling | Python, Node.js/npm, Kotlin, and Amazon Corretto 25 (LTS) as the default JDK                                                            |
 | Snapshots       | `snapper` (timeline + `snap-pac` pre/post-transaction pairs), with bootable rollback entries in the Limine menu via `limine-snapper-sync` |
 | Firewall        | `firewalld`, enabled with SSH allowed in the default zone                                                                                 |
 | Installer       | Calamares (graphical, in development) or `aedwen-install` (command-line)                                                                  |
@@ -105,12 +108,19 @@ achieved with a container or a virtual machine, as described below.
   network speed and hardware.
 - Root privileges (`mkarchiso` creates loop devices and mount namespaces).
 
-Almost every package AedwenOS installs — including `linux-zen` — comes from the
-official Arch repositories. The one exception is `paru`, which is pulled from
-the **chaotic-aur** repository; the build host
-must therefore have the chaotic-aur keyring and mirrorlist installed
-(see `iso/pacman.conf` for the one-time setup commands). Dropping `paru` from
-`iso/packages.x86_64` removes this requirement.
+Most packages AedwenOS installs — including `linux-zen` — come from the
+official Arch repositories. A few are pulled from the **chaotic-aur**
+repository instead (`paru`, `zen-browser-bin`, `octopi`, `limine-snapper-sync`);
+the build host must therefore have the chaotic-aur keyring and mirrorlist
+installed (see `iso/pacman.conf` for the one-time setup commands).
+
+A further handful are no longer published anywhere prebuilt — either dropped
+from the official repos (`calamares`, `ckbcomp`) or never packaged there in
+the first place (`amazon-corretto-25-bin`, `zed-bin`). These are built from
+the AUR by `scripts/build-localrepo.sh` into `iso/localrepo/`, which
+`mkarchiso` reads as the `[aedwen-local]` repo. **Run this script at least
+once before `build.sh`** (see [Building the ISO](#building-the-iso)); rerun it
+with `--force` to pick up newer AUR versions.
 
 **To test the ISO:** a virtual machine (QEMU, VirtualBox, VMware, Hyper-V) or a
 spare USB drive and a computer that can boot from it.
@@ -127,7 +137,13 @@ sudo pacman -S --needed archiso git qemu-desktop edk2-ovmf
 git clone <repository-url> AedwenOS
 cd AedwenOS
 
-# 3. Build. build.sh re-runs itself with sudo, so invoke it as a normal user.
+# 3. Build the AUR-only packages into the local repo (see Requirements above).
+# Run as your normal user, NOT with sudo. Takes a while the first time
+# (amazon-corretto-25-bin and zed-bin are large downloads); safe to skip on
+# later builds unless you want to pick up newer AUR versions (--force).
+./scripts/build-localrepo.sh
+
+# 4. Build. build.sh re-runs itself with sudo, so invoke it as a normal user.
 ./build.sh
 
 # Or, for a quick dev/test build (lower squashfs compression, much faster):
@@ -151,15 +167,25 @@ sudo podman run --rm --privileged \
   --volume "$PWD":/build \
   --workdir /build \
   docker.io/archlinux:latest \
-  bash -c 'pacman -Sy --noconfirm archiso && ./build.sh'
+  bash -c '
+    pacman -Sy --noconfirm --needed archiso base-devel git sudo &&
+    useradd -m builder && echo "builder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers &&
+    su builder -c "./scripts/build-localrepo.sh" &&
+    ./build.sh
+  '
 ```
 
 Notes:
 
 - `--privileged` is mandatory. `mkarchiso` needs loop devices and the ability
   to create mount namespaces, which an unprivileged container cannot provide.
-- The finished ISO is written to `out/` in the cloned repository on the host,
-  because the repository is bind-mounted into the container.
+- `scripts/build-localrepo.sh` needs `makepkg` (from `base-devel`), which only
+  exists on Arch — hence running it inside the container, as an unprivileged
+  user (`makepkg` refuses to run as root), skip it if `iso/localrepo/` is
+  already populated from a prior run.
+- The finished ISO (and the populated `iso/localrepo/`) are written back to
+  the cloned repository on the host, because the repository is bind-mounted
+  into the container.
 
 ### Windows (WSL2 or a virtual machine)
 
@@ -182,9 +208,10 @@ There is no native Windows build. Two options are supported.
 3. Open the Arch WSL shell and build:
 
    ```sh
-   sudo pacman -Syu --noconfirm --needed archiso git
+   sudo pacman -Syu --noconfirm --needed archiso git base-devel
    git clone <repository-url> AedwenOS
    cd AedwenOS
+   ./scripts/build-localrepo.sh
    ./build.sh
    ```
 
@@ -243,7 +270,10 @@ USB drive.
 When booted, the live environment logs in automatically to KDE Plasma as the
 user `aedwen` (no password). The desktop contains an **Install AedwenOS** icon
 that launches Calamares, and the `aedwen-install` command is available in a
-terminal for the command-line installation path.
+terminal for the command-line installation path. A terminal also has
+`fastfetch`, `python3`, `node`, `kotlin`, and `java` (Amazon Corretto 25)
+available to sanity-check the developer tooling, and `octopi`/`zed` are on the
+application menu alongside the KDE app suite.
 
 ### QEMU
 
@@ -387,13 +417,17 @@ wholesale is not.
 AedwenOS/
 ├── build.sh                      Build wrapper (calls mkarchiso)
 ├── test-vm.sh                    Boot the built ISO in QEMU
+├── scripts/
+│   └── build-localrepo.sh        Builds AUR-only packages into iso/localrepo/
 ├── iso/
 │   ├── profiledef.sh             ISO metadata, boot modes, file permissions
 │   ├── packages.x86_64           Package set (source of truth for the install)
 │   ├── pacman.conf               Repositories used during the build
+│   ├── localrepo/                [aedwen-local] repo, built by scripts/build-localrepo.sh (git-ignored)
 │   ├── syslinux/                 Live-medium boot menu (BIOS)
 │   ├── efiboot/                  Live-medium boot menu (UEFI, systemd-boot)
 │   └── airootfs/                 Overlay applied to the live filesystem
+│       ├── root/customize_airootfs.sh  Runs once during the build (bakes in the pacman keyring)
 │       ├── etc/                  System configuration, autologin, first-boot setup
 │       ├── etc/calamares/        Calamares sequence, modules, branding
 │       │   └── modules/packages.conf   LIVE ONLY packages removed after install
@@ -441,6 +475,20 @@ AedwenOS/
 
 - **Secure Boot is not supported.** It must be disabled in firmware before
   booting the ISO or an installed system.
+
+- **The live medium ships a pre-populated pacman keyring.**
+  `iso/airootfs/root/customize_airootfs.sh` is the standard archiso hook
+  (auto-run via `arch-chroot` during `mkarchiso`, then deleted) that runs
+  `pacman-key --init` and `--populate` while building the image. Without it,
+  `pacman -S` on the live medium fails with keyring/signature errors, because
+  the live root's `/etc/pacman.d/gnupg` would otherwise never get initialized
+  at all — this profile intentionally omits the stock `pacman-init.service`
+  in favor of doing it once at build time. The baked-in keyring is only for
+  the live session: `pacman-key --init` creates a random per-machine master
+  key, so both installers (`aedwen-install`, and Calamares via
+  `shellprocess-postinstall.conf`) wipe the cloned `/etc/pacman.d/gnupg` and
+  regenerate it on the target, then re-import the static distro keys from the
+  `archlinux-keyring` / `chaotic-keyring` packages.
 
 ## Project status and roadmap
 
