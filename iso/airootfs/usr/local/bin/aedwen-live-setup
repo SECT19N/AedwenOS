@@ -14,6 +14,19 @@ fi
 passwd --delete aedwen
 passwd --delete root
 
+# xdg-user-dirs ships an autostart entry that creates ~/Desktop, ~/Documents,
+# etc. at session start, but that races Plasma's desktop containment loading
+# before it runs, producing a "the file or folder ~/Desktop does not exist"
+# error on first login. Create them here instead, before sddm/the session
+# ever starts.
+runuser -u aedwen -- xdg-user-dirs-update
+
+# Kickoff's application grid reads the AppStream metadata cache; nothing
+# populates it by default on the live medium (unlike the installed system,
+# which gets a pacman hook -- see aedwen-install / shellprocess-postinstall),
+# so the grid stays empty until this runs once.
+appstreamcli refresh-cache --force || true
+
 # regenerate locale (locale.gen is shipped by the profile)
 locale-gen || true
 
