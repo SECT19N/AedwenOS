@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=AedwenOS
+Description=AedwenOS branded boot splash -- centred logo on a dark ground
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/aedwen
+ScriptFile=/usr/share/plymouth/themes/aedwen/aedwen.script

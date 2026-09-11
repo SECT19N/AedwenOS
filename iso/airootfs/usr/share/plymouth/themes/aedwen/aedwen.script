@@ -1,0 +1,58 @@
+// AedwenOS Plymouth theme (script module).
+// Centred logo on a dark ground with a gentle pulse, plus minimal message and
+// password prompts so early-boot dialogs (fsck, LUKS if ever added) still show.
+
+Window.SetBackgroundTopColor(0.05, 0.05, 0.07);
+Window.SetBackgroundBottomColor(0.05, 0.05, 0.07);
+
+// ---- logo ----------------------------------------------------------------
+logo.image  = Image("logo.png");
+logo.sprite = Sprite(logo.image);
+logo.w = logo.image.GetWidth();
+logo.h = logo.image.GetHeight();
+logo.x = Window.GetX() + Window.GetWidth()  / 2 - logo.w / 2;
+logo.y = Window.GetY() + Window.GetHeight() / 2 - logo.h / 2;
+logo.sprite.SetPosition(logo.x, logo.y, 100);
+
+tick = 0;
+fun refresh_callback() {
+    tick++;
+    logo.sprite.SetOpacity(0.78 + 0.22 * Math.Sin(tick / 14));
+}
+Plymouth.SetRefreshFunction(refresh_callback);
+
+// ---- status / fsck messages -------------------------------------------------
+message.sprite = Sprite();
+message.sprite.SetPosition(Window.GetX() + 20,
+                           Window.GetY() + Window.GetHeight() - 40, 100);
+
+fun display_message_callback(text) {
+    message.sprite.SetImage(Image.Text(text, 0.8, 0.8, 0.8));
+}
+fun hide_message_callback(text) {
+    message.sprite.SetImage(Image.Text("", 0, 0, 0));
+}
+Plymouth.SetDisplayMessageFunction(display_message_callback);
+Plymouth.SetHideMessageFunction(hide_message_callback);
+
+// ---- password prompt (kept simple: prompt text + bullet count) --------------
+prompt.sprite = Sprite();
+prompt.sprite.SetPosition(Window.GetX() + Window.GetWidth() / 2 - 150,
+                          logo.y + logo.h + 30, 100);
+
+fun display_password_callback(prompt_text, bullets) {
+    dots = "";
+    for (i = 0; i < bullets; i++) dots += "*";
+    prompt.sprite.SetImage(Image.Text(prompt_text + "  " + dots, 1, 1, 1));
+}
+fun display_normal_callback() {
+    prompt.sprite.SetImage(Image.Text("", 0, 0, 0));
+}
+Plymouth.SetDisplayPasswordFunction(display_password_callback);
+Plymouth.SetDisplayNormalFunction(display_normal_callback);
+
+// ---- shutdown / reboot -----------------------------------------------------
+fun quit_callback() {
+    logo.sprite.SetOpacity(1);
+}
+Plymouth.SetQuitFunction(quit_callback);

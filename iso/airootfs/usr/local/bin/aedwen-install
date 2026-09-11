@@ -24,6 +24,16 @@ CHAOTIC_KEY="3056513887B78AEB"
 
 die() { echo "error: $*" >&2; exit 1; }
 
+# Retry a flaky, network-touching command a few times before giving up.
+retry() {
+    local max=3 n=1
+    until "$@"; do
+        (( n++ >= max )) && return 1
+        echo "  retry $((n - 1))/$((max - 1)): $*" >&2
+        sleep 3
+    done
+}
+
 [[ $EUID -eq 0 ]] || die "run as root"
 [[ -b "$DISK" ]] || die "usage: aedwen-install /dev/sdX"
 
@@ -60,26 +70,32 @@ mount "$ESP" /mnt/boot
 
 # ---------------------------------------------------------------- base system
 # This set mirrors the non-"LIVE ONLY" entries in iso/packages.x86_64.
-pacstrap -K /mnt \
+# chaotic-keyring/chaotic-mirrorlist are included here (not just paru) so the
+# chaotic-aur signing key ships onto the target as local data -- pacman-key
+# --populate below then trusts it offline, no keyserver round-trip needed.
+retry pacstrap -K /mnt \
     base base-devel linux-zen linux-zen-headers linux-firmware sof-firmware \
     intel-ucode amd-ucode dracut \
     btrfs-progs dosfstools e2fsprogs exfatprogs ntfs-3g \
     limine efibootmgr \
     networkmanager iwd wireless-regdb openssh \
     pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber \
+    plymouth \
     plasma-meta plasma-desktop plasma-nm plasma-pa plasma-workspace kscreen \
     sddm xdg-desktop-portal-kde xdg-user-dirs \
     konsole dolphin kate kwrite ark gwenview okular spectacle kcalc kfind \
     filelight kinfocenter plasma-systemmonitor kdeconnect kwalletmanager \
     kde-gtk-config partitionmanager print-manager power-profiles-daemon bluedevil \
     noto-fonts noto-fonts-emoji ttf-dejavu \
-    fish git nano vim sudo reflector
+    fish paru zen-browser-bin chaotic-keyring chaotic-mirrorlist git nano vim sudo reflector \
+    snapper snap-pac limine-snapper-sync firewalld appstream
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
 # Carry the AedwenOS pacman.conf + a working mirrorlist onto the target so the
-# installed system can reach the repos on first boot (chaotic-aur is enabled
-# further down once its keyring is trusted).
+# installed system can reach the repos on first boot. The general mirrorlist
+# already lists several worldwide CDN mirrors (see the file) so pacman falls
+# through automatically if one is unreachable -- no extra scripting needed.
 install -Dm644 /etc/pacman.conf         /mnt/etc/pacman.conf
 install -Dm644 /etc/pacman.d/mirrorlist /mnt/etc/pacman.d/mirrorlist
 ROOT_UUID="$(blkid -s UUID -o value "$ROOT")"
@@ -136,16 +152,108 @@ echo "password for $USERNAME:"; passwd "$USERNAME"
 echo "root password:";          passwd
 echo '%wheel ALL=(ALL:ALL) ALL' > /etc/sudoers.d/10-wheel
 chmod 440 /etc/sudoers.d/10-wheel
-systemctl enable NetworkManager sddm
+systemctl enable NetworkManager sddm firewalld snapper-timeline.timer snapper-cleanup.timer
 
-# ---- chaotic-aur + paru ----
-pacman-key --recv-key "$CHAOTIC_KEY" --keyserver keyserver.ubuntu.com
-pacman-key --lsign-key "$CHAOTIC_KEY"
-pacman -U --noconfirm \
-    'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-keyring.pkg.tar.zst' \
-    'https://cdn-mirror.chaotic.cx/chaotic-aur/chaotic-mirrorlist.pkg.tar.zst'
-grep -q '\[chaotic-aur\]' /etc/pacman.conf || printf '\n[chaotic-aur]\nInclude = /etc/pacman.d/chaotic-mirrorlist\n' >> /etc/pacman.conf
-pacman -Sy --noconfirm paru
+# ---- chaotic-aur trust ----
+# paru + chaotic-keyring + chaotic-mirrorlist were pacstrapped above, so the
+# signing key already exists on-disk as local keyring data -- populate it
+# offline (same mechanism archlinux-keyring uses for the core repos, no
+# network involved). Only if that somehow leaves the key untrusted (e.g. a
+# very stale ISO whose baked-in key predates a chaotic-aur rotation) do we
+# fall back to fetching it from a keyserver, retrying across a couple of
+# servers -- and even then we warn rather than abort the whole install.
+pacman-key --init
+pacman-key --populate archlinux chaotic-aur || true
+
+if ! pacman-key --finger "$CHAOTIC_KEY" &>/dev/null; then
+    echo "warning: chaotic-aur key not found in local keyring data, falling back to network" >&2
+    got=0
+    for ks in keyserver.ubuntu.com hkps://keys.openpgp.org; do
+        for attempt in 1 2 3; do
+            pacman-key --recv-key "$CHAOTIC_KEY" --keyserver "\$ks" && { got=1; break; }
+            echo "  retry \$attempt/3 against \$ks failed, retrying..." >&2
+            sleep 3
+        done
+        [[ \$got -eq 1 ]] && break
+    done
+    if [[ \$got -eq 1 ]]; then
+        pacman-key --lsign-key "$CHAOTIC_KEY"
+    else
+        echo "warning: chaotic-aur key still untrusted -- that repo won't work until fixed manually" >&2
+    fi
+fi
+
+# ---- snapper ----
+# @snapshots / .snapshots already exists as its own subvolume (created above),
+# so `snapper create-config` would conflict with it -- ship the config
+# directly instead (the documented approach for a pre-existing layout).
+# Based on snapper's own upstream default-config, with TIMELINE_LIMIT_WEEKLY
+# raised from 0 so timeline cleanup keeps some weekly snapshots too, on top of
+# the hourly/daily/monthly defaults.
+install -Dm644 /dev/stdin /etc/snapper/configs/root <<'SNAPCFG'
+SUBVOLUME="/"
+FSTYPE="btrfs"
+QGROUP=""
+SPACE_LIMIT="0.5"
+FREE_LIMIT="0.2"
+UNIQUE_NUMBERS="yes"
+ALLOW_USERS=""
+ALLOW_GROUPS=""
+SYNC_ACL="no"
+BACKGROUND_COMPARISON="yes"
+NUMBER_CLEANUP="yes"
+NUMBER_MIN_AGE="3600"
+NUMBER_LIMIT="50"
+NUMBER_LIMIT_IMPORTANT="10"
+TIMELINE_CREATE="yes"
+TIMELINE_CLEANUP="yes"
+TIMELINE_MIN_AGE="3600"
+TIMELINE_LIMIT_HOURLY="10"
+TIMELINE_LIMIT_DAILY="10"
+TIMELINE_LIMIT_WEEKLY="4"
+TIMELINE_LIMIT_MONTHLY="10"
+TIMELINE_LIMIT_QUARTERLY="0"
+TIMELINE_LIMIT_YEARLY="10"
+EMPTY_PRE_POST_CLEANUP="yes"
+EMPTY_PRE_POST_MIN_AGE="3600"
+SNAPCFG
+install -Dm644 /dev/stdin /etc/conf.d/snapper <<'SNAPPERCONF'
+SNAPPER_CONFIGS="root"
+SNAPPERCONF
+chmod 750 /.snapshots
+
+# limine-snapper-sync auto-detects the Limine entry name from /etc/os-release
+# PRETTY_NAME ("AedwenOS"), but the entry written below is "AedwenOS
+# (linux-zen)" -- pin it explicitly so entry targeting doesn't depend on that
+# fuzzy match.
+sed -i 's/^#TARGET_OS_NAME=.*/TARGET_OS_NAME="AedwenOS (linux-zen)"/' /etc/limine-snapper-sync.conf
+
+# ---- firewalld ----
+# No daemon is running inside this chroot, so use the offline editor rather
+# than firewall-cmd. This only opens the port; sshd itself is not enabled.
+firewall-offline-cmd --zone=public --add-service=ssh
+
+# ---- appstream cache ----
+# Kickoff's application grid reads the AppStream metadata cache; KRunner's
+# search bypasses it and scans .desktop files directly -- that mismatch is
+# why search finds apps but the grid can appear empty. Refresh once now so
+# the first boot already has a warm cache, and keep it fresh on future
+# package changes (e.g. via paru/toolbox) with a pacman hook.
+appstreamcli refresh-cache --force || true
+install -Dm644 /dev/stdin /etc/pacman.d/hooks/97-appstream-refresh.hook <<'HOOK'
+[Trigger]
+Type = Path
+Operation = Install
+Operation = Upgrade
+Operation = Remove
+Target = usr/share/metainfo/*
+Target = usr/share/appdata/*
+
+[Action]
+Description = Refreshing AppStream metadata cache...
+When = PostTransaction
+Exec = /usr/bin/appstreamcli refresh-cache --force
+HOOK
 
 # ---- Limine (UEFI) ----
 install -Dm644 /usr/share/limine/BOOTX64.EFI /boot/EFI/BOOT/BOOTX64.EFI
@@ -159,7 +267,7 @@ timeout: 3
     protocol: linux
     kernel_path: boot():/vmlinuz-linux-zen
     module_path: boot():/initramfs-linux-zen.img
-    cmdline: root=UUID=$ROOT_UUID rw rootfstype=btrfs rootflags=subvol=@
+    cmdline: root=UUID=$ROOT_UUID rw rootfstype=btrfs rootflags=subvol=@ quiet splash
 LIMINE
 
 # Redeploy the Limine EFI binary automatically whenever the package updates.

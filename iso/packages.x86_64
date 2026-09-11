@@ -49,6 +49,11 @@ pipewire-pulse
 pipewire-jack
 wireplumber
 
+## boot splash
+# plymouth: branded boot splash for both the live medium (mkinitcpio) and the
+# installed system (dracut). Theme + default set under airootfs/{usr/share,etc}.
+plymouth
+
 ## desktop -- KDE Plasma
 plasma-meta
 plasma-desktop
@@ -90,6 +95,10 @@ bluedevil
 fish
 # paru: AUR helper (from chaotic-aur -- see pacman.conf)
 paru
+
+## browser
+# zen-browser-bin: prebuilt from chaotic-aur, same repo as paru above
+zen-browser-bin
 # chaotic-aur repo config, kept on the installed system so [chaotic-aur] in
 # /etc/pacman.conf resolves. The signing key is trusted at ISO build time.
 chaotic-keyring
@@ -99,6 +108,26 @@ nano
 vim
 sudo
 reflector
+
+## snapshots + rollback
+# snapper: Btrfs snapshot management. @snapshots is already a dedicated
+# subvolume (see aedwen-install / partition.conf) -- config is shipped
+# directly rather than via `snapper create-config` (would conflict with the
+# pre-existing subvolume).
+snapper
+# snap-pac: automatic pre/post snapshot pair around every pacman transaction
+snap-pac
+# limine-snapper-sync: adds bootable snapshot entries to the Limine menu
+# (from chaotic-aur). Works as a snapper plugin, no extra service needed.
+limine-snapper-sync
+
+## firewall
+firewalld
+
+## AppStream metadata (Kickoff's application grid reads this cache; KRunner
+## search bypasses it and scans .desktop files directly, which is why search
+## works even when the grid appears empty with a stale/missing cache)
+appstream
 
 ## ------------------------------------------------------------------ LIVE ONLY
 ## Present on the ISO to run the installer; removed from the installed system.

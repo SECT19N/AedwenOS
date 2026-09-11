@@ -1,0 +1,5 @@
+[KSplash]
+# No Plasma startup splash -- the branded Plymouth splash covers boot, and the
+# handoff goes Plymouth -> SDDM -> desktop with nothing KDE-branded in between.
+Engine=none
+Theme=None
