@@ -2,6 +2,7 @@
 # Build the AedwenOS ISO with archiso's mkarchiso.
 #
 #   ./build.sh                       # build into ./out, work in ~/.cache
+#   ./build.sh --fast                # lower squashfs compression for quick dev/test builds
 #   WORK=/var/tmp/aedwen ./build.sh  # override the work dir
 #
 # Must run on an x86-64 Arch / Arch-based system (needs mkarchiso + pacman).
@@ -12,6 +13,16 @@ set -euo pipefail
 here="$(dirname "$(readlink -f "$0")")"
 profile="$here/iso"
 out="${OUT:-$here/out}"
+
+# --fast: skip the slow max-ratio squashfs compression (zstd -19) in favor of
+# a much quicker level, for iterating in a VM. Read from iso/profiledef.sh.
+export FAST=0
+for arg in "$@"; do
+    case "$arg" in
+        --fast) FAST=1 ;;
+        *) echo "error: unknown argument '$arg'" >&2; exit 1 ;;
+    esac
+done
 
 # mkarchiso needs a POSIX filesystem for the work dir (creates symlinks, sets
 # ownership + xattrs). This repo often lives on NTFS/exFAT, where that fails
@@ -29,7 +40,7 @@ case "$fstype" in
 esac
 
 if [[ $EUID -ne 0 ]]; then
-    exec sudo --preserve-env=SOURCE_DATE_EPOCH WORK="$work" OUT="$out" "$0" "$@"
+    exec sudo --preserve-env=SOURCE_DATE_EPOCH,FAST WORK="$work" OUT="$out" "$0" "$@"
 fi
 
 command -v mkarchiso >/dev/null || { echo "install 'archiso' first"; exit 1; }
@@ -43,6 +54,8 @@ export GIT_HASH
 GIT_HASH="$(git -C "$here" -c safe.directory="$here" rev-parse --short HEAD 2>/dev/null || echo unknown)"
 export GIT_DIRTY=""
 [[ -n "$(git -C "$here" -c safe.directory="$here" status --porcelain 2>/dev/null)" ]] && GIT_DIRTY="-dirty"
+
+[[ "$FAST" == 1 ]] && echo "--fast: using low squashfs compression for a quicker build"
 
 rm -rf "$work"
 mkdir -p "$work" "$out"

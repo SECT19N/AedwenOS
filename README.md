@@ -63,6 +63,8 @@ defined entirely by the files under `iso/`.
 | Desktop        | KDE Plasma on Wayland, with the SDDM display manager                |
 | Shell          | fish for the user account; bash (from `base`) for root and as fallback |
 | Package tools  | `pacman`, plus `paru` for the AUR (chaotic-aur repository enabled)  |
+| Snapshots      | `snapper` (timeline + `snap-pac` pre/post-transaction pairs), with bootable rollback entries in the Limine menu via `limine-snapper-sync` |
+| Firewall       | `firewalld`, enabled with SSH allowed in the default zone            |
 | Installer      | Calamares (graphical, in development) or `aedwen-install` (command-line) |
 
 The installed system is an ordinary rolling-release Arch system. Software is
@@ -127,6 +129,9 @@ cd AedwenOS
 
 # 3. Build. build.sh re-runs itself with sudo, so invoke it as a normal user.
 ./build.sh
+
+# Or, for a quick dev/test build (lower squashfs compression, much faster):
+./build.sh --fast
 ```
 
 The finished image is written to `out/` (see [Build output](#build-output)).
@@ -219,11 +224,19 @@ the ISO out through a shared folder.
 On success, `out/` contains:
 
 ```
-out/aedwenos-<YYYY.MM.DD>-x86_64.iso
+out/aedwenos-<YYYY.MM.DD>-g<commit>[-dirty]-x86_64.iso
 ```
 
-The date comes from the build day. The image is a hybrid ISO: it can be booted
-as an optical disc image by a virtual machine, or written raw to a USB drive.
+The version string ties the image to the exact source it was built from:
+the date, the short git commit hash of `HEAD` at build time, and a `-dirty`
+suffix if the working tree had uncommitted changes. This also means rebuilding
+multiple times in one day (e.g. after each commit) never overwrites a
+previous image in `out/` — each build gets a distinct filename. Package
+downloads are already reused between builds via the host's normal pacman
+cache (`/var/cache/pacman/pkg`); `--fast` (see above) additionally trades
+squashfs compression ratio for build speed. The image is a hybrid ISO: it can
+be booted as an optical disc image by a virtual machine, or written raw to a
+USB drive.
 
 ## Testing the ISO
 
@@ -254,7 +267,7 @@ Create a new virtual machine with these settings:
 - Processors: 2 or more
 - A blank virtual hard disk of at least 20 GB (needed only to test installation)
 - Firmware: **EFI/UEFI enabled**
-- Optical drive: attach `aedwenos-<date>-x86_64.iso`
+- Optical drive: attach the ISO from `out/` (see [Build output](#build-output) for the filename pattern)
 
 Enable 3D acceleration for a responsive Plasma session. In VirtualBox, set the
 graphics controller to **VMSVGA**.
@@ -340,6 +353,18 @@ The bootloader keeps itself current automatically:
   `/etc/pacman.d/hooks/95-limine-deploy.hook`, which re-copies the Limine EFI
   binary to the EFI system partition.
 
+**Snapshots and rollback.** `snap-pac` takes an automatic pre/post Btrfs
+snapshot pair around every `pacman`/`paru` transaction, and `snapper`'s
+timeline timers additionally take hourly/daily/weekly/monthly snapshots on
+their own schedule (`snapper list` to see them, `snapper list-configs` for the
+config name). `limine-snapper-sync` keeps a "Snapshots" entry in the Limine
+boot menu in sync automatically, so a broken update can be booted into and
+rolled back without any extra tooling.
+
+**Firewall.** `firewalld` is enabled with SSH allowed in the default
+(`public`) zone; no other services are pre-opened, and `sshd` itself is not
+enabled by default. Adjust with `firewall-cmd`.
+
 ## Migrating from another distribution
 
 An in-place upgrade from another distribution is not supported — installation
@@ -423,6 +448,8 @@ Functional:
 
 - ISO builds from the profile in `iso/`.
 - `aedwen-install` performs a complete Btrfs installation with Limine.
+- Snapshots (`snapper` timeline + `snap-pac`) with Limine boot-menu rollback,
+  and `firewalld` with SSH pre-allowed, on both install paths.
 
 Planned:
 
