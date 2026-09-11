@@ -1,0 +1,13 @@
+[Unit]
+Description=AedwenOS live medium background setup (mirrorlist, AppStream cache)
+# Deliberately NOT Before=sddm.service -- reflector's network round trip and
+# the AppStream cache rebuild are slow and must not delay login. They run
+# once the desktop target is reached instead.
+After=graphical.target aedwen-live-setup.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/aedwen-live-setup-extras
+
+[Install]
+WantedBy=graphical.target

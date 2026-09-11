@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Slower, non-essential live medium setup that must NOT block sddm/login --
+# runs after the desktop is already up. See aedwen-live-setup for the fast
+# stuff that does need to finish before sddm starts.
+set -euo pipefail
+
+# Kickoff's application grid reads the AppStream metadata cache; nothing
+# populates it by default on the live medium (unlike the installed system,
+# which gets a pacman hook -- see aedwen-install / shellprocess-postinstall),
+# so the grid stays empty until this runs once.
+appstreamcli refresh-cache --force || true
+
+# Refresh the mirrorlist for local speed when the network is up. The shipped
+# /etc/pacman.d/mirrorlist already has working worldwide mirrors, so this is
+# best-effort only -- pacman/paru work regardless.
+if command -v reflector >/dev/null; then
+    timeout 60 reflector --save /etc/pacman.d/mirrorlist --protocol https \
+             --download-timeout 5 --latest 20 --sort rate || true
+fi

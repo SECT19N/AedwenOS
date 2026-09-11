@@ -43,6 +43,7 @@ file_permissions=(
   ["/etc/sudoers.d/10-live"]="0:0:440"
   ["/root"]="0:0:750"
   ["/usr/local/bin/aedwen-live-setup"]="0:0:755"
+  ["/usr/local/bin/aedwen-live-setup-extras"]="0:0:755"
   ["/usr/local/bin/aedwen-install"]="0:0:755"
   ["/usr/local/bin/aedwen-dracut.sh"]="0:0:755"
 )

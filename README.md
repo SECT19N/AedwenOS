@@ -41,31 +41,31 @@ to install the system to disk.
 
 ## What is in this repository
 
-| Path           | Purpose                                                             |
-| -------------- | ------------------------------------------------------------------ |
-| `iso/`         | The [archiso](https://gitlab.archlinux.org/archlinux/archiso) profile: the package list and configuration that `mkarchiso` compiles into the live ISO. |
-| `iso/airootfs/`| Files copied verbatim onto the live filesystem (system configuration, the installer script, the Calamares configuration, branding). |
-| `build.sh`     | Convenience wrapper around `mkarchiso`.                             |
-| `test-vm.sh`   | Boots the most recently built ISO in QEMU.                          |
+| Path            | Purpose                                                                                                                                                |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `iso/`          | The [archiso](https://gitlab.archlinux.org/archlinux/archiso) profile: the package list and configuration that `mkarchiso` compiles into the live ISO. |
+| `iso/airootfs/` | Files copied verbatim onto the live filesystem (system configuration, the installer script, the Calamares configuration, branding).                    |
+| `build.sh`      | Convenience wrapper around `mkarchiso`.                                                                                                                |
+| `test-vm.sh`    | Boots the most recently built ISO in QEMU.                                                                                                             |
 
 The distribution's identity — kernel, filesystem, bootloader, desktop — is
 defined entirely by the files under `iso/`.
 
 ## System composition
 
-| Layer          | Choice                                                                 |
-| -------------- | -------------------------------------------------------------------- |
-| Base           | Arch Linux, installed with `pacstrap`                               |
-| Kernel         | `linux-zen` (Arch official repository)                              |
-| Initramfs      | [dracut](https://wiki.archlinux.org/title/Dracut) on the installed system (the live ISO uses mkinitcpio, which archiso requires) |
-| Bootloader     | [Limine](https://wiki.archlinux.org/title/Limine), installed on the target system |
-| Root filesystem| Btrfs (subvolume layout, zstd compression)                         |
-| Desktop        | KDE Plasma on Wayland, with the SDDM display manager                |
-| Shell          | fish for the user account; bash (from `base`) for root and as fallback |
-| Package tools  | `pacman`, plus `paru` for the AUR (chaotic-aur repository enabled)  |
-| Snapshots      | `snapper` (timeline + `snap-pac` pre/post-transaction pairs), with bootable rollback entries in the Limine menu via `limine-snapper-sync` |
-| Firewall       | `firewalld`, enabled with SSH allowed in the default zone            |
-| Installer      | Calamares (graphical, in development) or `aedwen-install` (command-line) |
+| Layer           | Choice                                                                                                                                    |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Base            | Arch Linux, installed with `pacstrap`                                                                                                     |
+| Kernel          | `linux-zen` (Arch official repository)                                                                                                    |
+| Initramfs       | [dracut](https://wiki.archlinux.org/title/Dracut) on the installed system (the live ISO uses mkinitcpio, which archiso requires)          |
+| Bootloader      | [Limine](https://wiki.archlinux.org/title/Limine), installed on the target system                                                         |
+| Root filesystem | Btrfs (subvolume layout, zstd compression)                                                                                                |
+| Desktop         | KDE Plasma on Wayland, with the SDDM display manager                                                                                      |
+| Shell           | fish for the user account; bash (from `base`) for root and as fallback                                                                    |
+| Package tools   | `pacman`, plus `paru` for the AUR (chaotic-aur repository enabled)                                                                        |
+| Snapshots       | `snapper` (timeline + `snap-pac` pre/post-transaction pairs), with bootable rollback entries in the Limine menu via `limine-snapper-sync` |
+| Firewall        | `firewalld`, enabled with SSH allowed in the default zone                                                                                 |
+| Installer       | Calamares (graphical, in development) or `aedwen-install` (command-line)                                                                  |
 
 The installed system is an ordinary rolling-release Arch system. Software is
 managed with `pacman` and `paru` in the usual way, with no restrictions imposed
@@ -373,11 +373,11 @@ replaces the target system. To preserve user data across the switch, keep
 mount it without formatting:
 
 - **Calamares:** in the manual partitioning screen, assign the existing
-  partition to `/home` and leave *Format* unchecked.
+  partition to `/home` and leave _Format_ unchecked.
 - **`aedwen-install`:** not yet supported by the script; back up `/home`
   separately and restore it after installation.
 
-Note that user *configuration* carried over from a different desktop or distro
+Note that user _configuration_ carried over from a different desktop or distro
 may need cleanup; migrating documents and data is reliable, migrating dotfiles
 wholesale is not.
 
