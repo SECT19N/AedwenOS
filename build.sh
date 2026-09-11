@@ -34,6 +34,16 @@ fi
 
 command -v mkarchiso >/dev/null || { echo "install 'archiso' first"; exit 1; }
 
+# Tie the ISO's version string (and thus its output filename -- see
+# iso/profiledef.sh) to the exact source it was built from, so same-day
+# rebuilds don't overwrite each other and the artifact is traceable back to
+# a commit. `-c safe.directory` sidesteps git's ownership check, since this
+# runs as root against a repo owned by the invoking user.
+export GIT_HASH
+GIT_HASH="$(git -C "$here" -c safe.directory="$here" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+export GIT_DIRTY=""
+[[ -n "$(git -C "$here" -c safe.directory="$here" status --porcelain 2>/dev/null)" ]] && GIT_DIRTY="-dirty"
+
 rm -rf "$work"
 mkdir -p "$work" "$out"
 

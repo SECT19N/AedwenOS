@@ -8,7 +8,11 @@ iso_name="aedwenos"
 iso_label="AEDWEN_$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y%m)"
 iso_publisher="AedwenOS <https://example.invalid>"
 iso_application="AedwenOS Live/Install medium"
-iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)"
+# GIT_HASH/GIT_DIRTY (set by build.sh from the current commit) tie the ISO to
+# the exact source it was built from and keep same-day rebuilds from
+# overwriting each other's output file; default to "unknown" for a direct
+# `mkarchiso` invocation outside build.sh.
+iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)-g${GIT_HASH:-unknown}${GIT_DIRTY:-}"
 install_dir="aedwen"
 buildmodes=('iso')
 
