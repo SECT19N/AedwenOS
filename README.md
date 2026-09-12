@@ -314,6 +314,10 @@ ssh -p 2222 aedwen@localhost                        # interactive shell
 ssh -p 2222 aedwen@localhost 'sudo pacman -Syu' 2>&1 | tee live.log
 ```
 
+As on the official Arch ISO, the live medium ships without repository
+databases (`mkarchiso` strips them, since they would be stale within days), so
+run `sudo pacman -Sy` once before any `pacman -S` in the live session.
+
 The same works for a USB boot on real hardware: run `ip addr` in the live
 session and `ssh aedwen@<that address>` from another machine on the LAN. For
 a one-off without SSH, `some-command 2>&1 | curl -F "file=@-" https://0x0.st`
@@ -403,6 +407,12 @@ date in place — there is no reinstall or reformat cycle.
 sudo pacman -Syu      # official repositories + chaotic-aur
 paru -Syu             # the above, plus AUR packages
 ```
+
+Prefer `paru -Syu`: the packages that come from `[aedwen-local]` at build time
+(`zed-bin` among them) have no repository on the installed system and are only
+updated through paru, which treats them as AUR packages. A wrapper script
+(`aedwen-update`: mirror refresh, keyring-first upgrade, reboot hint) is
+planned — see the roadmap.
 
 The bootloader keeps itself current automatically:
 
@@ -529,8 +539,16 @@ Functional:
 - `aedwen-install` performs a complete Btrfs installation with Limine.
 - Snapshots (`snapper` timeline + `snap-pac`) with Limine boot-menu rollback,
   and `firewalld` with SSH pre-allowed, on both install paths.
+- `pacman` works on the live medium (keyring pre-populated at build time), and
+  the installed system gets its own per-machine keyring from either installer.
+- Baseline tooling ships preinstalled (Zed, Octopi, OpenJDK 25, Python,
+  Node.js, Kotlin, fastfetch, ncdu).
 
 Planned:
+
+- `aedwen-update`: a thin update wrapper (mirror refresh, keyring-first
+  upgrade via paru, reboot-needed hint), later fronted by a toolbox GUI.
+- Curate the Plasma defaults (theme, panel layout, wallpaper, fonts).
 
 - Confirm a clean UEFI and BIOS boot to KDE Plasma across common virtual
   machines and hardware.
