@@ -123,9 +123,11 @@ python
 nodejs
 npm
 kotlin
-# amazon-corretto-25-bin: current LTS JDK. From [aedwen-local], built by
-# scripts/build-localrepo.sh -- not in the official repos or chaotic-aur.
-amazon-corretto-25-bin
+# jdk25-openjdk: current LTS JDK, official repo. Listed explicitly because
+# kotlin only depends on the virtual java-runtime-headless -- without a named
+# provider pacstrap would pick one itself, non-deterministically.
+jdk25-openjdk
+ncdu
 
 ## snapshots + rollback
 # snapper: Btrfs snapshot management. @snapshots is already a dedicated

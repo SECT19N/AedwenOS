@@ -7,6 +7,9 @@
 #   ./test-vm.sh --direct        # bypass the bootloader: qemu -kernel/-initrd
 #                                #   with a verbose cmdline (best for panics)
 #   ./test-vm.sh --std           # plain -vga std instead of virtio-gl
+#   ./test-vm.sh --ssh           # forward host port 2222 -> guest 22, so you
+#                                #   can run commands from the host terminal
+#                                #   and copy their output (see README)
 #
 # Flags combine, e.g.  ./test-vm.sh --bios --serial --std
 set -euo pipefail
@@ -15,13 +18,14 @@ here="$(dirname "$(readlink -f "$0")")"
 iso="$(ls -t "$here"/out/*.iso 2>/dev/null | head -1 || true)"
 [[ -n "$iso" ]] || { echo "no ISO in ./out -- run ./build.sh first"; exit 1; }
 
-mode="uefi" serial=0 direct=0 vga="gl"
+mode="uefi" serial=0 direct=0 vga="gl" ssh=0
 for a in "$@"; do
     case "$a" in
         --bios)   mode="bios" ;;
         --serial) serial=1 ;;
         --direct) direct=1 ;;
         --std)    vga="std" ;;
+        --ssh)    ssh=1 ;;
         *) echo "unknown flag: $a" >&2; exit 2 ;;
     esac
 done
@@ -40,6 +44,11 @@ case "$vga" in
     gl)  args+=(-device virtio-vga-gl -display gtk,gl=on) ;;
     std) args+=(-vga std -display gtk) ;;
 esac
+
+if [[ $ssh -eq 1 ]]; then
+    # user-mode NIC (same as the default, but virtio) with 2222 -> 22 forwarded
+    args+=(-nic user,model=virtio-net-pci,hostfwd=tcp:127.0.0.1:2222-:22)
+fi
 
 if [[ $serial -eq 1 ]]; then
     # kernel console on the same terminal; Ctrl-A X to quit, Ctrl-A C for monitor

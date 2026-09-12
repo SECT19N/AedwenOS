@@ -22,7 +22,7 @@ force=0
 [[ "${1:-}" == "--force" ]] && force=1
 
 # AUR packages to build, in dependency order.
-pkgs=(ckbcomp calamares amazon-corretto-25-bin zed-bin)
+pkgs=(ckbcomp calamares zed-bin)
 
 mkdir -p "$repo"
 work="$(mktemp -d)"
@@ -41,6 +41,17 @@ for name in "${pkgs[@]}"; do
         makepkg -scf --noconfirm
         mv ./*.pkg.tar.zst "$repo"/
     )
+done
+
+# Drop packages that are no longer in $pkgs so the repo db only ever
+# describes the current list.
+for f in "$repo"/*.pkg.tar.zst; do
+    [[ -e "$f" ]] || continue
+    base="$(basename "$f")"; keep=0
+    for name in "${pkgs[@]}"; do
+        [[ "$base" == "$name"-[0-9]* ]] && { keep=1; break; }
+    done
+    [[ $keep -eq 1 ]] || { echo ">> pruning stale $base"; rm -f "$f"; }
 done
 
 echo ">> refreshing $dbname repo db"

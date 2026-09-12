@@ -65,7 +65,7 @@ defined entirely by the files under `iso/`.
 | Shell           | fish for the user account; bash (from `base`) for root and as fallback                                                                    |
 | Package tools   | `pacman`, plus `paru` for the AUR (chaotic-aur repository enabled), and `octopi` (Qt GUI front end) |
 | Editors         | `zed` (from `zed-bin`, the `[aedwen-local]` repo), `kate`/`kwrite`, `vim`, `nano`                                                          |
-| Developer tooling | Python, Node.js/npm, Kotlin, and Amazon Corretto 25 (LTS) as the default JDK                                                            |
+| Developer tooling | Python, Node.js/npm, Kotlin, OpenJDK 25 (LTS, `jdk25-openjdk`) as the default JDK, `fastfetch`, `ncdu`                                   |
 | Snapshots       | `snapper` (timeline + `snap-pac` pre/post-transaction pairs), with bootable rollback entries in the Limine menu via `limine-snapper-sync` |
 | Firewall        | `firewalld`, enabled with SSH allowed in the default zone                                                                                 |
 | Installer       | Calamares (graphical, in development) or `aedwen-install` (command-line)                                                                  |
@@ -116,11 +116,18 @@ installed (see `iso/pacman.conf` for the one-time setup commands).
 
 A further handful are no longer published anywhere prebuilt — either dropped
 from the official repos (`calamares`, `ckbcomp`) or never packaged there in
-the first place (`amazon-corretto-25-bin`, `zed-bin`). These are built from
+the first place (`zed-bin`). These are built from
 the AUR by `scripts/build-localrepo.sh` into `iso/localrepo/`, which
 `mkarchiso` reads as the `[aedwen-local]` repo. **Run this script at least
 once before `build.sh`** (see [Building the ISO](#building-the-iso)); rerun it
-with `--force` to pick up newer AUR versions.
+with `--force` to pick up newer AUR versions. `build.sh` checks for the staged
+packages and the chaotic-aur host setup before starting and stops with a
+clear message if anything is missing.
+
+On an installed system these three packages have no repository behind them
+(`[aedwen-local]` exists only at build time), so plain `pacman -Syu` will
+never update them. `paru -Syu` — or Octopi's AUR mode, which uses paru — treats
+them as AUR packages and updates them normally.
 
 **To test the ISO:** a virtual machine (QEMU, VirtualBox, VMware, Hyper-V) or a
 spare USB drive and a computer that can boot from it.
@@ -139,7 +146,7 @@ cd AedwenOS
 
 # 3. Build the AUR-only packages into the local repo (see Requirements above).
 # Run as your normal user, NOT with sudo. Takes a while the first time
-# (amazon-corretto-25-bin and zed-bin are large downloads); safe to skip on
+# (zed-bin is a large download); safe to skip on
 # later builds unless you want to pick up newer AUR versions (--force).
 ./scripts/build-localrepo.sh
 
@@ -271,7 +278,7 @@ When booted, the live environment logs in automatically to KDE Plasma as the
 user `aedwen` (no password). The desktop contains an **Install AedwenOS** icon
 that launches Calamares, and the `aedwen-install` command is available in a
 terminal for the command-line installation path. A terminal also has
-`fastfetch`, `python3`, `node`, `kotlin`, and `java` (Amazon Corretto 25)
+`fastfetch`, `ncdu`, `python3`, `node`, `kotlin`, and `java` (OpenJDK 25)
 available to sanity-check the developer tooling, and `octopi`/`zed` are on the
 application menu alongside the KDE app suite.
 
@@ -282,11 +289,35 @@ application menu alongside the KDE app suite.
 ```sh
 ./test-vm.sh          # UEFI boot (requires the OVMF firmware, package edk2-ovmf)
 ./test-vm.sh --bios   # legacy BIOS boot
+./test-vm.sh --ssh    # also forward host port 2222 to the guest's SSH port
 ```
 
 To test an installation, attach a second, empty virtual disk and use it as the
 target — for example `sudo aedwen-install /dev/vdb` in a terminal, or the
 Calamares desktop icon.
+
+**Getting text out of the VM.** The live session runs Plasma on Wayland, where
+SPICE clipboard sharing does not work, so the practical route is SSH: run
+commands from a host terminal and copy their output there. In the live
+session, give the `aedwen` user a password (sshd refuses empty ones) and start
+sshd:
+
+```sh
+passwd                       # any password, live session only
+sudo systemctl start sshd
+```
+
+Then from the host (with `./test-vm.sh --ssh`):
+
+```sh
+ssh -p 2222 aedwen@localhost                        # interactive shell
+ssh -p 2222 aedwen@localhost 'sudo pacman -Syu' 2>&1 | tee live.log
+```
+
+The same works for a USB boot on real hardware: run `ip addr` in the live
+session and `ssh aedwen@<that address>` from another machine on the LAN. For
+a one-off without SSH, `some-command 2>&1 | curl -F "file=@-" https://0x0.st`
+prints a paste URL.
 
 ### VirtualBox or VMware
 
