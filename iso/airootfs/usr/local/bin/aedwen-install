@@ -105,6 +105,7 @@ ROOT_UUID="$(blkid -s UUID -o value "$ROOT")"
 # uses dracut. Carry the helper + config over and register the pacman hooks.
 install -Dm755 /usr/local/bin/aedwen-dracut.sh /mnt/usr/local/bin/aedwen-dracut.sh
 install -Dm644 /etc/dracut.conf.d/aedwen.conf /mnt/etc/dracut.conf.d/aedwen.conf
+install -Dm755 /usr/local/bin/aedwen-gpu-setup.sh /mnt/usr/local/bin/aedwen-gpu-setup.sh
 
 install -Dm644 /dev/stdin /mnt/etc/pacman.d/hooks/90-dracut-install.hook <<'HOOK'
 [Trigger]
@@ -141,6 +142,11 @@ locale-gen
 echo "LANG=$LOCALE"   > /etc/locale.conf
 echo "KEYMAP=$KEYMAP" > /etc/vconsole.conf
 echo "$HOSTNAME"      > /etc/hostname
+
+# ---- GPU driver (nvidia only -- AMD/Intel need nothing) ----
+# Must run before the dracut build below so a detected nvidia's early-KMS
+# drop-in (/etc/dracut.conf.d/nvidia.conf) is already in place for it.
+/usr/local/bin/aedwen-gpu-setup.sh
 
 # initramfs (dracut) -- pkgbase-named images matching the Limine entry
 /usr/local/bin/aedwen-dracut.sh all
@@ -261,6 +267,11 @@ install -Dm644 /usr/share/limine/BOOTX64.EFI /boot/EFI/BOOT/BOOTX64.EFI
 efibootmgr --create --disk "$DISK" --part 1 \
     --label "AedwenOS" --loader '\EFI\BOOT\BOOTX64.EFI' --unicode || true
 
+# nvidia_drm.modeset=1 is needed only when aedwen-gpu-setup.sh installed the
+# proprietary driver above; harmless to omit, so only add it when relevant.
+CMDLINE="root=UUID=$ROOT_UUID rw rootfstype=btrfs rootflags=subvol=@ quiet splash"
+[[ -f /etc/aedwen-nvidia-detected ]] && CMDLINE+=" nvidia_drm.modeset=1"
+
 cat > /boot/limine.conf <<LIMINE
 timeout: 3
 
@@ -268,7 +279,7 @@ timeout: 3
     protocol: linux
     kernel_path: boot():/vmlinuz-linux-zen
     module_path: boot():/initramfs-linux-zen.img
-    cmdline: root=UUID=$ROOT_UUID rw rootfstype=btrfs rootflags=subvol=@ quiet splash
+    cmdline: \$CMDLINE
 LIMINE
 
 # Redeploy the Limine EFI binary automatically whenever the package updates.
