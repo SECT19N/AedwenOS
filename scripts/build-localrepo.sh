@@ -22,7 +22,7 @@ force=0
 [[ "${1:-}" == "--force" ]] && force=1
 
 # AUR packages to build, in dependency order.
-pkgs=(ckbcomp calamares zed-bin)
+pkgs=(ckbcomp calamares zed-bin linux-wifi-hotspot)
 
 mkdir -p "$repo"
 work="$(mktemp -d)"

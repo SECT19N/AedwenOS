@@ -41,6 +41,9 @@ networkmanager
 iwd
 wireless-regdb
 openssh
+# linux-wifi-hotspot: AUR, built via scripts/build-localrepo.sh into
+# iso/localrepo (plasma-nm's built-in hotspot support is unreliable)
+linux-wifi-hotspot
 
 ## audio
 pipewire
