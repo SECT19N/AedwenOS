@@ -18,6 +18,10 @@ intel-ucode
 amd-ucode
 # dracut: initramfs generator for the installed system
 dracut
+# zram-generator: compressed RAM swap for day-to-day overflow, alongside the
+# real disk swap partition used only for hibernation -- see
+# iso/airootfs/etc/systemd/zram-generator.conf
+zram-generator
 
 ## kernel: Zen (official repo)
 linux-zen
