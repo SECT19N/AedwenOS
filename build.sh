@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
 # Build the AedwenOS ISO with archiso's mkarchiso.
 #
-#   ./build.sh                       # build into ./out, work in ~/.cache
+#   ./build.sh                       # build into ./out, work in /var/tmp/aedwen-work
 #   ./build.sh --fast                # lower squashfs compression for quick dev/test builds
 #   WORK=/var/tmp/aedwen ./build.sh  # override the work dir
+#   ./build.sh --clean               # just delete the work dir (default or $WORK) and exit
+#
+# The work dir is mkarchiso's scratch space (chroot, airootfs overlay, squashfs
+# staging) -- easily several GB. It's wiped at the START of the next build
+# (see `rm -rf "$work"` below) but NOT after a build finishes or if one is
+# interrupted/killed, so it sits on disk between runs. Use --clean to reclaim
+# that space without doing a build.
 #
 # Must run on an x86-64 Arch / Arch-based system (needs mkarchiso + pacman).
 # Non-Arch hosts: build inside an Arch container/VM -- see README.
@@ -17,9 +24,11 @@ out="${OUT:-$here/out}"
 # --fast: skip the slow max-ratio squashfs compression (zstd -19) in favor of
 # a much quicker level, for iterating in a VM. Read from iso/profiledef.sh.
 export FAST=0
+CLEAN=0
 for arg in "$@"; do
     case "$arg" in
         --fast) FAST=1 ;;
+        --clean) CLEAN=1 ;;
         *) echo "error: unknown argument '$arg'" >&2; exit 1 ;;
     esac
 done
@@ -30,6 +39,15 @@ done
 # a broken chroot (0-byte initramfs -> "VFS: unable to mount root fs" panic).
 # Default work/ to a local ext4/btrfs path; override with WORK=.
 work="${WORK:-/var/tmp/aedwen-work}"
+
+if [[ "$CLEAN" == 1 ]]; then
+    if [[ $EUID -ne 0 ]]; then
+        exec sudo WORK="$work" "$0" --clean
+    fi
+    echo ">> removing $work"
+    rm -rf -- "$work"
+    exit 0
+fi
 
 fstype="$(findmnt -no FSTYPE --target "$(dirname "$work")" 2>/dev/null || true)"
 case "$fstype" in
@@ -48,7 +66,7 @@ command -v mkarchiso >/dev/null || { echo "install 'archiso' first"; exit 1; }
 # --- preflight: fail fast on the things that otherwise surface as a cryptic
 # "target not found" or keyring error 20 minutes into the build. ---
 localrepo="$profile/localrepo"
-for pkg in $(grep -oE '^(calamares|ckbcomp|zed-bin)$' "$profile/packages.x86_64"); do
+for pkg in $(grep -oE '^(calamares|ckbcomp|zed-bin|linux-wifi-hotspot)$' "$profile/packages.x86_64"); do
     if ! compgen -G "$localrepo/${pkg}-[0-9]*.pkg.tar.zst" >/dev/null; then
         echo "error: $pkg is not staged in iso/localrepo/ -- run ./scripts/build-localrepo.sh (as your normal user) first" >&2
         exit 1
