@@ -61,6 +61,16 @@ wireplumber
 # installed system (dracut). Theme + default set under airootfs/{usr/share,etc}.
 plymouth
 
+## graphics -- open-source GPU acceleration (mesa itself comes in transitively
+## via plasma-desktop, but the hardware-specific Vulkan/VA-API/VDPAU drivers
+## do not, so they're listed explicitly). Nvidia is intentionally left out:
+## it needs proprietary/nvidia-open drivers picked per-hardware, not shipped
+## blind on a general-purpose ISO.
+vulkan-intel
+vulkan-radeon
+libva-mesa-driver
+mesa-vdpau
+
 ## desktop -- KDE Plasma
 plasma-meta
 plasma-desktop
@@ -129,12 +139,35 @@ fastfetch
 python
 nodejs
 npm
+# typescript + typescript-language-server: Next.js/NestJS/Drizzle stack
+typescript
+typescript-language-server
 kotlin
 # jdk25-openjdk: current LTS JDK, official repo. Listed explicitly because
 # kotlin only depends on the virtual java-runtime-headless -- without a named
 # provider pacstrap would pick one itself, non-deterministically.
 jdk25-openjdk
 ncdu
+
+## CLI tooling
+curl
+wget
+jq
+ripgrep
+fd
+bat
+eza
+tmux
+htop
+btop
+git-delta
+# github-cli: provides the `gh` command
+github-cli
+lazygit
+tig
+strace
+ltrace
+gdb
 
 ## snapshots + rollback
 # snapper: Btrfs snapshot management. @snapshots is already a dedicated
@@ -147,6 +180,9 @@ snap-pac
 # limine-snapper-sync: adds bootable snapshot entries to the Limine menu
 # (from chaotic-aur). Works as a snapper plugin, no extra service needed.
 limine-snapper-sync
+# btrfs-assistant: GUI for browsing/restoring snapper snapshots and managing
+# Btrfs subvolumes
+btrfs-assistant
 
 ## firewall
 firewalld
