@@ -55,6 +55,11 @@ pipewire-alsa
 pipewire-pulse
 pipewire-jack
 wireplumber
+# pavucontrol: standalone per-app mixer (plasma-pa's applet only covers the basics)
+pavucontrol
+# alsa-utils: alsamixer/aplay/etc. for low-level debugging under PipeWire
+alsa-utils
+easyeffects
 
 ## boot splash
 # plymouth: branded boot splash for both the live medium (mkinitcpio) and the
@@ -89,6 +94,10 @@ ttf-dejavu
 konsole
 dolphin
 kate
+# thunderbird: email client. Picked over kmail, which pulls in the entire
+# Akonadi PIM stack (akonadi, kdepim-runtime, qt6-webengine, ...) just to
+# read mail -- thunderbird is a standalone install with no such dependency.
+thunderbird
 kwrite
 ark
 gwenview
@@ -150,6 +159,7 @@ jdk25-openjdk
 ncdu
 
 ## CLI tooling
+# note: base already pulls in iproute2, iputils, tar, gzip -- not listed again here
 curl
 wget
 jq
@@ -167,6 +177,10 @@ tig
 strace
 ltrace
 gdb
+zip
+unzip
+zstd
+fzf
 
 ## snapshots + rollback
 # snapper: Btrfs snapshot management. @snapshots is already a dedicated
