@@ -158,7 +158,6 @@ fd
 bat
 eza
 tmux
-htop
 btop
 git-delta
 # github-cli: provides the `gh` command
