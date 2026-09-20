@@ -39,6 +39,11 @@ ntfs-3g
 ## bootloader
 limine
 efibootmgr
+# os-prober: detects other installed OSes (e.g. Windows) for dual-boot menu
+# entries. NOTE: the package alone does nothing -- aedwen-install writes
+# /boot/limine.conf as a static heredoc, so actually invoking os-prober and
+# appending its results is separate work, not yet wired up.
+os-prober
 
 ## networking
 networkmanager
@@ -112,9 +117,19 @@ kdeconnect
 kwalletmanager
 kde-gtk-config
 partitionmanager
+# print-manager: KDE's printer-config GUI. cups is the actual print
+# server/daemon underneath it -- print-manager only depends on libcups (the
+# client library), so both are needed for printing to work at all.
 print-manager
+cups
 power-profiles-daemon
+# bluedevil: KDE's Bluetooth applet. It only depends on bluez-qt (the
+# Qt/DBus client library), not the bluetoothd daemon -- bluez provides that,
+# bluez-utils adds bluetoothctl + the systemd service. Without both,
+# bluedevil has nothing to talk to.
 bluedevil
+bluez
+bluez-utils
 
 ## shell + package tools
 # fish: default user shell (bash from `base` is the fallback)
@@ -146,12 +161,20 @@ reflector
 ## developer tooling
 fastfetch
 python
+# uv: fast Python package/venv/version manager (single binary, no AUR needed) --
+# picked over python-pip as the default entry point for Python dev
+uv
 nodejs
 npm
 ncdu
 
 ## CLI tooling
 # note: base already pulls in iproute2, iputils, tar, gzip -- not listed again here
+# man-db + man-pages: local documentation. less: the pager man/git/etc. need --
+# not pulled in by anything else on this list (only an optional dep of git/gzip).
+man-db
+man-pages
+less
 curl
 wget
 jq
@@ -163,11 +186,15 @@ tmux
 btop
 # github-cli: provides the `gh` command
 github-cli
+# strace/gdb: syscall tracing + debugging, both actively maintained.
+# ltrace (library-call tracing) deliberately left out: unmaintained upstream
+# and commonly broken on modern glibc/PIE/hardened builds.
 strace
-ltrace
 gdb
 zip
 unzip
+# p7zip: .7z archive support, alongside zip/unzip
+p7zip
 zstd
 fzf
 
