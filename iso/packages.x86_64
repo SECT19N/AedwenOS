@@ -39,11 +39,6 @@ ntfs-3g
 ## bootloader
 limine
 efibootmgr
-# os-prober: detects other installed OSes (e.g. Windows) for dual-boot menu
-# entries. NOTE: the package alone does nothing -- aedwen-install writes
-# /boot/limine.conf as a static heredoc, so actually invoking os-prober and
-# appending its results is separate work, not yet wired up.
-os-prober
 
 ## networking
 networkmanager
@@ -233,6 +228,13 @@ edk2-shell
 # scripts/build-localrepo.sh -- no longer in the official repos.
 calamares
 ckbcomp
+# os-prober: Calamares' partition module (via KPMcore) calls this itself to
+# detect other installed OSes and power the "Install alongside" option on the
+# partitioning screen -- no extra config needed, it's automatic upstream
+# behavior. LIVE ONLY because it has no job after install: Limine does not
+# use os-prober for its own boot menu (see partition.conf/limine.conf, which
+# are hand-written, not os-prober-driven).
+os-prober
 squashfs-tools
 # arch-install-scripts: pacstrap/genfstab for the installers
 arch-install-scripts
