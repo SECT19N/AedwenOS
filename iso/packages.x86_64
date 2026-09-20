@@ -148,14 +148,6 @@ fastfetch
 python
 nodejs
 npm
-# typescript + typescript-language-server: Next.js/NestJS/Drizzle stack
-typescript
-typescript-language-server
-kotlin
-# jdk25-openjdk: current LTS JDK, official repo. Listed explicitly because
-# kotlin only depends on the virtual java-runtime-headless -- without a named
-# provider pacstrap would pick one itself, non-deterministically.
-jdk25-openjdk
 ncdu
 
 ## CLI tooling
@@ -169,11 +161,8 @@ bat
 eza
 tmux
 btop
-git-delta
 # github-cli: provides the `gh` command
 github-cli
-lazygit
-tig
 strace
 ltrace
 gdb
