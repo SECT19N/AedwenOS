@@ -5,11 +5,16 @@ Presentation {
     id: presentation
 
     Slide {
+        Rectangle {
+            anchors.fill: parent
+            color: "#0d0b13"
+        }
         Text {
             anchors.centerIn: parent
             text: "Installing AedwenOS…"
             font.pixelSize: 22
-            color: "#1793d1"
+            font.bold: true
+            color: "#cdacff"
         }
     }
 

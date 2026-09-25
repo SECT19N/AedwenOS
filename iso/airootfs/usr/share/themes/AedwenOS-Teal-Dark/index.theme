@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=AedwenOS-Teal-Dark
+Comment=AedwenOS · Teal (Dark), generated from the system seed colour
+
+[X-GNOME-Metatheme]
+GtkTheme=AedwenOS-Teal-Dark
+MetacityTheme=AedwenOS-Teal-Dark
+IconTheme=breeze-dark
+CursorTheme=Aedwen
+ButtonLayout=close:

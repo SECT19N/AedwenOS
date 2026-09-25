@@ -1,23 +1,41 @@
 // AedwenOS Plymouth theme (script module).
-// Centred logo on a dark ground with a gentle pulse, plus minimal message and
+// Centred eagle mark (violet, matching the System Surfaces seed) on a dark
+// ground, with the same morphing loader shape used across the design's
+// boot/install/first-run mockups underneath it, plus minimal message and
 // password prompts so early-boot dialogs (fsck, LUKS if ever added) still show.
 
-Window.SetBackgroundTopColor(0.05, 0.05, 0.07);
-Window.SetBackgroundBottomColor(0.05, 0.05, 0.07);
+// AedwenOSVioletDarkExpressive --surface, see scripts/palette_lib.py
+Window.SetBackgroundTopColor(0.051, 0.043, 0.075);
+Window.SetBackgroundBottomColor(0.051, 0.043, 0.075);
 
-// ---- logo ----------------------------------------------------------------
+// ---- logo ------------------------------------------------------------------
 logo.image  = Image("logo.png");
 logo.sprite = Sprite(logo.image);
 logo.w = logo.image.GetWidth();
 logo.h = logo.image.GetHeight();
 logo.x = Window.GetX() + Window.GetWidth()  / 2 - logo.w / 2;
-logo.y = Window.GetY() + Window.GetHeight() / 2 - logo.h / 2;
+logo.y = Window.GetY() + Window.GetHeight() / 2 - logo.h / 2 - 40;
 logo.sprite.SetPosition(logo.x, logo.y, 100);
+
+// ---- morphing loader (pre-rendered aeMorph frames, see
+// scripts/generate-plymouth-assets.py) ---------------------------------------
+loader.num_frames = 32;
+for (loader.i = 0; loader.i < loader.num_frames; loader.i++) {
+    loader.frames[loader.i] = Image("loader/loader-" + loader.i + ".png");
+}
+loader.sprite = Sprite();
+loader.w = loader.frames[0].GetWidth();
+loader.h = loader.frames[0].GetHeight();
+loader.x = Window.GetX() + Window.GetWidth() / 2 - loader.w / 2;
+loader.y = logo.y + logo.h + 36;
+loader.sprite.SetPosition(loader.x, loader.y, 100);
 
 tick = 0;
 fun refresh_callback() {
     tick++;
     logo.sprite.SetOpacity(0.78 + 0.22 * Math.Sin(tick / 14));
+    frame_index = Math.Int(tick / 2) % loader.num_frames;
+    loader.sprite.SetImage(loader.frames[frame_index]);
 }
 Plymouth.SetRefreshFunction(refresh_callback);
 
@@ -38,7 +56,7 @@ Plymouth.SetHideMessageFunction(hide_message_callback);
 // ---- password prompt (kept simple: prompt text + bullet count) --------------
 prompt.sprite = Sprite();
 prompt.sprite.SetPosition(Window.GetX() + Window.GetWidth() / 2 - 150,
-                          logo.y + logo.h + 30, 100);
+                          loader.y + loader.h + 24, 100);
 
 fun display_password_callback(prompt_text, bullets) {
     dots = "";

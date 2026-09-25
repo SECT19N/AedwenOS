@@ -1,0 +1,16 @@
+[General]
+AccentColor=205,172,255
+ColorScheme=AedwenOSVioletDarkExpressive
+Name=AedwenOS · Violet (Dark)
+widgetStyle=Breeze
+font=Roboto,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+menuFont=Roboto,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+toolBarFont=Roboto,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+fixed=Roboto Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+
+[Icons]
+Theme=breeze-dark
+
+[KDE]
+LookAndFeelPackage=org.kde.breezedark.desktop
+SingleClick=false

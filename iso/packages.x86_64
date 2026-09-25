@@ -90,6 +90,13 @@ noto-fonts
 noto-fonts-emoji
 ttf-dejavu
 
+## AedwenOS System Surfaces theme: UI font + monospace used across the
+## Qt widget style, GTK theme and installer (design calls for Roboto Flex,
+## a variable-font superset; ttf-roboto is the closest official-repo match
+## until an aedwen-local package for the variable font is built)
+ttf-roboto
+ttf-roboto-mono
+
 ## KDE application suite (curated)
 konsole
 dolphin

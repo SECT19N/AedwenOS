@@ -1,0 +1,8 @@
+[Sound Theme]
+Name=AedwenOS
+Comment=Soft sine/triangle tones in one key, generated from the AedwenOS System Surfaces design
+Inherits=freedesktop
+Directories=stereo
+
+[stereo]
+OutputProfile=stereo

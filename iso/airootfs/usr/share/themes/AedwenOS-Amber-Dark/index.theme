@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=AedwenOS-Amber-Dark
+Comment=AedwenOS · Amber (Dark), generated from the system seed colour
+
+[X-GNOME-Metatheme]
+GtkTheme=AedwenOS-Amber-Dark
+MetacityTheme=AedwenOS-Amber-Dark
+IconTheme=breeze-dark
+CursorTheme=Aedwen
+ButtonLayout=close:

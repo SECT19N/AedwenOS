@@ -20,8 +20,12 @@ images:
 
 slideshow:              "show.qml"
 
+## Colours match the AedwenOS System Surfaces design's default seed
+## (violet, dark, expressive) -- see scripts/palette_lib.py. The sidebar
+## here mirrors that design's Calamares mockup: a sc-low panel with the
+## current step on a sec-c pill.
 style:
-    sidebarBackground:    "#1793d1"
-    sidebarText:          "#ffffff"
-    sidebarTextSelect:    "#1793d1"
-    sidebarTextHighlight: "#ffffff"
+    sidebarBackground:    "#12101b"
+    sidebarText:          "#e5e3ec"
+    sidebarTextSelect:    "#dfdbed"
+    sidebarTextHighlight: "#37304e"

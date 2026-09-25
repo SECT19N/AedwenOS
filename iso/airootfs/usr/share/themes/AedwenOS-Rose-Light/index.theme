@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=AedwenOS-Rose-Light
+Comment=AedwenOS · Rose (Light), generated from the system seed colour
+
+[X-GNOME-Metatheme]
+GtkTheme=AedwenOS-Rose-Light
+MetacityTheme=AedwenOS-Rose-Light
+IconTheme=breeze-dark
+CursorTheme=Aedwen
+ButtonLayout=close:

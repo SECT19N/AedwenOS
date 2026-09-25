@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=AedwenOS-Violet-Dark
+Comment=AedwenOS · Violet (Dark), generated from the system seed colour
+
+[X-GNOME-Metatheme]
+GtkTheme=AedwenOS-Violet-Dark
+MetacityTheme=AedwenOS-Violet-Dark
+IconTheme=breeze-dark
+CursorTheme=Aedwen
+ButtonLayout=close:

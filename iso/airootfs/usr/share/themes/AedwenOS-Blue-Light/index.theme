@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=AedwenOS-Blue-Light
+Comment=AedwenOS · Blue (Light), generated from the system seed colour
+
+[X-GNOME-Metatheme]
+GtkTheme=AedwenOS-Blue-Light
+MetacityTheme=AedwenOS-Blue-Light
+IconTheme=breeze-dark
+CursorTheme=Aedwen
+ButtonLayout=close:
