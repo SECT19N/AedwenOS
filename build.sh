@@ -66,7 +66,7 @@ command -v mkarchiso >/dev/null || { echo "install 'archiso' first"; exit 1; }
 # --- preflight: fail fast on the things that otherwise surface as a cryptic
 # "target not found" or keyring error 20 minutes into the build. ---
 localrepo="$profile/localrepo"
-for pkg in $(grep -oE '^(calamares|ckbcomp|zed-bin|linux-wifi-hotspot)$' "$profile/packages.x86_64"); do
+for pkg in $(grep -oE '^(calamares|ckbcomp|linux-wifi-hotspot)$' "$profile/packages.x86_64"); do
     if ! compgen -G "$localrepo/${pkg}-[0-9]*.pkg.tar.zst" >/dev/null; then
         echo "error: $pkg is not staged in iso/localrepo/ -- run ./scripts/build-localrepo.sh (as your normal user) first" >&2
         exit 1

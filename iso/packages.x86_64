@@ -67,14 +67,20 @@ easyeffects
 plymouth
 
 ## graphics -- open-source GPU acceleration (mesa itself comes in transitively
-## via plasma-desktop, but the hardware-specific Vulkan/VA-API/VDPAU drivers
-## do not, so they're listed explicitly). Nvidia is intentionally left out:
-## it needs proprietary/nvidia-open drivers picked per-hardware, not shipped
-## blind on a general-purpose ISO.
-vulkan-intel
-vulkan-radeon
-libva-mesa-driver
-mesa-vdpau
+## via plasma-desktop, but the hardware-specific Vulkan/VA-API drivers do
+## not, so they're listed explicitly). Nvidia is intentionally left out: it
+## needs proprietary/nvidia-open drivers picked per-hardware, not shipped
+## blind on a general-purpose ISO. VDPAU support is built into mesa itself
+## now (no separate mesa-vdpau split/virtual package exists any more).
+## Repo-qualified (extra/...): chaotic-aur's mesa-tkg-git Provides= these
+## same names, which otherwise turns each into an interactive "which
+## provider" prompt and can resolve inconsistently across them, leaving a
+## mix of official mesa and mesa-tkg-git packages that Conflicts= each
+## other and aborts the transaction. Qualifying the repo removes the
+## ambiguity outright instead of relying on IgnorePkg to catch it.
+extra/vulkan-intel
+extra/vulkan-radeon
+extra/libva-mesa-driver
 
 ## desktop -- KDE Plasma
 plasma-meta
@@ -142,10 +148,6 @@ paru
 ## browser
 # zen-browser-bin: prebuilt from chaotic-aur, same repo as paru above
 zen-browser-bin
-# zed-bin: not on chaotic-aur (skipped since `zed` already exists in extra) --
-# built from [aedwen-local] by scripts/build-localrepo.sh instead. Tracks
-# upstream Zed releases faster than the official `zed` package in extra.
-zed-bin
 # octopi: Qt6 pacman/AUR GUI frontend, prebuilt from chaotic-aur. Picked over
 # Plasma Discover, whose pacman support runs through PackageKit's alpm backend
 # and is widely reported as unreliable for real transactions on Arch.

@@ -9,9 +9,9 @@
 #   ./scripts/build-localrepo.sh --clean                     # sweep leftover default-dir temp dirs
 #   ./scripts/build-localrepo.sh --clean --builddir /path/dir  # wipe that custom dir instead
 #
-# --builddir must point at a real filesystem with exec+space (zed-bin alone
-# needs a few GB to build); it is NOT wiped afterwards, so re-runs reuse
-# whatever git clones / build artifacts are already there.
+# --builddir must point at a real filesystem with exec+space; it is NOT wiped
+# afterwards, so re-runs reuse whatever git clones / build artifacts are
+# already there.
 #
 # Without --builddir, a fresh "$TMPDIR/aedwen-localrepo.XXXXXXXX" dir is used
 # and removed on exit -- normally nothing to clean up. But if a run gets
@@ -69,7 +69,7 @@ if [[ $clean -eq 1 ]]; then
 fi
 
 # AUR packages to build, in dependency order.
-pkgs=(ckbcomp calamares zed-bin linux-wifi-hotspot)
+pkgs=(ckbcomp calamares linux-wifi-hotspot)
 
 mkdir -p "$repo"
 if [[ -n "$builddir" ]]; then

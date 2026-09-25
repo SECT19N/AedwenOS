@@ -64,7 +64,7 @@ defined entirely by the files under `iso/`.
 | Desktop         | KDE Plasma on Wayland, with the SDDM display manager                                                                                      |
 | Shell           | fish for the user account; bash (from `base`) for root and as fallback                                                                    |
 | Package tools   | `pacman`, plus `paru` for the AUR (chaotic-aur repository enabled), and `octopi` (Qt GUI front end) |
-| Editors         | `zed` (from `zed-bin`, the `[aedwen-local]` repo), `kate`/`kwrite`, `vim`, `nano`                                                          |
+| Editors         | `kate`/`kwrite`, `vim`, `nano` (install `zed`/`code`/etc. from the AUR via `paru` or Octopi as needed)                                    |
 | Developer tooling | Python, Node.js/npm, Kotlin, OpenJDK 25 (LTS, `jdk25-openjdk`) as the default JDK, `fastfetch`, `ncdu`                                   |
 | Snapshots       | `snapper` (timeline + `snap-pac` pre/post-transaction pairs), with bootable rollback entries in the Limine menu via `limine-snapper-sync` |
 | Firewall        | `firewalld`, enabled with SSH allowed in the default zone                                                                                 |
@@ -114,9 +114,9 @@ repository instead (`paru`, `zen-browser-bin`, `octopi`, `limine-snapper-sync`);
 the build host must therefore have the chaotic-aur keyring and mirrorlist
 installed (see `iso/pacman.conf` for the one-time setup commands).
 
-A further handful are no longer published anywhere prebuilt — either dropped
+A further handful are no longer published anywhere prebuilt — dropped
 from the official repos (`calamares`, `ckbcomp`) or never packaged there in
-the first place (`zed-bin`). These are built from
+the first place (`linux-wifi-hotspot`). These are built from
 the AUR by `scripts/build-localrepo.sh` into `iso/localrepo/`, which
 `mkarchiso` reads as the `[aedwen-local]` repo. **Run this script at least
 once before `build.sh`** (see [Building the ISO](#building-the-iso)); rerun it
@@ -145,9 +145,9 @@ git clone <repository-url> AedwenOS
 cd AedwenOS
 
 # 3. Build the AUR-only packages into the local repo (see Requirements above).
-# Run as your normal user, NOT with sudo. Takes a while the first time
-# (zed-bin is a large download); safe to skip on
-# later builds unless you want to pick up newer AUR versions (--force).
+# Run as your normal user, NOT with sudo. Takes a while the first time; safe
+# to skip on later builds unless you want to pick up newer AUR versions
+# (--force).
 ./scripts/build-localrepo.sh
 
 # 4. Build. build.sh re-runs itself with sudo, so invoke it as a normal user.
@@ -279,7 +279,7 @@ user `aedwen` (no password). The desktop contains an **Install AedwenOS** icon
 that launches Calamares, and the `aedwen-install` command is available in a
 terminal for the command-line installation path. A terminal also has
 `fastfetch`, `ncdu`, `python3`, `node`, `kotlin`, and `java` (OpenJDK 25)
-available to sanity-check the developer tooling, and `octopi`/`zed` are on the
+available to sanity-check the developer tooling, and `octopi` is on the
 application menu alongside the KDE app suite.
 
 ### QEMU
@@ -409,8 +409,9 @@ paru -Syu             # the above, plus AUR packages
 ```
 
 Prefer `paru -Syu`: the packages that come from `[aedwen-local]` at build time
-(`zed-bin` among them) have no repository on the installed system and are only
-updated through paru, which treats them as AUR packages. A wrapper script
+(`calamares`, `ckbcomp`, `linux-wifi-hotspot`) have no repository on the
+installed system and are only updated through paru, which treats them as AUR
+packages. A wrapper script
 (`aedwen-update`: mirror refresh, keyring-first upgrade, reboot hint) is
 planned — see the roadmap.
 
@@ -541,7 +542,7 @@ Functional:
   and `firewalld` with SSH pre-allowed, on both install paths.
 - `pacman` works on the live medium (keyring pre-populated at build time), and
   the installed system gets its own per-machine keyring from either installer.
-- Baseline tooling ships preinstalled (Zed, Octopi, OpenJDK 25, Python,
+- Baseline tooling ships preinstalled (Octopi, OpenJDK 25, Python,
   Node.js, Kotlin, fastfetch, ncdu).
 
 Planned:
