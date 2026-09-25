@@ -129,7 +129,7 @@ fixed=Roboto Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
 
 [KDE]
 contrast=4
-LookAndFeelPackage=org.kde.breezedark.desktop
+LookAndFeelPackage=org.kde.aedwen.desktop
 SingleClick=false
 
 [WM]

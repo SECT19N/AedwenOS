@@ -63,7 +63,7 @@ def build_kdeglobals(seed, dark, expressive):
     cp.set("General", "toolBarFont", "Roboto,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
     cp.set("General", "fixed", "Roboto Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
 
-    cp.set("KDE", "LookAndFeelPackage", "org.kde.breezedark.desktop")
+    cp.set("KDE", "LookAndFeelPackage", "org.kde.aedwen.desktop")
     cp.set("KDE", "SingleClick", "false")
 
     cp.add_section("Icons")

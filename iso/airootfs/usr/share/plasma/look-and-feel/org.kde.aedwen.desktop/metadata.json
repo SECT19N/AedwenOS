@@ -1,0 +1,12 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            { "Name": "AedwenOS" }
+        ],
+        "Description": "AedwenOS default desktop: a floating top bar and a floating icon dock, matching the AedwenOS System Surfaces design.",
+        "Id": "org.kde.aedwen.desktop",
+        "License": "GPLv2+",
+        "Name": "AedwenOS"
+    }
+}
