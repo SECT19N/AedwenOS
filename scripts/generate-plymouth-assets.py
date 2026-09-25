@@ -14,6 +14,7 @@ Usage:
 
 Requires python-cairo (pacman: python-cairo).
 """
+
 import argparse
 import math
 import os
@@ -22,7 +23,7 @@ import sys
 import cairo
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from palette_lib import SEEDS, palette, DEFAULT_SEED  # noqa: E402
+from palette_lib import DEFAULT_SEED, SEEDS, palette  # noqa: E402
 
 # Keyframes from the design's @keyframes aeMorph, sampled at 0/25/50/75/100%:
 # (corner-radius fraction of half-size, rotation degrees, scale)
@@ -53,7 +54,7 @@ def sample(progress):
 
 def hex_to_rgb01(hex_color):
     hex_color = hex_color.lstrip("#")
-    return tuple(int(hex_color[i:i + 2], 16) / 255 for i in (0, 2, 4))
+    return tuple(int(hex_color[i : i + 2], 16) / 255 for i in (0, 2, 4))
 
 
 def draw_frame(path, size, color01, radius_frac, rotation_deg, scale):
@@ -82,7 +83,9 @@ def draw_frame(path, size, color01, radius_frac, rotation_deg, scale):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default="iso/airootfs/usr/share/plymouth/themes/aedwen/loader")
+    ap.add_argument(
+        "--out", default="iso/airootfs/usr/share/plymouth/themes/aedwen/loader"
+    )
     ap.add_argument("--frames", type=int, default=32)
     ap.add_argument("--size", type=int, default=120)
     ap.add_argument("--seed", default=DEFAULT_SEED)

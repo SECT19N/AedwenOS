@@ -10,12 +10,13 @@ same seed colour.
 Usage:
     scripts/generate-gtk-theme.py [--out DIR]
 """
+
 import argparse
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from palette_lib import SEEDS, palette, DEFAULT_SEED  # noqa: E402
+from palette_lib import DEFAULT_SEED, SEEDS, palette  # noqa: E402
 
 R_WIN, R_INNER, R_CARD = "16px", "10px", "20px"  # expressive shapes
 
@@ -213,7 +214,10 @@ def write_variant(out_root, seed, dark, expressive):
     p = palette(H, dark, expressive)
     theme_name = f"AedwenOS-{seed.capitalize()}-{'Dark' if dark else 'Light'}"
 
-    for gtk_dir, css in (("gtk-3.0", gtk3_css(p, dark)), ("gtk-4.0", gtk4_css(p, dark))):
+    for gtk_dir, css in (
+        ("gtk-3.0", gtk3_css(p, dark)),
+        ("gtk-4.0", gtk4_css(p, dark)),
+    ):
         d = os.path.join(out_root, theme_name, gtk_dir)
         os.makedirs(d, exist_ok=True)
         with open(os.path.join(d, "gtk.css"), "w") as f:
@@ -227,7 +231,7 @@ def write_variant(out_root, seed, dark, expressive):
         f.write(f"""[Desktop Entry]
 Type=X-GNOME-Metatheme
 Name={theme_name}
-Comment=AedwenOS · {seed.capitalize()} ({'Dark' if dark else 'Light'}), generated from the system seed colour
+Comment=AedwenOS · {seed.capitalize()} ({"Dark" if dark else "Light"}), generated from the system seed colour
 
 [X-GNOME-Metatheme]
 GtkTheme={theme_name}

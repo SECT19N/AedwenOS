@@ -14,6 +14,7 @@ Usage:
 
 Requires ffmpeg on PATH.
 """
+
 import argparse
 import math
 import os
@@ -24,8 +25,16 @@ import wave
 SAMPLE_RATE = 44100
 
 NOTES = {
-    "C5": 523.25, "E5": 659.25, "G5": 783.99, "A5": 880, "C6": 1046.5,
-    "E6": 1318.5, "G4": 392, "E4": 329.6, "C4": 261.6, "A4": 440,
+    "C5": 523.25,
+    "E5": 659.25,
+    "G5": 783.99,
+    "A5": 880,
+    "C6": 1046.5,
+    "E6": 1318.5,
+    "G4": 392,
+    "E4": 329.6,
+    "C4": 261.6,
+    "A4": 440,
 }
 
 
@@ -177,7 +186,19 @@ def main():
         ogg_path = os.path.join(stereo_dir, f"{fd_name}.oga")
         write_wav(wav_path, buf)
         subprocess.run(
-            ["ffmpeg", "-y", "-loglevel", "error", "-i", wav_path, "-c:a", "libvorbis", "-q:a", "4", ogg_path],
+            [
+                "ffmpeg",
+                "-y",
+                "-loglevel",
+                "error",
+                "-i",
+                wav_path,
+                "-c:a",
+                "libvorbis",
+                "-q:a",
+                "4",
+                ogg_path,
+            ],
             check=True,
         )
         os.remove(wav_path)

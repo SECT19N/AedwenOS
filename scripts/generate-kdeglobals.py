@@ -22,6 +22,7 @@ Usage:
 Re-run after editing scripts/palette_lib.py or scripts/generate-colorscheme.py's
 render_colors() to keep kdeglobals in sync with the .colors files.
 """
+
 import argparse
 import configparser
 import io
@@ -35,8 +36,12 @@ from palette_lib import SEEDS  # noqa: E402
 def _load_render_colors():
     # generate-colorscheme.py has a hyphen, so import it by path instead of name.
     import importlib.util
+
     spec = importlib.util.spec_from_file_location(
-        "generate_colorscheme", os.path.join(os.path.dirname(os.path.abspath(__file__)), "generate-colorscheme.py")
+        "generate_colorscheme",
+        os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "generate-colorscheme.py"
+        ),
     )
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
@@ -73,12 +78,16 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--seed", default="violet", choices=SEEDS.keys())
     ap.add_argument("--theme", default="dark", choices=["dark", "light"])
-    ap.add_argument("--variant", default="expressive", choices=["baseline", "expressive"])
+    ap.add_argument(
+        "--variant", default="expressive", choices=["baseline", "expressive"]
+    )
     ap.add_argument("--skel", default="iso/airootfs/etc/skel/.config/kdeglobals")
     ap.add_argument("--xdg", default="iso/airootfs/etc/xdg/kdeglobals")
     args = ap.parse_args()
 
-    content = build_kdeglobals(args.seed, args.theme == "dark", args.variant == "expressive")
+    content = build_kdeglobals(
+        args.seed, args.theme == "dark", args.variant == "expressive"
+    )
 
     for path in (args.skel, args.xdg):
         os.makedirs(os.path.dirname(path), exist_ok=True)

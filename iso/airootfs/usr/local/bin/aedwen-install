@@ -264,6 +264,10 @@ HOOK
 
 # ---- Limine (UEFI) ----
 install -Dm644 /usr/share/limine/BOOTX64.EFI /boot/EFI/BOOT/BOOTX64.EFI
+# AedwenOS System Surfaces design: a single rounded card wallpaper, centred
+# on a solid backdrop, violet branding text, help text hidden. See
+# scripts/generate-limine-wallpaper.py (regenerate it if the seed changes).
+install -Dm644 /usr/share/limine/aedwen-wallpaper.png /boot/limine-wallpaper.png
 efibootmgr --create --disk "$DISK" --part 1 \
     --label "AedwenOS" --loader '\EFI\BOOT\BOOTX64.EFI' --unicode || true
 
@@ -274,12 +278,20 @@ CMDLINE="root=UUID=$ROOT_UUID rw rootfstype=btrfs rootflags=subvol=@ quiet splas
 
 cat > /boot/limine.conf <<LIMINE
 timeout: 3
+wallpaper: boot():/limine-wallpaper.png
+wallpaper_style: centered
+backdrop: 0d0b13
+interface_branding: AedwenOS
+interface_branding_colour: cdacff
+interface_help_hidden: yes
+term_foreground: e5e3ec
+term_background: 00000000
 
 /AedwenOS (linux-zen)
     protocol: linux
     kernel_path: boot():/vmlinuz-linux-zen
     module_path: boot():/initramfs-linux-zen.img
-    cmdline: \$CMDLINE
+    cmdline: $CMDLINE
 LIMINE
 
 # Redeploy the Limine EFI binary automatically whenever the package updates.
