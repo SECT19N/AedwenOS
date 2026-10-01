@@ -478,6 +478,12 @@ AedwenOS/
 
 ## Design notes and limitations
 
+- **Disk encryption is not supported yet.** The bootloader entry and the
+  initramfs can't unlock a LUKS root, so the installer hides the "Encrypt
+  system" option in its automated modes. Calamares' manual-partitioning dialog
+  still offers encryption when creating a partition (that part can't be turned
+  off from configuration); don't use it until LUKS support lands.
+
 - **Btrfs is the root filesystem.** It is mature, widely deployed, readable
   directly by Limine, and supports the subvolume/snapshot layout the installers
   create. bcachefs was considered but is deferred: it left the mainline kernel

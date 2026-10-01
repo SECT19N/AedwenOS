@@ -1,6 +1,17 @@
 ---
 componentName: aedwenos
 
+# Layout per the "Installer · Calamares" mockup in the AedwenOS System
+# Surfaces design: QML step list on the left (calamares-sidebar.qml), QML
+# Back/Next bar (calamares-navigation.qml), QML pages for every step except
+# Disk (welcomeq.qml, localeq.qml, ... in this folder), and the Disk step
+# as Qt widgets styled by stylesheet.qss.
+sidebar:                qml
+navigation:             qml
+windowExpanding:        normal
+windowSize:             1000px,680px
+windowPlacement:        center
+
 strings:
     productName:         AedwenOS
     shortProductName:    AedwenOS
@@ -18,14 +29,15 @@ images:
     productIcon:         "logo.png"
     productWelcome:      "logo.png"
 
+# show.qml uses the activate()/leave() API (2) so the slides only start
+# moving once the install step is actually running.
 slideshow:              "show.qml"
+slideshowAPI:           2
 
-## Colours match the AedwenOS System Surfaces design's default seed
-## (violet, dark, expressive) -- see scripts/palette_lib.py. The sidebar
-## here mirrors that design's Calamares mockup: a sc-low panel with the
-## current step on a sec-c pill.
+# Sidebar colours for anything that still reads them (the QML sidebar uses
+# Theme.qml). Written by scripts/generate-calamares-branding.py.
 style:
-    sidebarBackground:    "#12101b"
-    sidebarText:          "#e5e3ec"
-    sidebarTextSelect:    "#dfdbed"
-    sidebarTextHighlight: "#37304e"
+    SidebarBackground:        "#12101b"
+    SidebarText:              "#bebbcd"
+    SidebarTextCurrent:       "#dfdbed"
+    SidebarBackgroundCurrent: "#37304e"

@@ -14,7 +14,12 @@ logo.sprite = Sprite(logo.image);
 logo.w = logo.image.GetWidth();
 logo.h = logo.image.GetHeight();
 logo.x = Window.GetX() + Window.GetWidth()  / 2 - logo.w / 2;
-logo.y = Window.GetY() + Window.GetHeight() / 2 - logo.h / 2 - 40;
+// Design proportions: loader about 1/3 of the eagle's height, with a gap the
+// size of the loader. logo.png has ~10px of padding under the eagle, so the
+// visible gap is LOADER_GAP + 10. The eagle + gap + loader group is centred.
+LOADER_GAP = 40;
+LOADER_SIZE = 80;
+logo.y = Window.GetY() + Window.GetHeight() / 2 - (logo.h + LOADER_GAP + LOADER_SIZE) / 2;
 logo.sprite.SetPosition(logo.x, logo.y, 100);
 
 // ---- shape-morphing loader -------------------------------------------------
@@ -28,7 +33,7 @@ loader.sprite = Sprite();
 loader.w = loader.frames[0].GetWidth();
 loader.h = loader.frames[0].GetHeight();
 loader.x = Window.GetX() + Window.GetWidth() / 2 - loader.w / 2;
-loader.y = logo.y + logo.h + 36;
+loader.y = logo.y + logo.h + LOADER_GAP;
 loader.sprite.SetPosition(loader.x, loader.y, 100);
 
 tick = 0;

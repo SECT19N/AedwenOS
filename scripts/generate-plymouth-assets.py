@@ -17,7 +17,7 @@ transparent PNG frames and rewrites `loader.num_frames` in aedwen.script to
 match. The script advances one frame per refresh (~50 Hz).
 
 Usage:
-    scripts/generate-plymouth-assets.py [--frames-per-shape 28] [--size 120]
+    scripts/generate-plymouth-assets.py [--frames-per-shape 28] [--size 80]
 
 Requires python-cairo (pacman: python-cairo).
 """
@@ -168,7 +168,7 @@ def main():
     ap.add_argument("--out", default=f"{theme}/loader")
     ap.add_argument("--script", default=f"{theme}/aedwen.script")
     ap.add_argument("--frames-per-shape", type=int, default=28)
-    ap.add_argument("--size", type=int, default=120)
+    ap.add_argument("--size", type=int, default=80)
     ap.add_argument("--seed", default=DEFAULT_SEED)
     args = ap.parse_args()
 

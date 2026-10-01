@@ -1,0 +1,12 @@
+# Types shared by the AedwenOS Calamares QML (pages, sidebar, navigation,
+# slideshow). Every QML file in this folder does `import "."` to get them.
+singleton Theme 1.0 Theme.qml
+Sym 1.0 components/Sym.qml
+PillButton 1.0 components/PillButton.qml
+OutlinedField 1.0 components/OutlinedField.qml
+ListRow 1.0 components/ListRow.qml
+SwitchToggle 1.0 components/SwitchToggle.qml
+SwitchRow 1.0 components/SwitchRow.qml
+Dropdown 1.0 components/Dropdown.qml
+PageHeader 1.0 components/PageHeader.qml
+EagleMark 1.0 components/EagleMark.qml

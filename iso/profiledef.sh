@@ -47,5 +47,7 @@ file_permissions=(
   ["/usr/local/bin/aedwen-live-setup-extras"]="0:0:755"
   ["/usr/local/bin/aedwen-install"]="0:0:755"
   ["/usr/local/bin/aedwen-dracut.sh"]="0:0:755"
+  ["/usr/local/bin/aedwen-gpu-setup.sh"]="0:0:755"
+  ["/usr/local/bin/aedwen-calamares"]="0:0:755"
   ["/root/customize_airootfs.sh"]="0:0:755"
 )

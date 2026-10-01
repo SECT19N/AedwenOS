@@ -266,6 +266,8 @@ efibootmgr --create --disk "$DISK" --part 1 \
 # proprietary driver above; harmless to omit, so only add it when relevant.
 CMDLINE="root=UUID=$ROOT_UUID rw rootfstype=btrfs rootflags=subvol=@ quiet splash"
 [[ -f /etc/aedwen-nvidia-detected ]] && CMDLINE+=" nvidia_drm.modeset=1"
+# Fallback entry: no splash, nomodeset (see shellprocess-postinstall.conf).
+FALLBACK_CMDLINE="root=UUID=$ROOT_UUID rw rootfstype=btrfs rootflags=subvol=@ nomodeset"
 
 cat > /boot/limine.conf <<LIMINE
 timeout: 3
@@ -282,7 +284,14 @@ term_background: 00000000
     protocol: linux
     kernel_path: boot():/vmlinuz-linux-zen
     module_path: boot():/initramfs-linux-zen.img
-    cmdline: $CMDLINE
+    cmdline: \$CMDLINE
+
+/AedwenOS (linux-zen, fallback)
+    comment: No boot splash and basic graphics, for when the desktop won't start
+    protocol: linux
+    kernel_path: boot():/vmlinuz-linux-zen
+    module_path: boot():/initramfs-linux-zen.img
+    cmdline: \$FALLBACK_CMDLINE
 LIMINE
 
 # Redeploy the Limine EFI binary automatically whenever the package updates.

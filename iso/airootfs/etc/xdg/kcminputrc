@@ -1,0 +1,4 @@
+# Aedwen cursors (scripts/generate-cursors.py) for every new user, before
+# the look-and-feel package is ever applied.
+[Mouse]
+cursorTheme=Aedwen
