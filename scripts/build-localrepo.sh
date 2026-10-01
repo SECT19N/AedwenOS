@@ -69,7 +69,7 @@ if [[ $clean -eq 1 ]]; then
 fi
 
 # AUR packages to build, in dependency order.
-pkgs=(ckbcomp calamares linux-wifi-hotspot)
+pkgs=(ckbcomp calamares)
 
 mkdir -p "$repo"
 if [[ -n "$builddir" ]]; then

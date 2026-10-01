@@ -69,26 +69,16 @@ mount -o "$o,subvol=@snapshots" "$ROOT" /mnt/.snapshots
 mount "$ESP" /mnt/boot
 
 # ---------------------------------------------------------------- base system
-# This set mirrors the non-"LIVE ONLY" entries in iso/packages.x86_64.
-# chaotic-keyring/chaotic-mirrorlist are included here (not just paru) so the
-# chaotic-aur signing key ships onto the target as local data -- pacman-key
-# --populate below then trusts it offline, no keyserver round-trip needed.
-retry pacstrap -K /mnt \
-    base base-devel linux-zen linux-zen-headers linux-firmware sof-firmware \
-    intel-ucode amd-ucode dracut \
-    btrfs-progs dosfstools e2fsprogs exfatprogs ntfs-3g \
-    limine efibootmgr \
-    networkmanager iwd wireless-regdb openssh \
-    pipewire pipewire-alsa pipewire-pulse pipewire-jack wireplumber \
-    plymouth \
-    plasma-meta plasma-desktop plasma-nm plasma-pa plasma-workspace kscreen \
-    sddm xdg-desktop-portal-kde xdg-user-dirs \
-    konsole dolphin kate kwrite ark gwenview okular spectacle kcalc kfind \
-    filelight kinfocenter plasma-systemmonitor kdeconnect kwalletmanager \
-    kde-gtk-config partitionmanager print-manager power-profiles-daemon bluedevil \
-    noto-fonts noto-fonts-emoji ttf-dejavu \
-    fish paru zen-browser-bin chaotic-keyring chaotic-mirrorlist git nano vim sudo reflector \
-    snapper snap-pac limine-snapper-sync firewalld appstream
+# The package set is iso/packages.x86_64 itself (shipped onto the ISO by
+# build.sh), cut off at the "LIVE ONLY" marker -- the same set Calamares ends
+# up with after its packages module strips the live-only entries, so the two
+# installers can't drift apart. chaotic-keyring/chaotic-mirrorlist are part of
+# it, so the chaotic-aur signing key ships onto the target as local data --
+# pacman-key --populate below then trusts it offline, no keyserver round-trip.
+PKGLIST=/usr/share/aedwenos/packages.x86_64
+[[ -f "$PKGLIST" ]] || die "$PKGLIST missing -- ISO was not built with build.sh"
+mapfile -t PKGS < <(sed '/^## -* LIVE ONLY$/q' "$PKGLIST" | grep -vE '^[[:space:]]*(#|$)')
+retry pacstrap -K /mnt "${PKGS[@]}"
 
 genfstab -U /mnt >> /mnt/etc/fstab
 

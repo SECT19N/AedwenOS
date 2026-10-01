@@ -66,7 +66,7 @@ command -v mkarchiso >/dev/null || { echo "install 'archiso' first"; exit 1; }
 # --- preflight: fail fast on the things that otherwise surface as a cryptic
 # "target not found" or keyring error 20 minutes into the build. ---
 localrepo="$profile/localrepo"
-for pkg in $(grep -oE '^(calamares|ckbcomp|linux-wifi-hotspot)$' "$profile/packages.x86_64"); do
+for pkg in $(grep -oE '^(calamares|ckbcomp)$' "$profile/packages.x86_64"); do
     if ! compgen -G "$localrepo/${pkg}-[0-9]*.pkg.tar.zst" >/dev/null; then
         echo "error: $pkg is not staged in iso/localrepo/ -- run ./scripts/build-localrepo.sh (as your normal user) first" >&2
         exit 1
@@ -94,6 +94,11 @@ export GIT_DIRTY=""
 [[ -n "$(git -C "$here" -c safe.directory="$here" status --porcelain 2>/dev/null)" ]] && GIT_DIRTY="-dirty"
 
 [[ "$FAST" == 1 ]] && echo "--fast: using low squashfs compression for a quicker build"
+
+# Ship the package list onto the ISO: aedwen-install pacstraps exactly this
+# set (up to the LIVE ONLY marker). Owned by the invoking user, not root.
+install -Dm644 -o "${SUDO_UID:-0}" -g "${SUDO_GID:-0}" "$profile/packages.x86_64" \
+    "$profile/airootfs/usr/share/aedwenos/packages.x86_64"
 
 rm -rf "$work"
 mkdir -p "$work" "$out"

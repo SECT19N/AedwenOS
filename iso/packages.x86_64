@@ -45,9 +45,6 @@ networkmanager
 iwd
 wireless-regdb
 openssh
-# linux-wifi-hotspot: AUR, built via scripts/build-localrepo.sh into
-# iso/localrepo (plasma-nm's built-in hotspot support is unreliable)
-linux-wifi-hotspot
 
 ## audio
 pipewire
@@ -55,11 +52,8 @@ pipewire-alsa
 pipewire-pulse
 pipewire-jack
 wireplumber
-# pavucontrol: standalone per-app mixer (plasma-pa's applet only covers the basics)
-pavucontrol
 # alsa-utils: alsamixer/aplay/etc. for low-level debugging under PipeWire
 alsa-utils
-easyeffects
 
 ## boot splash
 # plymouth: branded boot splash for both the live medium (mkinitcpio) and the
@@ -83,11 +77,60 @@ extra/vulkan-radeon
 extra/libva-mesa-driver
 
 ## desktop -- KDE Plasma
-plasma-meta
+## Explicit list instead of plasma-meta, so the session is exactly what the
+## AedwenOS theme is built on. Left out of plasma-meta on purpose:
+##   discover             -- octopi is the package GUI (see below)
+##   plasma-login-manager -- sddm is the display manager (sddm.conf.d)
+##   plasma-welcome       -- KDE-branded first-run wizard
+##   oxygen, oxygen-sounds -- alternate theme; AedwenOS themes on top of Breeze
+##   flatpak-kcm          -- flatpak is not installed by default
+##   krdp, plasma-vault   -- remote-desktop server / encrypted vaults: niche
+## Re-check this list against `pacman -Si plasma-meta` on each Plasma
+## feature release -- new core components appear there first.
+plasma-workspace
 plasma-desktop
+kwin
+systemsettings
+powerdevil
+polkit-kde-agent
+kscreenlocker
+kglobalacceld
+kactivitymanagerd
+plasma-activities
+plasma-activities-stats
+plasma-integration
+plasma-browser-integration
+kdeplasma-addons
+kde-cli-tools
+kmenuedit
+milou
+kwallet-pam
+ksshaskpass
+kwrited
+drkonqi
+ksystemstats
+libksysguard
+kpipewire
+layer-shell-qt
+kwayland
+kdecoration
+libkscreen
+libplasma
+knighttime
+plasma-keyboard
+plasma-disks
+plasma-thunderbolt
+# plasma-firewall: System Settings page for firewalld (enabled by default)
+plasma-firewall
+# breeze: widget style, Plasma theme and cursors the AedwenOS look-and-feel
+# builds on (widgetStyle=Breeze, cursorTheme=breeze_cursors) -- required
+breeze
+breeze-gtk
+aurorae
+# ocean-sound-theme: fallback for events the AedwenOS sound theme doesn't cover
+ocean-sound-theme
 plasma-nm
 plasma-pa
-plasma-workspace
 kscreen
 sddm
 xdg-desktop-portal-kde
@@ -107,11 +150,6 @@ ttf-roboto-mono
 konsole
 dolphin
 kate
-# thunderbird: email client. Picked over kmail, which pulls in the entire
-# Akonadi PIM stack (akonadi, kdepim-runtime, qt6-webengine, ...) just to
-# read mail -- thunderbird is a standalone install with no such dependency.
-thunderbird
-kwrite
 ark
 gwenview
 okular
@@ -121,7 +159,6 @@ kfind
 filelight
 kinfocenter
 plasma-systemmonitor
-kdeconnect
 kwalletmanager
 kde-gtk-config
 partitionmanager
@@ -158,7 +195,6 @@ chaotic-keyring
 chaotic-mirrorlist
 git
 nano
-vim
 sudo
 reflector
 
@@ -187,7 +223,6 @@ fd
 bat
 eza
 tmux
-btop
 # github-cli: provides the `gh` command
 github-cli
 # strace/gdb: syscall tracing + debugging, both actively maintained.
@@ -197,8 +232,8 @@ strace
 gdb
 zip
 unzip
-# p7zip: .7z archive support, alongside zip/unzip
-p7zip
+# 7zip: .7z archive support (replaced p7zip in the official repos), alongside zip/unzip
+7zip
 zstd
 fzf
 

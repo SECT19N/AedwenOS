@@ -7,3 +7,6 @@
 # AUR packages staged for the [aedwen-local] repo (built by scripts/build-localrepo.sh)
 /iso/localrepo/
 __pycache__/
+
+# copied from iso/packages.x86_64 by build.sh at build time
+/iso/airootfs/usr/share/aedwenos/packages.x86_64

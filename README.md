@@ -64,8 +64,8 @@ defined entirely by the files under `iso/`.
 | Desktop         | KDE Plasma on Wayland, with the SDDM display manager                                                                                      |
 | Shell           | fish for the user account; bash (from `base`) for root and as fallback                                                                    |
 | Package tools   | `pacman`, plus `paru` for the AUR (chaotic-aur repository enabled), and `octopi` (Qt GUI front end) |
-| Editors         | `kate`/`kwrite`, `vim`, `nano` (install `zed`/`code`/etc. from the AUR via `paru` or Octopi as needed)                                    |
-| Developer tooling | Python, Node.js/npm, Kotlin, OpenJDK 25 (LTS, `jdk25-openjdk`) as the default JDK, `fastfetch`, `ncdu`                                   |
+| Editors         | `kate`, `nano` (install `zed`/`code`/etc. from the AUR via `paru` or Octopi as needed)                                                    |
+| Developer tooling | Python (`uv`), Node.js/npm, `git`, `github-cli`, `gdb`, `strace`, `fastfetch`, `ncdu`                                                  |
 | Snapshots       | `snapper` (timeline + `snap-pac` pre/post-transaction pairs), with bootable rollback entries in the Limine menu via `limine-snapper-sync` |
 | Firewall        | `firewalld`, enabled with SSH allowed in the default zone                                                                                 |
 | Installer       | Calamares (graphical, in development) or `aedwen-install` (command-line)                                                                  |
@@ -114,9 +114,8 @@ repository instead (`paru`, `zen-browser-bin`, `octopi`, `limine-snapper-sync`);
 the build host must therefore have the chaotic-aur keyring and mirrorlist
 installed (see `iso/pacman.conf` for the one-time setup commands).
 
-A further handful are no longer published anywhere prebuilt — dropped
-from the official repos (`calamares`, `ckbcomp`) or never packaged there in
-the first place (`linux-wifi-hotspot`). These are built from
+Two more are no longer published anywhere prebuilt — `calamares` and
+`ckbcomp` were dropped from the official repos. These are built from
 the AUR by `scripts/build-localrepo.sh` into `iso/localrepo/`, which
 `mkarchiso` reads as the `[aedwen-local]` repo. **Run this script at least
 once before `build.sh`** (see [Building the ISO](#building-the-iso)); rerun it
@@ -278,7 +277,7 @@ When booted, the live environment logs in automatically to KDE Plasma as the
 user `aedwen` (no password). The desktop contains an **Install AedwenOS** icon
 that launches Calamares, and the `aedwen-install` command is available in a
 terminal for the command-line installation path. A terminal also has
-`fastfetch`, `ncdu`, `python3`, `node`, `kotlin`, and `java` (OpenJDK 25)
+`fastfetch`, `ncdu`, `python3`, and `node`
 available to sanity-check the developer tooling, and `octopi` is on the
 application menu alongside the KDE app suite.
 
@@ -408,10 +407,9 @@ sudo pacman -Syu      # official repositories + chaotic-aur
 paru -Syu             # the above, plus AUR packages
 ```
 
-Prefer `paru -Syu`: the packages that come from `[aedwen-local]` at build time
-(`calamares`, `ckbcomp`, `linux-wifi-hotspot`) have no repository on the
-installed system and are only updated through paru, which treats them as AUR
-packages. A wrapper script
+`paru -Syu` is only needed for packages you installed from the AUR yourself:
+the `[aedwen-local]` packages (`calamares`, `ckbcomp`) are live-only and are
+removed during installation. A wrapper script
 (`aedwen-update`: mirror refresh, keyring-first upgrade, reboot hint) is
 planned — see the roadmap.
 
