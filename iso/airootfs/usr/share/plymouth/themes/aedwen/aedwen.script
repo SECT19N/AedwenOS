@@ -1,7 +1,7 @@
 // AedwenOS Plymouth theme (script module).
 // Centred eagle mark (violet, matching the System Surfaces seed) on a dark
-// ground, with the same morphing loader shape used across the design's
-// boot/install/first-run mockups underneath it, plus minimal message and
+// ground, with a Material 3 Expressive-style shape-morphing loader
+// underneath it, plus minimal message and
 // password prompts so early-boot dialogs (fsck, LUKS if ever added) still show.
 
 // AedwenOSVioletDarkExpressive --surface, see scripts/palette_lib.py
@@ -17,9 +17,10 @@ logo.x = Window.GetX() + Window.GetWidth()  / 2 - logo.w / 2;
 logo.y = Window.GetY() + Window.GetHeight() / 2 - logo.h / 2 - 40;
 logo.sprite.SetPosition(logo.x, logo.y, 100);
 
-// ---- morphing loader (pre-rendered aeMorph frames, see
-// scripts/generate-plymouth-assets.py) ---------------------------------------
-loader.num_frames = 32;
+// ---- shape-morphing loader -------------------------------------------------
+// Pre-rendered frames, one per refresh (~50 Hz). The frames and num_frames
+// below are both written by scripts/generate-plymouth-assets.py.
+loader.num_frames = 196;
 for (loader.i = 0; loader.i < loader.num_frames; loader.i++) {
     loader.frames[loader.i] = Image("loader/loader-" + loader.i + ".png");
 }
@@ -34,7 +35,7 @@ tick = 0;
 fun refresh_callback() {
     tick++;
     logo.sprite.SetOpacity(0.78 + 0.22 * Math.Sin(tick / 14));
-    frame_index = Math.Int(tick / 2) % loader.num_frames;
+    frame_index = tick % loader.num_frames;
     loader.sprite.SetImage(loader.frames[frame_index]);
 }
 Plymouth.SetRefreshFunction(refresh_callback);
