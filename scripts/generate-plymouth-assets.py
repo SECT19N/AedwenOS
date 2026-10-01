@@ -4,8 +4,10 @@ Generate the AedwenOS Plymouth boot-splash loader frames: a shape-morphing
 loading indicator in the seed's primary colour, in the style of the Material 3
 Expressive loading indicator. It cycles circle -> soft burst -> 9-lobe cookie
 -> pentagon -> pill -> sunny -> 4-lobe cookie -> back to circle, spinning
-continuously, with a springy overshoot (the design's cubic-bezier(.34,1.45,.55,1))
-and a slight scale dip on each morph.
+continuously, with a springy overshoot (the design's cubic-bezier(.34,1.45,.55,1)).
+Like the M3E indicator it only rotates and morphs: every frame is rescaled to
+the same area, so the spring's overshoot bends the outline without making the
+shape grow or shrink.
 
 Every shape is a polar radius function r(theta), sampled at the same angles,
 so morphing between two shapes is a per-angle interpolation of radii. Shapes
@@ -83,12 +85,15 @@ SHAPES = [
 ]
 
 
-def normalised(shape):
-    """Sample a shape and scale it to the area of the unit circle."""
-    radii = [shape(t) for t in THETAS]
+def unit_area(radii):
+    """Scale sampled radii to the area of the unit circle."""
     area = 0.5 * sum(r * r for r in radii) * (2 * math.pi / SAMPLES)
     k = math.sqrt(math.pi / area)
     return [r * k for r in radii]
+
+
+def normalised(shape):
+    return unit_area([shape(t) for t in THETAS])
 
 
 def cubic_bezier(x1, y1, x2, y2):
@@ -111,23 +116,21 @@ def cubic_bezier(x1, y1, x2, y2):
 
 SPRING = cubic_bezier(0.34, 1.45, 0.55, 1)
 HOLD = 0.30        # fraction of each step the shape rests before morphing
-SCALE_DIP = 0.90   # scale at the middle of a morph
 SPIN_PER_STEP = 140  # degrees of rotation per shape step
 
 
 def sample(radii_sets, frame, frames_per_shape):
-    """Radii, rotation (deg) and scale for one frame of the loop."""
+    """Radii and rotation (deg) for one frame of the loop."""
     n = len(radii_sets)
     step, sub = divmod(frame, frames_per_shape)
     p = sub / frames_per_shape
     m = 0.0 if p < HOLD else (p - HOLD) / (1 - HOLD)
     t = SPRING(m)
     a, b = radii_sets[step], radii_sets[(step + 1) % n]
-    radii = [max(0.2, ra + (rb - ra) * t) for ra, rb in zip(a, b)]
+    radii = unit_area([max(0.2, ra + (rb - ra) * t) for ra, rb in zip(a, b)])
     # steady spin plus a spring-eased kick during the morph
     rotation = SPIN_PER_STEP * (step + 0.4 * p + 0.6 * t)
-    scale = 1 - (1 - SCALE_DIP) * math.sin(math.pi * m)
-    return radii, rotation, scale
+    return radii, rotation
 
 
 def hex_to_rgb01(hex_color):
@@ -135,12 +138,12 @@ def hex_to_rgb01(hex_color):
     return tuple(int(hex_color[i : i + 2], 16) / 255 for i in (0, 2, 4))
 
 
-def draw_frame(path, size, color01, radii, rotation_deg, scale, unit):
+def draw_frame(path, size, color01, radii, rotation_deg, unit):
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, size, size)
     ctx = cairo.Context(surface)
     ctx.translate(size / 2, size / 2)
     ctx.rotate(math.radians(rotation_deg))
-    ctx.scale(scale * unit, scale * unit)
+    ctx.scale(unit, unit)
 
     for i, (t, r) in enumerate(zip(THETAS, radii)):
         x, y = r * math.cos(t), r * math.sin(t)
@@ -177,20 +180,19 @@ def main():
     color = hex_to_rgb01(p["primary"])
 
     radii_sets = [normalised(s) for s in SHAPES]
-    # Fit the largest radius any frame can reach (incl. spring overshoot,
-    # ~1.2x the biggest step) inside the frame with a little margin.
-    peak = max(max(r) for r in radii_sets) * 1.2
+    total = len(SHAPES) * args.frames_per_shape
+    frames = [sample(radii_sets, i, args.frames_per_shape) for i in range(total)]
+    # Fit the largest radius any frame reaches inside the frame, with a margin.
+    peak = max(max(radii) for radii, _ in frames)
     unit = (args.size / 2 - 2) / peak
 
     os.makedirs(args.out, exist_ok=True)
     for old in glob.glob(os.path.join(args.out, "loader-*.png")):
         os.remove(old)
 
-    total = len(SHAPES) * args.frames_per_shape
-    for i in range(total):
-        radii, rot, s = sample(radii_sets, i, args.frames_per_shape)
+    for i, (radii, rot) in enumerate(frames):
         draw_frame(os.path.join(args.out, f"loader-{i}.png"),
-                   args.size, color, radii, rot, s, unit)
+                   args.size, color, radii, rot, unit)
 
     update_script(args.script, total)
     print(f"Wrote {total} loader frames ({args.size}x{args.size}) to {args.out}")
