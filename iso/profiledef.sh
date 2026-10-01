@@ -16,12 +16,13 @@ iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)-g${GI
 install_dir="aedwen"
 buildmodes=('iso')
 
-# NOTE: archiso ships no native Limine bootmode. syslinux (BIOS) + systemd-boot
-# (UEFI) are used here purely to get a bootable test image. Limine is installed
-# on the *target* system by the installer -- that is where it matters.
-bootmodes=('bios.syslinux.mbr'
-           'bios.syslinux.eltorito'
-           'uefi-x64.systemd-boot.esp'
+# NOTE: archiso ships no native Limine bootmode. systemd-boot is used here
+# purely to boot the live image; Limine is installed on the *target* system by
+# the installer -- that is where it matters.
+# UEFI only: both installers set up Limine for UEFI, so a BIOS-booted live
+# session would install a system that cannot boot. BIOS support (Limine BIOS
+# stage + a FAT /boot, since Limine can't read btrfs) is planned for later.
+bootmodes=('uefi-x64.systemd-boot.esp'
            'uefi-x64.systemd-boot.eltorito')
 
 arch="x86_64"

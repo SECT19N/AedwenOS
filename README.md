@@ -287,7 +287,6 @@ application menu alongside the KDE app suite.
 
 ```sh
 ./test-vm.sh          # UEFI boot (requires the OVMF firmware, package edk2-ovmf)
-./test-vm.sh --bios   # legacy BIOS boot
 ./test-vm.sh --ssh    # also forward host port 2222 to the guest's SSH port
 ```
 
@@ -464,7 +463,6 @@ AedwenOS/
 │   ├── packages.x86_64           Package set (source of truth for the install)
 │   ├── pacman.conf               Repositories used during the build
 │   ├── localrepo/                [aedwen-local] repo, built by scripts/build-localrepo.sh (git-ignored)
-│   ├── syslinux/                 Live-medium boot menu (BIOS)
 │   ├── efiboot/                  Live-medium boot menu (UEFI, systemd-boot)
 │   └── airootfs/                 Overlay applied to the live filesystem
 │       ├── root/customize_airootfs.sh  Runs once during the build (bakes in the pacman keyring)
@@ -500,7 +498,7 @@ AedwenOS/
   `aedwen-dracut.sh` helper. dracut is built non-host-only for portability.
 
 - **The live ISO itself does not use Limine.** archiso has no Limine boot mode,
-  so the ISO boots through syslinux (BIOS) and systemd-boot (UEFI). Limine is
+  so the ISO boots through systemd-boot. Limine is
   used only on installed systems. Adding Limine to the ISO would require
   post-processing the image, as the CachyOS `iso-profiles` project does.
 
@@ -549,8 +547,10 @@ Planned:
   upgrade via paru, reboot-needed hint), later fronted by a toolbox GUI.
 - Curate the Plasma defaults (theme, panel layout, wallpaper, fonts).
 
-- Confirm a clean UEFI and BIOS boot to KDE Plasma across common virtual
+- Confirm a clean UEFI boot to KDE Plasma across common virtual
   machines and hardware.
+- Legacy BIOS support (Limine BIOS stage plus a FAT `/boot` partition, since
+  Limine cannot read btrfs). The ISO is UEFI-only until then.
 - Verify `aedwen-install` output boots reliably.
 - Finish and test the Calamares configuration.
 - Branding: `os-release`, Plasma theming, wallpaper, and a real product logo.

@@ -2,7 +2,6 @@
 # Boot the most recent ./out/*.iso in QEMU.
 #
 #   ./test-vm.sh                 # UEFI boot (OVMF), GTK + virgl
-#   ./test-vm.sh --bios          # legacy BIOS boot (syslinux)
 #   ./test-vm.sh --serial        # mirror kernel console to this terminal
 #   ./test-vm.sh --direct        # bypass the bootloader: qemu -kernel/-initrd
 #                                #   with a verbose cmdline (best for panics)
@@ -11,7 +10,7 @@
 #                                #   can run commands from the host terminal
 #                                #   and copy their output (see README)
 #
-# Flags combine, e.g.  ./test-vm.sh --bios --serial --std
+# Flags combine, e.g.  ./test-vm.sh --serial --std
 set -euo pipefail
 
 here="$(dirname "$(readlink -f "$0")")"
@@ -21,7 +20,7 @@ iso="$(ls -t "$here"/out/*.iso 2>/dev/null | head -1 || true)"
 mode="uefi" serial=0 direct=0 vga="gl" ssh=0
 for a in "$@"; do
     case "$a" in
-        --bios)   mode="bios" ;;
+        --bios)   echo "BIOS boot is not supported (UEFI only, see README)" >&2; exit 2 ;;
         --serial) serial=1 ;;
         --direct) direct=1 ;;
         --std)    vga="std" ;;

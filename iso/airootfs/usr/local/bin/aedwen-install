@@ -148,7 +148,8 @@ echo "password for $USERNAME:"; passwd "$USERNAME"
 echo "root password:";          passwd
 echo '%wheel ALL=(ALL:ALL) ALL' > /etc/sudoers.d/10-wheel
 chmod 440 /etc/sudoers.d/10-wheel
-systemctl enable NetworkManager sddm firewalld snapper-timeline.timer snapper-cleanup.timer
+systemctl enable NetworkManager sddm systemd-timesyncd firewalld snapper-timeline.timer snapper-cleanup.timer \
+    bluetooth cups.socket fstrim.timer
 
 # ---- chaotic-aur trust ----
 # paru + chaotic-keyring + chaotic-mirrorlist were pacstrapped above, so the

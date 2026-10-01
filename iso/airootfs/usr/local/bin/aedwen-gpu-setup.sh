@@ -23,7 +23,16 @@ if ! lspci -d 10de:: -nn | grep -qE '\[03[0-9a-f]{2}\]'; then
 fi
 
 echo ":: gpu-setup: nvidia GPU detected, installing nvidia-open-dkms"
-pacman -S --noconfirm --needed nvidia-open-dkms nvidia-utils lib32-nvidia-utils
+# -Syu, not -S: the Calamares target is a copy of the ISO image, which ships
+# without sync databases (mkarchiso deletes them), and installing against a
+# fresh database without upgrading would be a partial upgrade. Needs network;
+# without it, warn and leave the system on nouveau rather than failing the
+# whole install -- the driver can be installed later with the same command.
+if ! pacman -Syu --noconfirm --needed nvidia-open-dkms nvidia-utils lib32-nvidia-utils; then
+    echo ":: gpu-setup: warning: nvidia driver install failed (no network?), staying on nouveau" >&2
+    echo ":: gpu-setup: install later with: sudo pacman -Syu nvidia-open-dkms nvidia-utils lib32-nvidia-utils" >&2
+    exit 0
+fi
 
 # Early KMS: load the nvidia modules from the initramfs so plymouth/SDDM start
 # on KMS instead of falling back to a VESA/EFI framebuffer.

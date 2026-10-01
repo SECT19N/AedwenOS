@@ -75,6 +75,8 @@ plymouth
 extra/vulkan-intel
 extra/vulkan-radeon
 extra/libva-mesa-driver
+# pciutils: lspci, used by aedwen-gpu-setup.sh to detect nvidia GPUs at install
+pciutils
 
 ## desktop -- KDE Plasma
 ## Explicit list instead of plasma-meta, so the session is exactly what the
@@ -268,8 +270,6 @@ appstream
 ## archiso builds the live initramfs with mkinitcpio + the archiso hooks:
 mkinitcpio
 mkinitcpio-archiso
-# syslinux: ISO BIOS boot
-syslinux
 edk2-shell
 # calamares + ckbcomp (its keyboard module): from [aedwen-local], built by
 # scripts/build-localrepo.sh -- no longer in the official repos.
