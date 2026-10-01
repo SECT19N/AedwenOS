@@ -46,6 +46,8 @@ to install the system to disk.
 | `iso/`          | The [archiso](https://gitlab.archlinux.org/archlinux/archiso) profile: the package list and configuration that `mkarchiso` compiles into the live ISO. |
 | `iso/airootfs/` | Files copied verbatim onto the live filesystem (system configuration, the installer script, the Calamares configuration, branding).                    |
 | `scripts/build-localrepo.sh` | Builds packages no longer (or never) published in the official repos or chaotic-aur from the AUR, and stages them in `iso/localrepo/` (the `[aedwen-local]` repo `mkarchiso` pulls from). Must be run before `build.sh` at least once. |
+| `scripts/generate-*.py` | Generate the theme files from one palette: KDE colour schemes, GTK, cursors, sounds, Plymouth, Limine wallpaper, Calamares branding, the Plasma theme and the shell's icon font. Their output is committed, so they only need re-running after a design change. |
+| `scripts/check-shell.sh` | Loads every AedwenOS shell widget against the Plasma installed on the build machine and reports QML errors. Run it after a Plasma update, before building. |
 | `build.sh`      | Convenience wrapper around `mkarchiso`.                                                                                                                |
 | `test-vm.sh`    | Boots the most recently built ISO in QEMU.                                                                                                             |
 
@@ -582,7 +584,7 @@ Planned:
   Limine cannot read btrfs). The ISO is UEFI-only until then.
 - Verify `aedwen-install` output boots reliably.
 - Finish and test the Calamares configuration.
-- Branding: `os-release`, Plasma theming, wallpaper, and a real product logo.
+- Branding: `os-release` and a real product logo.
 - Add a `packagechooser` screen for graphics drivers and optional components.
 - Add a "keep existing /home" option to `aedwen-install`.
 - Optionally offer additional kernels (for example `linux-xanmod`).
