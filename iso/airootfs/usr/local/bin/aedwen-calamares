@@ -2,10 +2,20 @@
 # Start the installer (Calamares) as root from the live session.
 #
 # pkexec drops the session environment, so Calamares came up on XWayland
-# without the KDE platform theme, i.e. in stock light colours. `sudo -E`
-# (the live user has passwordless sudo, see /etc/sudoers.d/10-live) keeps
-# WAYLAND_DISPLAY / XDG_RUNTIME_DIR / XDG_CURRENT_DESKTOP, so Qt loads the
-# KDE platform theme, which reads /etc/xdg/kdeglobals -- the AedwenOS dark
-# scheme -- for root. HOME is reset so Calamares' log and settings stay in
-# /root (log: /root/.cache/calamares/session.log).
-exec sudo -E env HOME=/root calamares "$@"
+# without the KDE platform theme, i.e. in stock light colours. Passing the
+# *whole* environment (sudo -E) is no good either: the session's input-method
+# and D-Bus variables point root at the user's session bus, which root can't
+# talk to, and text fields then never receive typed characters.
+#
+# So pass exactly what's needed: the Wayland/X display, and the desktop name
+# so Qt loads the KDE platform theme (which reads /etc/xdg/kdeglobals -- the
+# AedwenOS dark scheme -- for root). The live user has passwordless sudo
+# (/etc/sudoers.d/10-live). Log: /root/.cache/calamares/session.log
+keep=(WAYLAND_DISPLAY XDG_RUNTIME_DIR XDG_SESSION_TYPE XDG_CURRENT_DESKTOP
+      XDG_SESSION_DESKTOP KDE_FULL_SESSION KDE_SESSION_VERSION DISPLAY XAUTHORITY
+      LANG LC_ALL)
+vars=()
+for v in "${keep[@]}"; do
+    [[ -n "${!v:-}" ]] && vars+=("$v=${!v}")
+done
+exec sudo env -i HOME=/root USER=root PATH=/usr/local/sbin:/usr/local/bin:/usr/bin "${vars[@]}" calamares "$@"
