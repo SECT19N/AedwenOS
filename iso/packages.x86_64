@@ -215,6 +215,9 @@ ncdu
 man-db
 man-pages
 less
+# rsync: also required by Calamares' unpackfs module on the live medium (the
+# AUR calamares package does not depend on it)
+rsync
 curl
 wget
 jq
