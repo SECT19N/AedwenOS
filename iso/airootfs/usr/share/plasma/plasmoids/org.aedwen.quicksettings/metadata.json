@@ -1,0 +1,14 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [{ "Name": "AedwenOS" }],
+        "Category": "System Information",
+        "Description": "Wi-Fi, Bluetooth, night light, focus, power profile and dark mode toggles with volume and brightness",
+        "Icon": "settings",
+        "Id": "org.aedwen.quicksettings",
+        "License": "GPL-3.0-or-later",
+        "Name": "AedwenOS Quick Settings",
+        "Version": "1.0"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0"
+}

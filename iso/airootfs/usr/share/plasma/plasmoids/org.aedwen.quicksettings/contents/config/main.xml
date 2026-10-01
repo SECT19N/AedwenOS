@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0 http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+  <kcfgfile name=""/>
+  <group name="General">
+    <!-- Tiles in order: names of QML files in contents/ui/tiles/. A tile
+         whose service isn't present (no Bluetooth adapter, no
+         power-profiles-daemon, ...) hides itself. -->
+    <entry name="tiles" type="StringList">
+      <default>Wifi,Bluetooth,NightLight,Focus,Performance,DarkMode</default>
+    </entry>
+    <entry name="sliders" type="StringList">
+      <default>Brightness,Volume</default>
+    </entry>
+  </group>
+</kcfg>

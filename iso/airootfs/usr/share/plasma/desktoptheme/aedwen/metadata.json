@@ -1,0 +1,17 @@
+{
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "AedwenOS"
+            }
+        ],
+        "Category": "",
+        "Description": "Material 3 Expressive shell surfaces for AedwenOS, following the active colour scheme",
+        "EnabledByDefault": true,
+        "Id": "aedwen",
+        "License": "GPL-3.0-or-later",
+        "Name": "AedwenOS",
+        "Version": "1.0"
+    },
+    "X-Plasma-API": "5.0"
+}

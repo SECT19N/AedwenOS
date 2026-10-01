@@ -1,0 +1,6 @@
+module org.aedwen.shell
+# Non-visual helpers shared by the org.aedwen.* Plasma widgets: shell
+# actions over D-Bus and task-model behaviour. Visual components live in
+# org.aedwen.ui.
+singleton Shell 1.0 Shell.qml
+TaskActions 1.0 TaskActions.qml

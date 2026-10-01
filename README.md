@@ -457,7 +457,10 @@ AedwenOS/
 ├── build.sh                      Build wrapper (calls mkarchiso)
 ├── test-vm.sh                    Boot the built ISO in QEMU
 ├── scripts/
-│   └── build-localrepo.sh        Builds AUR-only packages into iso/localrepo/
+│   ├── build-localrepo.sh        Builds AUR-only packages into iso/localrepo/
+│   ├── generate-*.py             Theme generators (colours, GTK, cursors, Plymouth,
+│   │                             Calamares, Plasma theme, shell assets)
+│   └── check-shell.sh            Loads every shell widget against the installed Plasma
 ├── iso/
 │   ├── profiledef.sh             ISO metadata, boot modes, file permissions
 │   ├── packages.x86_64           Package set (source of truth for the install)
@@ -469,6 +472,11 @@ AedwenOS/
 │       ├── etc/                  System configuration, autologin, first-boot setup
 │       ├── etc/calamares/        Calamares sequence, modules, branding
 │       │   └── modules/packages.conf   LIVE ONLY packages removed after install
+│       ├── usr/lib/qt6/qml/org/aedwen/  Shell QML modules: ui (design tokens and
+│       │                             components), shell (shared actions)
+│       ├── usr/share/plasma/plasmoids/org.aedwen.*  Top bar and dock widgets
+│       ├── usr/share/plasma/desktoptheme/aedwen/    Plasma theme (generated)
+│       ├── usr/share/plasma/look-and-feel/          AedwenOS (dark) and AedwenOS Light
 │       └── usr/local/bin/
 │           ├── aedwen-install        Command-line installer
 │           ├── aedwen-dracut.sh      Initramfs regeneration helper (pacman hooks)
@@ -483,6 +491,20 @@ AedwenOS/
   system" option in its automated modes. Calamares' manual-partitioning dialog
   still offers encryption when creating a partition (that part can't be turned
   off from configuration); don't use it until LUKS support lands.
+
+- **The desktop shell is built from QML widgets on a shared framework.** The
+  top bar and dock are AedwenOS Plasma widgets (`org.aedwen.*`): launcher,
+  workspace dots, app name next to KDE's global menu, clock and calendar,
+  search, quick settings, notification centre and dock. They are all built on
+  the `org.aedwen.ui` QML module, which reads its colours live from the
+  active KDE colour scheme, and they get their data from KDE's own models
+  (task manager, menu, KRunner, notifications), so they work with any
+  installed app rather than a fixed list. Quick-settings tiles are separate
+  files loaded by name, so a tile whose KDE API changes hides itself instead
+  of breaking the panel. A few of those APIs are KDE-internal, so after a
+  Plasma update run `scripts/check-shell.sh` before building. Apps keep the
+  Breeze widget style for now, recoloured; their own Material 3 Expressive
+  styling needs a Qt style and comes later.
 
 - **Btrfs is the root filesystem.** It is mature, widely deployed, readable
   directly by Limine, and supports the subvolume/snapshot layout the installers
@@ -551,7 +573,8 @@ Planned:
 
 - `aedwen-update`: a thin update wrapper (mirror refresh, keyring-first
   upgrade via paru, reboot-needed hint), later fronted by a toolbox GUI.
-- Curate the Plasma defaults (theme, panel layout, wallpaper, fonts).
+- Material 3 Expressive styling inside apps (a Qt widget style), title bars
+  and context menus; the shell (panel, dock, popups) is done.
 
 - Confirm a clean UEFI boot to KDE Plasma across common virtual
   machines and hardware.

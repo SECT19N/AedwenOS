@@ -1,10 +1,14 @@
-// AedwenOS default desktop layout.
-// A floating top bar (launcher, tray, clock) and a floating icon dock
-// (pinned/running apps), matching the "Desktop - Material 3" section of the
-// AedwenOS System Surfaces design. Modelled directly on the stock
-// org.kde.plasma.desktop.defaultPanel layout-template script shipped by
-// plasma-desktop (same Panel scripting API: height/location/floating/
-// alignment/addWidget), not a from-scratch guess at the format.
+// AedwenOS default desktop layout (AedwenOS Desktop design):
+//
+//   top bar  launcher · workspace dots · app name + global menu ·
+//            (centre) date and time · search · tray · quick settings · bell
+//   dock     pinned and running apps, fitted to its content, centred,
+//            hiding when a window would cover it ("dodge windows")
+//
+// Uses the Plasma panel scripting API (height/location/floating/alignment/
+// lengthMode/hiding/addWidget), as in plasma-desktop's own defaultPanel
+// layout template. The org.aedwen.* widgets are in
+// /usr/share/plasma/plasmoids, built on the org.aedwen.ui QML module.
 
 var desktopsArray = desktopsForActivity(currentActivity());
 for (var j = 0; j < desktopsArray.length; j++) {
@@ -16,17 +20,55 @@ var topBar = new Panel;
 topBar.location = "top";
 topBar.height = 44;
 topBar.floating = true;
+topBar.opacity = "translucent";
 
-topBar.addWidget("org.kde.plasma.kickoff");
+topBar.addWidget("org.aedwen.launcher");
+topBar.addWidget("org.aedwen.workspaces");
+topBar.addWidget("org.aedwen.appname");
+topBar.addWidget("org.kde.plasma.appmenu");
 topBar.addWidget("org.kde.plasma.panelspacer");
-topBar.addWidget("org.kde.plasma.systemtray");
-topBar.addWidget("org.kde.plasma.digitalclock");
+topBar.addWidget("org.aedwen.clock");
+topBar.addWidget("org.kde.plasma.panelspacer");
+topBar.addWidget("org.aedwen.search");
 
-// ---- bottom dock ------------------------------------------------------------
+// The tray keeps app status icons (clipboard, KDE Connect, updates, ...).
+// Network, volume, battery, Bluetooth and brightness live in Quick Settings
+// and notifications in the bell, so KDE's own applets for those stay loaded
+// (notification pop-ups, media keys and OSDs come from them) but hidden.
+// (In Plasma 6 the tray is itself a containment, so its item lists are in
+// the widget's own [General] config.)
+var systray = topBar.addWidget("org.kde.plasma.systemtray");
+systray.currentConfigGroup = ["General"];
+systray.writeConfig("hiddenItems", [
+    "org.kde.plasma.notifications",
+    "org.kde.plasma.networkmanagement",
+    "org.kde.plasma.volume",
+    "org.kde.plasma.battery",
+    "org.kde.plasma.bluetooth",
+    "org.kde.plasma.brightness",
+]);
+
+topBar.addWidget("org.aedwen.quicksettings");
+topBar.addWidget("org.aedwen.notifications");
+
+// ---- dock -----------------------------------------------------------------
 var dock = new Panel;
 dock.location = "bottom";
-dock.height = 58;
+dock.height = 66;
 dock.floating = true;
 dock.alignment = "center";
+dock.lengthMode = "fit";
+dock.hiding = "dodgewindows";
+dock.opacity = "translucent";
 
-dock.addWidget("org.kde.plasma.icontasks");
+var dockApps = dock.addWidget("org.aedwen.dock");
+dockApps.currentConfigGroup = ["General"];
+// Pins that aren't installed are skipped by the dock.
+dockApps.writeConfig("launchers", [
+    "applications:org.kde.dolphin.desktop",
+    "applications:zen.desktop",
+    "applications:org.kde.konsole.desktop",
+    "applications:org.kde.kate.desktop",
+    "applications:octopi.desktop",
+    "applications:systemsettings.desktop",
+]);

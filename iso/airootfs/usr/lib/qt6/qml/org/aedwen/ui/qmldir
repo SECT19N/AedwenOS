@@ -1,0 +1,20 @@
+module org.aedwen.ui
+# AedwenOS shell component library: design tokens + Material 3 Expressive
+# controls shared by every org.aedwen.* Plasma widget (and later the Welcome
+# app / Settings pages). See Theme.qml for where the colours come from.
+singleton Theme 1.0 Theme.qml
+Sym 1.0 Sym.qml
+StateLayer 1.0 StateLayer.qml
+PillButton 1.0 PillButton.qml
+IconButton 1.0 IconButton.qml
+Switch 1.0 Switch.qml
+Slider 1.0 Slider.qml
+ListRow 1.0 ListRow.qml
+SearchField 1.0 SearchField.qml
+Card 1.0 Card.qml
+ToggleTile 1.0 ToggleTile.qml
+AppIcon 1.0 AppIcon.qml
+EagleMark 1.0 EagleMark.qml
+MorphShape 1.0 MorphShape.qml
+PanelButton 1.0 PanelButton.qml
+Label 1.0 Label.qml

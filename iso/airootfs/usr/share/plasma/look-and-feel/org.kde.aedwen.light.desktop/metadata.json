@@ -1,0 +1,12 @@
+{
+    "KPackageStructure": "Plasma/LookAndFeel",
+    "KPlugin": {
+        "Authors": [
+            { "Name": "AedwenOS" }
+        ],
+        "Description": "AedwenOS in light colours. Same shell as AedwenOS; this is the light half of the Dark mode switch.",
+        "Id": "org.kde.aedwen.light.desktop",
+        "License": "GPLv2+",
+        "Name": "AedwenOS Light"
+    }
+}

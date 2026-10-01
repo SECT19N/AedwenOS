@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0 http://www.kde.org/standards/kcfg/1.0/kcfg.xsd">
+  <kcfgfile name=""/>
+  <group name="General">
+    <!-- Seed for the pinned grid on first use; after that pins live in
+         KActivities (shared by every AedwenOS launcher instance) and are
+         changed from the launcher itself. Apps that aren't installed are
+         skipped. -->
+    <entry name="defaultFavorites" type="StringList">
+      <default>applications:org.kde.dolphin.desktop,applications:zen.desktop,applications:org.kde.konsole.desktop,applications:org.kde.kate.desktop,applications:octopi.desktop,applications:systemsettings.desktop,applications:org.kde.gwenview.desktop,applications:org.kde.okular.desktop,applications:org.kde.spectacle.desktop,applications:org.kde.kcalc.desktop,applications:org.kde.plasma-systemmonitor.desktop,applications:org.kde.ark.desktop</default>
+    </entry>
+    <entry name="favoritesSeeded" type="Bool">
+      <default>false</default>
+    </entry>
+  </group>
+</kcfg>

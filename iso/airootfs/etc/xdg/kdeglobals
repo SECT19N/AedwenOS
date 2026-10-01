@@ -130,6 +130,8 @@ fixed=Roboto Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
 [KDE]
 contrast=4
 LookAndFeelPackage=org.kde.aedwen.desktop
+DefaultDarkLookAndFeel=org.kde.aedwen.desktop
+DefaultLightLookAndFeel=org.kde.aedwen.light.desktop
 SingleClick=false
 
 [WM]

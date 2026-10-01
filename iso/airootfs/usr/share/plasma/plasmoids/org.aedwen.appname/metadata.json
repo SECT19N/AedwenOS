@@ -1,0 +1,14 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [{ "Name": "AedwenOS" }],
+        "Category": "Windows and Tasks",
+        "Description": "Name of the focused application",
+        "Icon": "window",
+        "Id": "org.aedwen.appname",
+        "License": "GPL-3.0-or-later",
+        "Name": "AedwenOS App Name",
+        "Version": "1.0"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0"
+}

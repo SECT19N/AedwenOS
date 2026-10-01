@@ -1,0 +1,14 @@
+{
+    "KPackageStructure": "Plasma/Applet",
+    "KPlugin": {
+        "Authors": [{ "Name": "AedwenOS" }],
+        "Category": "Windows and Tasks",
+        "Description": "Virtual desktops as dots; the current one is a pill",
+        "Icon": "virtual-desktops",
+        "Id": "org.aedwen.workspaces",
+        "License": "GPL-3.0-or-later",
+        "Name": "AedwenOS Workspaces",
+        "Version": "1.0"
+    },
+    "X-Plasma-API-Minimum-Version": "6.0"
+}

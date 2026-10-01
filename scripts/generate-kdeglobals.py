@@ -63,7 +63,11 @@ def build_kdeglobals(seed, dark, expressive):
     cp.set("General", "toolBarFont", "Roboto,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
     cp.set("General", "fixed", "Roboto Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
 
-    cp.set("KDE", "LookAndFeelPackage", "org.kde.aedwen.desktop")
+    cp.set("KDE", "LookAndFeelPackage", "org.kde.aedwen.desktop" if dark else "org.kde.aedwen.light.desktop")
+    # The pair the Quick Settings "Dark mode" tile (KDE's DarkModeControl)
+    # switches between.
+    cp.set("KDE", "DefaultDarkLookAndFeel", "org.kde.aedwen.desktop")
+    cp.set("KDE", "DefaultLightLookAndFeel", "org.kde.aedwen.light.desktop")
     cp.set("KDE", "SingleClick", "false")
 
     cp.add_section("Icons")
