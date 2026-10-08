@@ -1,6 +1,7 @@
 // Workspace dots (Desktop design: top bar). One dot per virtual desktop:
 // the current one stretches into a primary pill, desktops with windows are
-// brighter. Click switches, scrolling cycles.
+// brighter. Click opens Overview (the same view as the top-left hot
+// corner), scrolling cycles.
 import QtQuick
 import QtQuick.Layouts
 import org.kde.plasma.plasmoid
@@ -59,20 +60,22 @@ PlasmoidItem {
                     opacity: current || mouse.containsMouse ? 1 : 0.8
                     Behavior on width { NumberAnimation { duration: Theme.dur; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.spring } }
                     Behavior on color { ColorAnimation { duration: Theme.durShort } }
-
-                    PlasmaCore.ToolTipArea {
-                        anchors.fill: parent
-                        anchors.margins: -6
-                        mainText: desktops.desktopNames[index] || i18n("Desktop %1", index + 1)
-                        MouseArea {
-                            id: mouse
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            cursorShape: Qt.PointingHandCursor
-                            onClicked: Shell.switchDesktop(index + 1)
-                        }
-                    }
                 }
+            }
+        }
+        PlasmaCore.ToolTipArea {
+            anchors.fill: parent
+            mainText: i18n("Overview")
+            subText: {
+                const i = desktops.desktopIds.indexOf(desktops.currentDesktop)
+                return desktops.desktopNames[i] || i18n("Desktop %1", i + 1)
+            }
+            MouseArea {
+                id: mouse
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: Shell.overview()
             }
         }
         WheelHandler {

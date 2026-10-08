@@ -36,6 +36,9 @@ args=(
     -m 4G
     -machine q35
     -device intel-hda -device hda-output
+    # absolute pointer: the guest cursor tracks the host's, so it can reach
+    # screen edges/corners (KWin's top-left Overview hot corner)
+    -device qemu-xhci -device usb-tablet
     -no-reboot                       # stop on panic so the screen stays readable
 )
 

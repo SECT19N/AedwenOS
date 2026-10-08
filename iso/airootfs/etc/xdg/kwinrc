@@ -7,3 +7,14 @@ library=org.kde.kwin.aurorae
 theme=__aurorae__svg__AedwenOS-Dark
 ButtonsOnLeft=M
 ButtonsOnRight=IAX
+
+# Top-left hot corner opens Overview (7 = ElectricTopLeft), set explicitly
+# so it doesn't depend on KWin's built-in default.
+[Effect-overview]
+BorderActivate=7
+
+# Four virtual desktops, so the top bar's workspace dots and Overview have
+# something to show. Users add/remove them in Overview or System Settings.
+[Desktops]
+Number=4
+Rows=1
