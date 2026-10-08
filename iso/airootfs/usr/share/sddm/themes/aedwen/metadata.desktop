@@ -1,0 +1,14 @@
+[SddmGreeterTheme]
+Name=AedwenOS
+Description=AedwenOS login screen, matching the lock screen (based on Plasma's Breeze theme)
+Author=AedwenOS, based on the KDE Visual Design Group's Breeze theme
+Copyright=(c) 2014, David Edmundson; AedwenOS changes
+License=CC-BY-SA
+Type=sddm-theme
+Version=0.1
+MainScript=Main.qml
+ConfigFile=theme.conf
+TranslationsDirectory=translations
+Theme-Id=aedwen
+Theme-API=2.0
+QtVersion=6

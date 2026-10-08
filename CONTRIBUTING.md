@@ -15,7 +15,20 @@ theme (`desktoptheme/aedwen`) and the shell's icon font and eagle. Change the
 matching `scripts/generate-*.py` and re-run it rather than editing its output,
 or the next run will overwrite your edit.
 
+AedwenOS has two design variants: Material 3 Expressive (what ships) and stock
+Material 3 ("baseline"). Shape values (corner radii, the hover shape of round
+controls, motion) live in `SHAPES` in `scripts/palette_lib.py`. A generator
+that draws shapes should take the variant and read them from there, not
+hard-code radii; `generate-aurorae-theme.py` and `generate-gtk-theme.py
+--variant` already do.
+
 A few of those have more than one output:
+
+- `generate-aurorae-theme.py` writes the window title bars,
+  `aurorae/themes/AedwenOS-{Dark,Light}` and `AedwenOS-Baseline-{Dark,Light}`.
+  Their fills follow the colour scheme; only the title text colour is fixed,
+  which is why there's a dark and a light copy. `etc/xdg/kwinrc` and the
+  global themes select them.
 
 - `generate-cursors.py --all-static` writes every shape family in the dark
   and light styles (`icons/Aedwen-<Family>-<Style>`) plus the default
@@ -30,6 +43,16 @@ A few of those have more than one output:
   ISO's start from it. The ISO is built with systemd-boot (archiso has no Limine
   mode) and `build.sh` then swaps Limine into its EFI partition with
   `scripts/limine-live-esp.sh`.
+
+The lock screen (`look-and-feel/org.kde.aedwen.desktop/contents/lockscreen`),
+the logout screen (`.../contents/logout`) and the login screen
+(`usr/share/sddm/themes/aedwen`) are Plasma 6.7's own QML, restyled. They
+keep Plasma's logic and interface, so after a Plasma update that changes
+those files in plasma-workspace / plasma-desktop, re-copy the upstream
+versions and re-apply the AedwenOS styling (each file's header lists what
+differs). The lock screen falls back to KDE's if it gets out of date. The
+login splash (`.../contents/splash`) is our own and matches the Plymouth
+boot splash.
 
 The top bar and dock widgets (`iso/airootfs/usr/share/plasma/plasmoids/org.aedwen.*`)
 and their QML modules (`iso/airootfs/usr/lib/qt6/qml/org/aedwen/`) are plain

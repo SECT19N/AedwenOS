@@ -1,0 +1,9 @@
+# AedwenOS window title bars (scripts/generate-aurorae-theme.py) for every new
+# user, before the global theme is ever applied. The global themes
+# (look-and-feel/org.kde.aedwen*/contents/defaults) set the same keys, so
+# switching light/dark swaps the dark/light title bar.
+[org.kde.kdecoration2]
+library=org.kde.kwin.aurorae
+theme=__aurorae__svg__AedwenOS-Dark
+ButtonsOnLeft=M
+ButtonsOnRight=IAX

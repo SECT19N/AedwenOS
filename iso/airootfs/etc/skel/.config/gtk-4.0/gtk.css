@@ -9,7 +9,7 @@
     --window-fg-color: #e5e3ec;
     --view-bg-color: #0d0b13;
     --view-fg-color: #e5e3ec;
-    --headerbar-bg-color: #181521;
+    --headerbar-bg-color: #0d0b13;
     --headerbar-fg-color: #e5e3ec;
     --headerbar-backdrop-color: #0d0b13;
     --sidebar-bg-color: #12101b;
@@ -35,7 +35,7 @@
     --window-fg-color: #19171f;
     --view-bg-color: #faf9fe;
     --view-fg-color: #19171f;
-    --headerbar-bg-color: #efecfa;
+    --headerbar-bg-color: #faf9fe;
     --headerbar-fg-color: #19171f;
     --headerbar-backdrop-color: #faf9fe;
     --sidebar-bg-color: #f4f2fd;
@@ -56,8 +56,29 @@
 headerbar {
   min-height: 48px;
 }
-windowcontrols > button.close > image {
-  background-color: color-mix(in srgb, var(--window-fg-color) 12%, transparent);
+/* window buttons as in the KDE title bars (generate-aurorae-theme.py) */
+windowcontrols > button {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+}
+windowcontrols > button > image {
+  min-width: 32px;
+  min-height: 32px;
+  padding: 0;
+  border-radius: 9999px;
+  background-color: color-mix(in srgb, var(--window-fg-color) 10%, transparent);
+  transition: border-radius 180ms ease, background-color 150ms ease;
+}
+windowcontrols > button:hover > image,
+windowcontrols > button:active > image {
+  border-radius: 10px;
+  background-color: color-mix(in srgb, var(--accent-bg-color) 28%, transparent);
+}
+windowcontrols > button.close:hover > image,
+windowcontrols > button.close:active > image {
+  background-color: var(--destructive-bg-color);
+  color: var(--destructive-fg-color);
 }
 
 .boxed-list,

@@ -1,5 +1,8 @@
 [KSplash]
-# No Plasma startup splash -- the branded Plymouth splash covers boot, and the
-# handoff goes Plymouth -> SDDM -> desktop with nothing KDE-branded in between.
-Engine=none
-Theme=None
+# Login splash: the AedwenOS one (look-and-feel/org.kde.aedwen.desktop/
+# contents/splash), which continues the Plymouth boot splash -- same eagle,
+# loader and colours -- so boot -> login -> desktop is one sequence. The
+# global themes set the same, so applying one (e.g. the Dark mode tile)
+# keeps it instead of falling back to KDE's.
+Engine=KSplashQML
+Theme=org.kde.aedwen.desktop

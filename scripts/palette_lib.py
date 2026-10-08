@@ -131,6 +131,31 @@ def hex_to_rgb_csv(hex_color):
     return ",".join(str(int(hex_color[i : i + 2], 16)) for i in (0, 2, 4))
 
 
+# Shape tokens for the two design variants, ported from the design's SHAPES
+# table (AedwenOS Desktop - Material 3). AedwenOS ships Expressive, but every
+# shape-dependent generator takes the variant so stock M3 ("baseline") can be
+# offered too -- read radii from here rather than hard-coding them.
+#   ctl_hover_r: corner radius a round control morphs to on hover/press
+#   (None = stays a circle)
+SHAPES = {
+    "baseline": {
+        "r_win": 12, "r_inner": 8, "r_pop": 28, "r_card": 16, "r_tile": 16,
+        "r_bar": 16, "ctl_hover_r": None,
+        "ease": (0.2, 0, 0, 1), "dur_ms": 300,
+    },
+    "expressive": {
+        "r_win": 16, "r_inner": 10, "r_pop": 32, "r_card": 20, "r_tile": 20,
+        "r_bar": 999, "ctl_hover_r": 10,
+        "ease": (0.34, 1.45, 0.55, 1), "dur_ms": 420,
+    },
+}
+VARIANTS = tuple(SHAPES)
+
+
+def shapes(variant):
+    return SHAPES[variant]
+
+
 DEFAULT_SEED = "violet"
 DEFAULT_DARK = True
 DEFAULT_EXPRESSIVE = True

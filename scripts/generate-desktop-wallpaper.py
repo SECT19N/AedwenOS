@@ -63,7 +63,7 @@ def main():
 
     # Giant eagle watermark: ~46% of the shorter dimension, shifted up-left
     # of centre (matches translate(-30%,-54%) on a centred min(46vh,520px) box).
-    size = min(int(H_PX * 0.9), 900)
+    size = min(int(H_PX * 0.46), 520)
     ex = W / 2 - size * 0.8
     ey = H_PX / 2 - size * 1.04
     ctx.save()

@@ -62,6 +62,11 @@ def build_kdeglobals(seed, dark, expressive):
     cp.set("General", "menuFont", "Roboto,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
     cp.set("General", "toolBarFont", "Roboto,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
     cp.set("General", "fixed", "Roboto Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
+    # Window titles (Aurorae title bars, scripts/generate-aurorae-theme.py):
+    # design 14 px semibold = 10.5 pt at 96 dpi, weight 600.
+    if not cp.has_section("WM"):
+        cp.add_section("WM")
+    cp.set("WM", "activeFont", "Roboto,10.5,-1,5,600,0,0,0,0,0,0,0,0,0,0,1")
 
     cp.set("KDE", "LookAndFeelPackage", "org.kde.aedwen.desktop" if dark else "org.kde.aedwen.light.desktop")
     # The pair the Quick Settings "Dark mode" tile (KDE's DarkModeControl)

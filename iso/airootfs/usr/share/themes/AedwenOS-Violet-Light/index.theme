@@ -8,4 +8,4 @@ GtkTheme=AedwenOS-Violet-Light
 MetacityTheme=AedwenOS-Violet-Light
 IconTheme=breeze-dark
 CursorTheme=Aedwen
-ButtonLayout=close:
+ButtonLayout=:minimize,maximize,close

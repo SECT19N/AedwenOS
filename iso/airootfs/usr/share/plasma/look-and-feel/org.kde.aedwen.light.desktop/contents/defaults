@@ -17,5 +17,11 @@ Image=AedwenOS
 cursorTheme=Aedwen
 
 [kwinrc][org.kde.kdecoration2]
-library=org.kde.breeze
-theme=Breeze
+library=org.kde.kwin.aurorae
+theme=__aurorae__svg__AedwenOS-Light
+ButtonsOnLeft=M
+ButtonsOnRight=IAX
+
+[ksplashrc][KSplash]
+Engine=KSplashQML
+Theme=org.kde.aedwen.desktop

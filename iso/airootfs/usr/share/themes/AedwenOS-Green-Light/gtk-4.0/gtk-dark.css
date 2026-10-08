@@ -32,14 +32,18 @@ window, .background {
   color: @ae_on_s;
 }
 
+/* Title bar = the KDE (Aurorae) title bars: same colour as the window
+   body, 48px, three 32px round buttons on surface-container-highest that
+   hover to secondary-container (close: error container). */
 headerbar {
   min-height: 48px;
-  background-color: @ae_sc;
+  background-color: @ae_surface;
   color: @ae_on_s;
   border: none;
   box-shadow: none;
   padding: 0 8px;
 }
+headerbar:backdrop .title { opacity: 0.62; }
 headerbar .title {
   font-weight: 600;
   font-size: 14px;
@@ -48,14 +52,22 @@ headerbar button.titlebutton {
   border-radius: 9999px;
   min-width: 32px;
   min-height: 32px;
-  background-color: transparent;
-  color: @ae_on_s;
-}
-headerbar button.titlebutton.close {
+  margin: 0 2px;
+  padding: 0;
   background-color: @ae_sc_highest;
+  color: @ae_on_s;
+  transition: border-radius 180ms ease, background-color 150ms ease;
 }
-headerbar button.titlebutton:hover {
-  background-color: alpha(@ae_on_s, 0.08);
+headerbar button.titlebutton:hover,
+headerbar button.titlebutton:active {
+  border-radius: 10px;
+  background-color: @ae_sec_c;
+  color: @ae_on_sec_c;
+}
+headerbar button.titlebutton.close:hover,
+headerbar button.titlebutton.close:active {
+  background-color: @ae_err_c;
+  color: @ae_on_err_c;
 }
 
 button {
