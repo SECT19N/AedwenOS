@@ -73,6 +73,11 @@ def build_kdeglobals(seed, dark, expressive):
     cp.add_section("Icons")
     cp.set("Icons", "Theme", "breeze-dark")
 
+    # System sounds (scripts/generate-sounds.py). KNotifications reads the
+    # theme from here; without it KDE falls back to Ocean.
+    cp.add_section("Sounds")
+    cp.set("Sounds", "Theme", "AedwenOS")
+
     out = io.StringIO()
     cp.write(out, space_around_delimiters=False)
     return out.getvalue()

@@ -4,6 +4,15 @@ Synthesize the AedwenOS system sound set from the exact tone recipes in the
 AedwenOS System Surfaces design's play() function (Web Audio oscillator +
 gain-envelope calls), then package them as a freedesktop sound theme.
 
+Three events KDE plays that the design has no tone for are derived in the
+same idiom (sine, in key, rising when positive, falling when negative,
+under 400ms) and marked as such below: completion-success,
+completion-fail and battery-full. Every other sound name KDE's own
+notifyrc files ask for (/usr/share/knotifications6/*.notifyrc) is a
+symlink to the design tone with the same meaning (ALIASES), so e.g. the
+window bell gets the design's "Error / bell" buzz rather than Ocean's.
+Anything still missing falls back to Ocean, then freedesktop.
+
 Pure-stdlib WAV synthesis (no numpy) piped through ffmpeg for the final
 Ogg Vorbis files, matching each event's oscillator type, frequency (with
 optional exponential glide to a second frequency), start offset, duration
@@ -153,6 +162,23 @@ def build(kind):
         render_tone(buf, N["C5"], 0.18, 0.18, "sine", 0.14)
         render_tone(buf, N["G4"], 0.36, 0.3, "sine", 0.14)
         return buf
+    # --- derived: not in the design (see the module docstring) ---
+    if kind == "success":    # job finished: a rising fifth
+        buf = new_buffer(0.5)
+        render_tone(buf, N["C5"], 0, 0.2, "sine", 0.13)
+        render_tone(buf, N["G5"], 0.1, 0.3, "sine", 0.12)
+        return buf
+    if kind == "fail":       # job failed: a falling third, triangle like critical
+        buf = new_buffer(0.5)
+        render_tone(buf, N["E5"], 0, 0.18, "triangle", 0.14)
+        render_tone(buf, N["C5"], 0.14, 0.26, "triangle", 0.14)
+        return buf
+    if kind == "charged":    # battery full: battery-low's notes, rising
+        buf = new_buffer(0.6)
+        render_tone(buf, N["C5"], 0, 0.16, "sine", 0.13)
+        render_tone(buf, N["E5"], 0.12, 0.16, "sine", 0.13)
+        render_tone(buf, N["G5"], 0.24, 0.3, "sine", 0.13)
+        return buf
     raise ValueError(kind)
 
 
@@ -169,6 +195,25 @@ FREEDESKTOP_NAMES = {
     "shot": "screen-capture",
     "trash": "trash-empty",
     "battery": "battery-low",
+    "success": "completion-success",
+    "fail": "completion-fail",
+    "charged": "battery-full",
+}
+
+# Other names KDE asks for -> the generated file with the same meaning.
+ALIASES = {
+    "bell-window-system": "dialog-error",      # design: "replaces the system beep"
+    "bell": "dialog-error",
+    "dialog-error-serious": "dialog-error",
+    "dialog-error-critical": "dialog-warning",
+    "dialog-warning-auth": "dialog-warning",
+    "dialog-information": "message-new-instant",
+    "dialog-question": "message-new-instant",
+    "battery-caution": "battery-low",
+    "power-plug": "device-added",
+    "power-unplug": "device-removed",
+    "completion-rotation": "completion-success",
+    "camera-shutter": "screen-capture",
 }
 
 
@@ -204,11 +249,18 @@ def main():
         os.remove(wav_path)
         print(f"  {kind:10s} -> {ogg_path}")
 
+    for alias, target in ALIASES.items():
+        link = os.path.join(stereo_dir, f"{alias}.oga")
+        if os.path.lexists(link):
+            os.remove(link)
+        os.symlink(f"{target}.oga", link)
+    print(f"  {len(ALIASES)} aliases for KDE's other event sounds")
+
     with open(os.path.join(args.out, "index.theme"), "w") as f:
         f.write("""[Sound Theme]
 Name=AedwenOS
 Comment=Soft sine/triangle tones in one key, generated from the AedwenOS System Surfaces design
-Inherits=freedesktop
+Inherits=ocean,freedesktop
 Directories=stereo
 
 [stereo]

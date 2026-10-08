@@ -18,7 +18,6 @@ PlasmoidItem {
     id: dock
 
     readonly property bool vertical: Plasmoid.formFactor === PlasmaCore.Types.Vertical
-    readonly property int cell: 52
 
     preferredRepresentation: fullRepresentation
     Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground
@@ -73,12 +72,18 @@ PlasmoidItem {
     TaskActions { id: actions; model: tasksModel }
 
     fullRepresentation: Item {
-        Layout.minimumWidth: dock.vertical ? dock.cell : row.implicitWidth
-        Layout.preferredWidth: Layout.minimumWidth
-        Layout.maximumWidth: Layout.minimumWidth
-        Layout.minimumHeight: dock.vertical ? row.implicitHeight : dock.cell
-        Layout.preferredHeight: Layout.minimumHeight
-        Layout.maximumHeight: Layout.minimumHeight
+        id: area
+        // One square cell per entry, as thick as the panel lets it be (52 px
+        // in the default 66 px dock), so resizing the dock resizes the
+        // icons. Only the length is constrained; the thickness is the
+        // panel's.
+        readonly property int cell: Math.max(24, Math.round(dock.vertical ? width : height))
+        Layout.minimumWidth: dock.vertical ? -1 : row.implicitWidth
+        Layout.preferredWidth: dock.vertical ? -1 : row.implicitWidth
+        Layout.maximumWidth: dock.vertical ? Infinity : row.implicitWidth
+        Layout.minimumHeight: dock.vertical ? row.implicitHeight : -1
+        Layout.preferredHeight: dock.vertical ? row.implicitHeight : -1
+        Layout.maximumHeight: dock.vertical ? row.implicitHeight : Infinity
 
         Grid {
             id: row
@@ -86,12 +91,13 @@ PlasmoidItem {
             flow: dock.vertical ? Grid.TopToBottom : Grid.LeftToRight
             rows: dock.vertical ? -1 : 1
             columns: dock.vertical ? 1 : -1
-            spacing: 4
+            spacing: Math.round(area.cell / 13)
             verticalItemAlignment: Grid.AlignVCenter
             horizontalItemAlignment: Grid.AlignHCenter
 
             DockButton {
                 visible: Plasmoid.configuration.showLauncherButton
+                cell: area.cell
                 symbol: "apps"
                 label: i18n("Applications")
                 onActivated: Shell.openLauncher()
@@ -103,18 +109,19 @@ PlasmoidItem {
                 delegate: DockTask {
                     tasks: tasksModel
                     taskActions: actions
-                    cell: dock.cell
+                    cell: area.cell
                 }
             }
 
             Rectangle {      // separator
                 visible: Plasmoid.configuration.showTrash
-                width: dock.vertical ? 28 : 1
-                height: dock.vertical ? 1 : 28
+                width: dock.vertical ? Math.round(area.cell * 0.54) : 1
+                height: dock.vertical ? 1 : Math.round(area.cell * 0.54)
                 color: Theme.outlineV
             }
             DockButton {
                 visible: Plasmoid.configuration.showTrash
+                cell: area.cell
                 symbol: "delete"
                 label: i18n("Trash")
                 onActivated: Qt.openUrlExternally("trash:/")

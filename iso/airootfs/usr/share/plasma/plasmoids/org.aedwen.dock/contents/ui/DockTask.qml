@@ -34,7 +34,7 @@ PlasmaCore.ToolTipArea {
 
     Rectangle {
         anchors.fill: parent
-        radius: Theme.rCard - 6
+        radius: Math.round(task.cell * 0.27)
         color: mouse.containsMouse ? Theme.state : "transparent"
         Behavior on color { ColorAnimation { duration: Theme.durShort } }
     }
@@ -42,6 +42,7 @@ PlasmaCore.ToolTipArea {
         id: tile
         anchors.centerIn: parent
         source: task.model.decoration
+        size: Math.round(task.cell * 0.77)
         hovered: mouse.containsMouse
         opacity: task.model.IsStartup ? 0.6 : 1
         scale: mouse.pressed ? 0.94 : 1
@@ -58,7 +59,7 @@ PlasmaCore.ToolTipArea {
     // attention badge (urgent window)
     Rectangle {
         visible: task.model.IsDemandingAttention === true
-        width: 10; height: 10; radius: 5
+        width: Math.round(task.cell * 0.19); height: width; radius: width / 2
         color: Theme.err
         anchors.right: tile.right
         anchors.top: tile.top
@@ -69,9 +70,9 @@ PlasmaCore.ToolTipArea {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 1
-        height: 3
-        radius: 2
-        width: task.focused ? 16 : 5
+        height: Math.max(2, Math.round(task.cell / 17))
+        radius: height / 2
+        width: task.focused ? Math.round(task.cell * 0.31) : Math.round(task.cell * 0.1)
         color: task.focused ? Theme.primary : Theme.fgVariant
         opacity: task.running ? 1 : 0
         Behavior on width { NumberAnimation { duration: Theme.dur; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.spring } }

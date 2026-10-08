@@ -33,14 +33,17 @@ PlasmoidItem {
     }
 
     fullRepresentation: Item {
-        Layout.minimumWidth: dots.implicitWidth + 16
+        id: area
+        // dot size follows the panel thickness (8 px at the default 32)
+        readonly property int dot: Math.max(6, Math.round(height / 4))
+        Layout.minimumWidth: dots.implicitWidth + 2 * dot
         Layout.preferredWidth: Layout.minimumWidth
         Layout.maximumWidth: Layout.minimumWidth
 
         Row {
             id: dots
             anchors.centerIn: parent
-            spacing: 5
+            spacing: Math.round(area.dot * 0.62)
             Repeater {
                 model: desktops.desktopIds
                 delegate: Rectangle {
@@ -48,9 +51,9 @@ PlasmoidItem {
                     required property var modelData
                     readonly property bool current: modelData === desktops.currentDesktop
                     anchors.verticalCenter: parent.verticalCenter
-                    height: 8
-                    width: current ? 22 : 8
-                    radius: 4
+                    height: area.dot
+                    width: current ? Math.round(area.dot * 2.75) : area.dot
+                    radius: area.dot / 2
                     color: current ? Theme.primary
                          : root.occupied[modelData] ? Theme.fgVariant : Theme.outline
                     opacity: current || mouse.containsMouse ? 1 : 0.8

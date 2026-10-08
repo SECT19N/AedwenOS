@@ -7,6 +7,7 @@ Row {
     id: row
     property color color: Theme.fg
     property bool showPercent: true
+    property int size: 18
     BatteryControlModel { id: battery }
     readonly property bool shown: battery.hasInternalBatteries
     readonly property int percent: battery.percent
@@ -30,7 +31,7 @@ Row {
             : row.percent >= 95 ? "battery_full"
             : "battery_" + Math.max(0, Math.min(6, Math.round(row.percent / 100 * 6))) + "_bar"
         fill: 1
-        size: 18
+        size: row.size
         color: row.percent < 10 && !row.charging ? Theme.err : row.color
     }
     Label {
@@ -38,6 +39,7 @@ Row {
         anchors.verticalCenter: parent.verticalCenter
         text: row.percent + "%"
         role: "caption"
+        font.pixelSize: Math.max(11, Math.round(row.size * 0.67))
         color: row.color
     }
 }

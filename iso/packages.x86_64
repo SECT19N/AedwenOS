@@ -131,6 +131,10 @@ breeze-gtk
 aurorae
 # ocean-sound-theme: fallback for events the AedwenOS sound theme doesn't cover
 ocean-sound-theme
+# aedwen-cursors: builds the accent/tonal-coloured cursor themes on the
+# user's machine (rsvg-convert renders, xcursorgen packs)
+librsvg
+xorg-xcursorgen
 plasma-nm
 plasma-pa
 kscreen

@@ -40,6 +40,7 @@ PlasmoidItem {
             anchors.centerIn: parent
             width: Math.min(implicitWidth, 248)
             text: root.appName
+            font.pixelSize: Math.max(11, Math.round(parent.height * 0.42))
             font.weight: Font.DemiBold
         }
     }

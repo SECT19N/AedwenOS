@@ -96,6 +96,9 @@ ROOT_UUID="$(blkid -s UUID -o value "$ROOT")"
 install -Dm755 /usr/local/bin/aedwen-dracut.sh /mnt/usr/local/bin/aedwen-dracut.sh
 install -Dm644 /etc/dracut.conf.d/aedwen.conf /mnt/etc/dracut.conf.d/aedwen.conf
 install -Dm755 /usr/local/bin/aedwen-gpu-setup.sh /mnt/usr/local/bin/aedwen-gpu-setup.sh
+# Boot menu look (scripts/generate-limine-wallpaper.py): the target is
+# pacstrapped, so it doesn't have these unless they're copied over.
+install -Dm644 -t /mnt/usr/share/limine /usr/share/limine/aedwen-wallpaper.png /usr/share/limine/aedwen-limine.conf
 
 install -Dm644 /dev/stdin /mnt/etc/pacman.d/hooks/90-dracut-install.hook <<'HOOK'
 [Trigger]
@@ -269,16 +272,9 @@ CMDLINE="root=UUID=$ROOT_UUID rw rootfstype=btrfs rootflags=subvol=@ quiet splas
 # Fallback entry: no splash, nomodeset (see shellprocess-postinstall.conf).
 FALLBACK_CMDLINE="root=UUID=$ROOT_UUID rw rootfstype=btrfs rootflags=subvol=@ nomodeset"
 
-cat > /boot/limine.conf <<LIMINE
-timeout: 3
-wallpaper: boot():/limine-wallpaper.png
-wallpaper_style: centered
-backdrop: 0d0b13
-interface_branding: AedwenOS
-interface_branding_colour: cdacff
-interface_help_hidden: yes
-term_foreground: e5e3ec
-term_background: 00000000
+# Global look shared with the live ISO's menu (aedwen-limine.conf).
+cp /usr/share/limine/aedwen-limine.conf /boot/limine.conf
+cat >> /boot/limine.conf <<LIMINE
 
 /AedwenOS (linux-zen)
     protocol: linux

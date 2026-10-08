@@ -23,7 +23,17 @@ Column {
     spacing: 5
     width: 260
 
-    function forceActiveFocus() { input.forceActiveFocus() }
+    // Calamares (Qt 6) embeds every QML page in its own QQuickWindow inside
+    // a widget window container, and keys go to whichever of those windows
+    // Qt last activated. After a Qt Widgets page (Partition), that is not
+    // this page's window -- on Wayland, clicking into the page doesn't
+    // change it -- so typed text went nowhere. Activate our own window
+    // before taking focus.
+    function focusInput() {
+        if (root.Window.window)
+            root.Window.window.requestActivate()
+        input.forceActiveFocus()
+    }
 
     Rectangle {
         id: box
@@ -109,7 +119,7 @@ Column {
             anchors.fill: parent
             anchors.rightMargin: trailing.visible ? 40 : 0
             cursorShape: Qt.IBeamCursor
-            onPressed: (mouse) => { input.forceActiveFocus(); mouse.accepted = false }
+            onPressed: (mouse) => { root.focusInput(); mouse.accepted = false }
         }
     }
     Text {

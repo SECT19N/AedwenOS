@@ -1,0 +1,11 @@
+# Rebuild an accent- or tonal-coloured Aedwen cursor theme when the accent
+# colour changes (kdeglobals is rewritten on every accent change). Does
+# nothing for the dark/light themes; see /usr/local/bin/aedwen-cursors.
+[Unit]
+Description=Recolour AedwenOS cursors when the accent colour changes
+
+[Path]
+PathChanged=%h/.config/kdeglobals
+
+[Install]
+WantedBy=default.target

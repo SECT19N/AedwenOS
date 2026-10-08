@@ -1,0 +1,6 @@
+[Unit]
+Description=Recolour AedwenOS cursors to the accent colour
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/aedwen-cursors --refresh

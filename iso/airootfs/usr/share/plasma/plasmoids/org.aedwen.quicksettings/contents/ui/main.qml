@@ -39,7 +39,10 @@ PlasmoidItem {
                     anchors.verticalCenter: parent.verticalCenter
                     source: Qt.resolvedUrl("indicators/" + modelData + ".qml")
                     visible: status === Loader.Ready && item.shown
-                    onLoaded: item.color = Qt.binding(() => root.expanded ? Theme.secCFg : Theme.fg)
+                    onLoaded: {
+                        item.color = Qt.binding(() => root.expanded ? Theme.secCFg : Theme.fg)
+                        item.size = Qt.binding(() => button.iconSize)
+                    }
                 }
             }
         }

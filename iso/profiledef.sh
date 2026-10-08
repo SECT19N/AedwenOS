@@ -16,9 +16,10 @@ iso_version="$(date --date="@${SOURCE_DATE_EPOCH:-$(date +%s)}" +%Y.%m.%d)-g${GI
 install_dir="aedwen"
 buildmodes=('iso')
 
-# NOTE: archiso ships no native Limine bootmode. systemd-boot is used here
-# purely to boot the live image; Limine is installed on the *target* system by
-# the installer -- that is where it matters.
+# NOTE: archiso ships no native Limine bootmode, so the ISO is built with
+# systemd-boot and build.sh then swaps Limine (with the AedwenOS menu) into
+# its EFI partition -- see scripts/limine-live-esp.sh. The loader entry in
+# efiboot/ is still the source of the kernel paths and archiso options.
 # UEFI only: both installers set up Limine for UEFI, so a BIOS-booted live
 # session would install a system that cannot boot. BIOS support (Limine BIOS
 # stage + a FAT /boot, since Limine can't read btrfs) is planned for later.
@@ -49,5 +50,6 @@ file_permissions=(
   ["/usr/local/bin/aedwen-dracut.sh"]="0:0:755"
   ["/usr/local/bin/aedwen-gpu-setup.sh"]="0:0:755"
   ["/usr/local/bin/aedwen-calamares"]="0:0:755"
+  ["/usr/local/bin/aedwen-cursors"]="0:0:755"
   ["/root/customize_airootfs.sh"]="0:0:755"
 )

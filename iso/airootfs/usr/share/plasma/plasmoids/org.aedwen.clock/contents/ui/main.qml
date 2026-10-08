@@ -39,18 +39,20 @@ PlasmoidItem {
             id: button
             anchors.centerIn: parent
             active: root.expanded
-            padding: 12
+            padding: Math.round(size * 0.37)
             onClicked: root.expanded = !root.expanded
             Label {
                 visible: Plasmoid.configuration.showDate
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.now.toLocaleDateString(root.locale, "ddd d MMM")
+                font.pixelSize: button.textSize
                 color: root.expanded ? Theme.secCFg : Theme.fgVariant
                 font.weight: Font.Medium
             }
             Label {
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.timeString(root.now)
+                font.pixelSize: button.textSize
                 color: root.expanded ? Theme.secCFg : Theme.fg
                 font.weight: Font.Medium
                 font.features: { "tnum": 1 }

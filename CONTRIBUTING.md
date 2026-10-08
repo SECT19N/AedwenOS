@@ -15,6 +15,22 @@ theme (`desktoptheme/aedwen`) and the shell's icon font and eagle. Change the
 matching `scripts/generate-*.py` and re-run it rather than editing its output,
 or the next run will overwrite your edit.
 
+A few of those have more than one output:
+
+- `generate-cursors.py --all-static` writes every shape family in the dark
+  and light styles (`icons/Aedwen-<Family>-<Style>`) plus the default
+  `Aedwen`. The accent and tonal styles follow the user's accent colour, so
+  they're built on the user's machine by `aedwen-cursors` (with this same
+  script, which `build.sh` copies into the image) and rebuilt by the
+  `aedwen-cursor-accent` user unit when the accent changes.
+- `generate-sounds.py` writes the design's tones plus symlinks for the other
+  sound names KDE's notifications ask for (`ALIASES`).
+- `generate-limine-wallpaper.py` also writes `usr/share/limine/aedwen-limine.conf`,
+  the boot menu's look. Both the installed system's `limine.conf` and the live
+  ISO's start from it. The ISO is built with systemd-boot (archiso has no Limine
+  mode) and `build.sh` then swaps Limine into its EFI partition with
+  `scripts/limine-live-esp.sh`.
+
 The top bar and dock widgets (`iso/airootfs/usr/share/plasma/plasmoids/org.aedwen.*`)
 and their QML modules (`iso/airootfs/usr/lib/qt6/qml/org/aedwen/`) are plain
 QML. Before sending a change to them, run `scripts/check-shell.sh`, which loads

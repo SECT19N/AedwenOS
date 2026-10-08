@@ -10,3 +10,6 @@ __pycache__/
 
 # copied from iso/packages.x86_64 by build.sh at build time
 /iso/airootfs/usr/share/aedwenos/packages.x86_64
+# copied from scripts/ by build.sh (used by aedwen-cursors)
+/iso/airootfs/usr/lib/aedwen/generate-cursors.py
+/iso/airootfs/usr/lib/aedwen/palette_lib.py

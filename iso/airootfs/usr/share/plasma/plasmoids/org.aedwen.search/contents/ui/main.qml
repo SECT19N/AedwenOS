@@ -17,12 +17,12 @@ PlasmoidItem {
             id: button
             anchors.centerIn: parent
             onClicked: Shell.openSearch("")
-            Sym { name: "search"; size: 18; color: Theme.fgVariant; anchors.verticalCenter: parent.verticalCenter }
+            Sym { name: "search"; size: button.iconSize; color: Theme.fgVariant; anchors.verticalCenter: parent.verticalCenter }
             Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
-                implicitWidth: keys.implicitWidth + 10
-                implicitHeight: 18
-                radius: 5
+                implicitWidth: keys.implicitWidth + Math.round(button.size * 0.31)
+                implicitHeight: button.iconSize
+                radius: Math.round(button.size * 0.16)
                 color: "transparent"
                 border.width: 1
                 border.color: Theme.outlineV
@@ -31,7 +31,7 @@ PlasmoidItem {
                     anchors.centerIn: parent
                     text: i18nc("keyboard shortcut", "Alt Space")
                     font.family: Theme.mono
-                    font.pixelSize: 10
+                    font.pixelSize: Math.max(9, Math.round(button.size * 0.31))
                     color: Theme.fgVariant
                 }
             }

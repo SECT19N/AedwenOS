@@ -20,6 +20,11 @@ Rectangle {
         return Math.max(1, Math.min(4, s))
     }
     readonly property int score: strength(pw.text)
+
+    // Called by Calamares when the step is shown: put the cursor in the
+    // first field (this also activates the page's window; see
+    // OutlinedField.focusInput()).
+    function onActivate() { fullName.focusInput() }
     readonly property var scoreNames: [qsTr("Weak"), qsTr("Fair"), qsTr("Good"), qsTr("Strong")]
 
     Flickable {

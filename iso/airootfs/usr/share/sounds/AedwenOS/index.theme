@@ -1,7 +1,7 @@
 [Sound Theme]
 Name=AedwenOS
 Comment=Soft sine/triangle tones in one key, generated from the AedwenOS System Surfaces design
-Inherits=freedesktop
+Inherits=ocean,freedesktop
 Directories=stereo
 
 [stereo]

@@ -12,7 +12,8 @@ which Plasma substitutes from the active colour scheme, and the theme ships
 no `colors` file -- so the shell follows whatever scheme is selected, like
 org.aedwen.ui's Theme does.
 
-  widgets/panel-background   top bar and dock: surface-container, r 20
+  widgets/panel-background   top bar and dock: surface-container, r 16
+                             (the design's baseline r-bar; clean down to 32 px thick)
   dialogs/background         popups (launcher, quick settings, ...):
                              surface-container-high, r 32 (r-pop)
   widgets/tooltip            inverse surface, r 8
@@ -37,12 +38,17 @@ THEME = "iso/airootfs/usr/share/plasma/desktoptheme/aedwen"
 
 # name -> (colour class, corner radius, content margin, shadow size, shadow alpha)
 FRAMES = {
-    "widgets/panel-background": ("HeaderBackground", 20, 6, 12, 0.22),
+    "widgets/panel-background": ("HeaderBackground", 16, 6, 12, 0.22),
     "dialogs/background": ("ButtonBackground", 32, 12, 28, 0.32),
     "widgets/tooltip": ("TooltipBackground", 8, 8, 10, 0.24),
     "widgets/background": ("HeaderBackground", 20, 12, 14, 0.18),
 }
-CENTER = 8          # size of the stretchable centre/edge cells
+# Size of the stretchable centre/edge cells. Plasma stretches them (see
+# hint-stretch-borders below) rather than tiling: tiling small cells of a
+# see-through fill leaves a seam at every tile boundary that falls between
+# device pixels (fractional scaling, VMs), drawn as a dotted or striped
+# pattern along the panel.
+CENTER = 64
 
 
 def frame_elements(prefix, ox, oy, r, cls, opacity, hairline):
@@ -50,23 +56,37 @@ def frame_elements(prefix, ox, oy, r, cls, opacity, hairline):
     (ox, oy). `prefix` is "" or "mask-"."""
     c = CENTER
     fill = f'class="ColorScheme-{cls}" fill="currentColor" fill-opacity="{opacity}"'
-    line = 'class="ColorScheme-Text" fill="none" stroke="currentColor" stroke-opacity="0.08" stroke-width="1"'
+    # The hairline is a filled 1px shape, not a stroke: a stroke's bounds
+    # spill half a pixel outside the cell, so Plasma would shrink the cell's
+    # fill to make room and leave a see-through gap at every join.
+    line = 'class="ColorScheme-Text" fill="currentColor" fill-opacity="0.08"'
     out = []
 
     def g(name, body):
         out.append(f'<g id="{prefix}{name}">{body}</g>')
 
     # corners: the quarter disc of radius r inside an r x r cell
-    corners = {
-        "topleft": (ox, oy, f"M{ox},{oy + r} A{r},{r} 0 0 1 {ox + r},{oy} L{ox + r},{oy + r} Z",
-                    f"M{ox + 0.5},{oy + r} A{r - 0.5},{r - 0.5} 0 0 1 {ox + r},{oy + 0.5}"),
-        "topright": (ox + r + c, oy, f"M{ox + r + c},{oy} A{r},{r} 0 0 1 {ox + 2 * r + c},{oy + r} L{ox + r + c},{oy + r} Z",
-                     f"M{ox + r + c},{oy + 0.5} A{r - 0.5},{r - 0.5} 0 0 1 {ox + 2 * r + c - 0.5},{oy + r}"),
-        "bottomright": (ox + r + c, oy + r + c, f"M{ox + 2 * r + c},{oy + r + c} A{r},{r} 0 0 1 {ox + r + c},{oy + 2 * r + c} L{ox + r + c},{oy + r + c} Z",
-                        f"M{ox + 2 * r + c - 0.5},{oy + r + c} A{r - 0.5},{r - 0.5} 0 0 1 {ox + r + c},{oy + 2 * r + c - 0.5}"),
-        "bottomleft": (ox, oy + r + c, f"M{ox + r},{oy + 2 * r + c} A{r},{r} 0 0 1 {ox},{oy + r + c} L{ox + r},{oy + r + c} Z",
-                       f"M{ox + r},{oy + 2 * r + c - 0.5} A{r - 0.5},{r - 0.5} 0 0 1 {ox + 0.5},{oy + r + c}"),
+    def quarter(cx, cy, sx, sy, rad):
+        """Quarter disc of radius rad centred on (cx, cy), opening towards
+        (-sx, -sy): the rounded part of a corner cell."""
+        sweep = 1 if sx == sy else 0
+        return (f"M{cx - sx * rad},{cy} A{rad},{rad} 0 0 {sweep} {cx},{cy - sy * rad} "
+                f"L{cx},{cy} Z")
+
+    def ring(cx, cy, sx, sy):
+        sweep = 1 if sx == sy else 0
+        return (f"M{cx - sx * r},{cy} A{r},{r} 0 0 {sweep} {cx},{cy - sy * r} "
+                f"L{cx},{cy - sy * (r - 1)} A{r - 1},{r - 1} 0 0 {1 - sweep} {cx - sx * (r - 1)},{cy} Z")
+
+    # (cell origin, centre of the rounding, direction of the outer corner)
+    cells = {
+        "topleft": (ox, oy, ox + r, oy + r, 1, 1),
+        "topright": (ox + r + c, oy, ox + r + c, oy + r, -1, 1),
+        "bottomright": (ox + r + c, oy + r + c, ox + r + c, oy + r + c, -1, -1),
+        "bottomleft": (ox, oy + r + c, ox + r, oy + r + c, 1, -1),
     }
+    corners = {name: (x, y, quarter(cx, cy, sx, sy, r), ring(cx, cy, sx, sy))
+                for name, (x, y, cx, cy, sx, sy) in cells.items()}
     for name, (x, y, d, arc) in corners.items():
         # an invisible rect pins the element's bounds to the full cell
         body = f'<rect x="{x}" y="{y}" width="{r}" height="{r}" fill="none"/><path d="{d}" {fill}/>'
@@ -75,15 +95,15 @@ def frame_elements(prefix, ox, oy, r, cls, opacity, hairline):
         g(name, body)
 
     edges = {
-        "top": (ox + r, oy, c, r, (ox + r, oy + 0.5, ox + r + c, oy + 0.5)),
-        "bottom": (ox + r, oy + r + c, c, r, (ox + r, oy + 2 * r + c - 0.5, ox + r + c, oy + 2 * r + c - 0.5)),
-        "left": (ox, oy + r, r, c, (ox + 0.5, oy + r, ox + 0.5, oy + r + c)),
-        "right": (ox + r + c, oy + r, r, c, (ox + 2 * r + c - 0.5, oy + r, ox + 2 * r + c - 0.5, oy + r + c)),
+        "top": (ox + r, oy, c, r, (ox + r, oy, c, 1)),
+        "bottom": (ox + r, oy + r + c, c, r, (ox + r, oy + 2 * r + c - 1, c, 1)),
+        "left": (ox, oy + r, r, c, (ox, oy + r, 1, c)),
+        "right": (ox + r + c, oy + r, r, c, (ox + 2 * r + c - 1, oy + r, 1, c)),
     }
-    for name, (x, y, w, h, (x1, y1, x2, y2)) in edges.items():
+    for name, (x, y, w, h, (lx, ly, lw, lh)) in edges.items():
         body = f'<rect x="{x}" y="{y}" width="{w}" height="{h}" {fill}/>'
         if hairline:
-            body += f'<path d="M{x1},{y1} L{x2},{y2}" {line}/>'
+            body += f'<rect x="{lx}" y="{ly}" width="{lw}" height="{lh}" {line}/>'
         g(name, body)
     g("center", f'<rect x="{ox + r}" y="{oy + r}" width="{c}" height="{c}" {fill}/>')
     return out
@@ -165,6 +185,7 @@ def frame_svg(cls, r, margin, s, a, opacity):
         parts.append(hint(f"shadow-hint-{side}-margin", 0, sy, w, h))
         w, h = (0.0001, 1) if horiz else (1, 0.0001)
         parts.append(hint(f"hint-{side}-inset", 0, 0, w, h))
+    parts.append(hint("hint-stretch-borders", 0, 0, 1, 1))
     width = max(mx + size, tsize) + 10
     height = sy + tsize + 10
     body = "\n".join(parts)

@@ -60,11 +60,10 @@ PlasmoidItem {
             id: button
             anchors.centerIn: parent
             active: root.expanded
-            padding: 10
             onClicked: root.expanded = !root.expanded
             EagleMark {
-                width: 20
-                height: 20
+                width: Math.round(button.size * 0.62)
+                height: width
                 color: root.expanded ? Theme.secCFg : Theme.primary
             }
         }

@@ -145,3 +145,6 @@ inactiveForeground=#bebbcd
 [Icons]
 Theme=breeze-dark
 
+[Sounds]
+Theme=AedwenOS
+

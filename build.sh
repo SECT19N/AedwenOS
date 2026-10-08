@@ -62,6 +62,7 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 command -v mkarchiso >/dev/null || { echo "install 'archiso' first"; exit 1; }
+command -v mcopy >/dev/null || { echo "install 'mtools' first (Limine boot menu on the ISO)"; exit 1; }
 
 # --- preflight: fail fast on the things that otherwise surface as a cryptic
 # "target not found" or keyring error 20 minutes into the build. ---
@@ -99,11 +100,20 @@ export GIT_DIRTY=""
 # set (up to the LIVE ONLY marker). Owned by the invoking user, not root.
 install -Dm644 -o "${SUDO_UID:-0}" -g "${SUDO_GID:-0}" "$profile/packages.x86_64" \
     "$profile/airootfs/usr/share/aedwenos/packages.x86_64"
+# aedwen-cursors builds the accent/tonal cursor themes on the user's machine
+# with the same generator the static themes come from.
+install -Dm644 -o "${SUDO_UID:-0}" -g "${SUDO_GID:-0}" -t "$profile/airootfs/usr/lib/aedwen" \
+    "$here/scripts/generate-cursors.py" "$here/scripts/palette_lib.py"
 
 rm -rf "$work"
 mkdir -p "$work" "$out"
 
 mkarchiso -v -w "$work" -o "$out" -C "$pacconf" "$profile"
+
+# archiso only boots UEFI through systemd-boot; swap in the AedwenOS Limine
+# menu (the one the installed system gets) on the finished ISO.
+iso="$(ls -t "$out"/*.iso | head -n1)"
+"$here/scripts/limine-live-esp.sh" "$iso" "$work/x86_64/airootfs"
 
 echo
 echo "ISO written to: $out"

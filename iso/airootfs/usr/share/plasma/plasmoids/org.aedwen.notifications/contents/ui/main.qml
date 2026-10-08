@@ -57,7 +57,7 @@ PlasmoidItem {
             id: button
             anchors.centerIn: parent
             active: root.expanded
-            padding: 9
+            padding: Math.round(size * 0.28)
             onClicked: mouse => {
                 if (mouse.button === Qt.MiddleButton) root.setDnd(!root.dnd)
                 else root.expanded = !root.expanded
@@ -66,16 +66,16 @@ PlasmoidItem {
                 anchors.verticalCenter: parent.verticalCenter
                 name: root.dnd ? "notifications_paused" : "notifications"
                 fill: history.unreadNotificationsCount > 0 ? 1 : 0
-                size: 18
+                size: button.iconSize
                 color: root.expanded ? Theme.secCFg : Theme.fg
             }
         }
         Rectangle {
             visible: history.unreadNotificationsCount > 0 && !root.dnd
-            width: 7; height: 7; radius: 4
+            width: Math.round(button.size * 0.22); height: width; radius: width / 2
             color: Theme.primary
-            x: button.x + button.width - 12
-            y: button.y + 5
+            x: button.x + button.width - Math.round(button.size * 0.375)
+            y: button.y + Math.round(button.size * 0.16)
         }
     }
 

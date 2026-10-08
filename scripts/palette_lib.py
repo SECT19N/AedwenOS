@@ -46,6 +46,36 @@ def o(l, c, h):
     return oklch_to_srgb_hex(l, c, h)
 
 
+def srgb_hex_to_oklch(hex_color):
+    """Inverse of oklch_to_srgb_hex: (L, C, H in degrees)."""
+    hex_color = hex_color.lstrip("#")
+
+    def lin(i):
+        c = int(hex_color[i : i + 2], 16) / 255
+        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+    r, g, b = lin(0), lin(2), lin(4)
+    l = (0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b) ** (1 / 3)
+    m = (0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b) ** (1 / 3)
+    s_ = (0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b) ** (1 / 3)
+    L = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s_
+    A = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s_
+    B = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s_
+    return L, math.hypot(A, B), math.degrees(math.atan2(B, A)) % 360
+
+
+def seed_hex_for(hex_color):
+    """The seed colour (as in SEED_HEX) for any accent colour, e.g. KDE's
+    AccentColor, which is the palette's light primary rather than the seed:
+    a preset's own seed when the hue is within 10 degrees of it, otherwise
+    a colour at the presets' typical seed lightness/chroma on that hue."""
+    _, _, h = srgb_hex_to_oklch(hex_color)
+    for name, sh in SEEDS.items():
+        if min(abs(h - sh), 360 - abs(h - sh)) <= 10:
+            return SEED_HEX[name]
+    return oklch_to_srgb_hex(0.6, 0.15, h)
+
+
 def palette(H, dark, expressive):
     k = 1.5 if expressive else 1.0
     T = H + 70
