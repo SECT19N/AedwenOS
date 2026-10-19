@@ -15,9 +15,9 @@ Item {
     property bool showAll: false
     readonly property bool searching: search.text !== ""
 
-    Layout.minimumWidth: 560
+    Layout.minimumWidth: 3 * 88 + 16      // three grid columns
     Layout.preferredWidth: 560
-    Layout.minimumHeight: 560
+    Layout.minimumHeight: 420
     Layout.preferredHeight: 600
 
     KCoreAddons.KUser { id: kuser }

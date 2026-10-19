@@ -7,7 +7,6 @@ import org.aedwen.shell
 
 ToggleTile {
     id: tile
-    property bool available: true
     property string settingsModule: ""
 
     function toggle() {}

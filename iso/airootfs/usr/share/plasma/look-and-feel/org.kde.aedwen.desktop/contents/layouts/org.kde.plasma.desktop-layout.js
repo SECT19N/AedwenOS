@@ -32,9 +32,11 @@ topBar.addWidget("org.kde.plasma.panelspacer");
 topBar.addWidget("org.aedwen.search");
 
 // The tray keeps app status icons (clipboard, KDE Connect, updates, ...).
-// Network, volume, battery, Bluetooth and brightness live in Quick Settings
-// and notifications in the bell, so KDE's own applets for those stay loaded
-// (notification pop-ups, media keys and OSDs come from them) but hidden.
+// Network, volume, battery, Bluetooth, brightness, drives and keyboard
+// layout live in Quick Settings and notifications in the bell, so KDE's own
+// applets for those stay loaded (notification pop-ups, media keys and OSDs
+// come from them) but hidden. The tray shows its ^ overflow arrow whenever
+// anything is hidden; stock Plasma has no setting to drop it.
 // (In Plasma 6 the tray is itself a containment, so its item lists are in
 // the widget's own [General] config.)
 var systray = topBar.addWidget("org.kde.plasma.systemtray");
@@ -46,6 +48,8 @@ systray.writeConfig("hiddenItems", [
     "org.kde.plasma.battery",
     "org.kde.plasma.bluetooth",
     "org.kde.plasma.brightness",
+    "org.kde.plasma.devicenotifier",
+    "org.kde.plasma.keyboardlayout",
 ]);
 
 topBar.addWidget("org.aedwen.quicksettings");

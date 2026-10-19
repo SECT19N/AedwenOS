@@ -53,5 +53,5 @@ PlasmoidItem {
         Loader { id: volumeStep; source: Qt.resolvedUrl("sliders/Volume.qml"); visible: false }
     }
 
-    fullRepresentation: QuickSettingsPopup {}
+    fullRepresentation: QuickSettingsPopup { quickSettings: root }
 }

@@ -1,4 +1,4 @@
-// Power profile: on = "performance"; off = back to balanced. Hidden when
+// Power profile: on = "performance"; off = back to balanced. Greyed out when
 // power-profiles-daemon isn't running or the hardware has no performance
 // profile.
 import QtQuick
@@ -8,6 +8,7 @@ import ".."
 Tile {
     PowerProfilesControl { id: profiles; isSilent: true }
     available: profiles.isPowerProfileDaemonInstalled && profiles.profiles.indexOf("performance") !== -1
+    unavailableText: i18n("Not supported")
     active: profiles.activeProfile === "performance"
     icon: profiles.activeProfile === "power-saver" ? "eco" : "bolt"
     label: i18n("Performance")

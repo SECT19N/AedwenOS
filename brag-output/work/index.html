@@ -1,0 +1,557 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="stylesheet" href="fonts/local.css">
+<script src="data.js"></script>
+<script src="loader.js"></script>
+<style>
+@font-face { font-family: "Material Symbols Rounded"; src: url(fonts/MaterialSymbolsRounded.ttf); font-display: block; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0d0b13; }
+body { font-family: "Roboto Flex", sans-serif; color: #e5e3ec; -webkit-font-smoothing: antialiased; }
+#stage { position: absolute; inset: 0; overflow: hidden; background: #0d0b13; }
+.layer { position: absolute; inset: 0; }
+.sym { font-family: "Material Symbols Rounded"; font-weight: normal; font-style: normal; line-height: 1;
+  letter-spacing: normal; text-transform: none; white-space: nowrap; direction: ltr;
+  font-feature-settings: "liga"; font-variation-settings: "FILL" 1, "wght" 400, "opsz" 24; display: inline-block; }
+
+/* ---------- boot splash ---------- */
+#boot { background: #0d0b13; }
+#loader { position: absolute; left: 0; top: 0; overflow: visible; }
+.bootword { position: absolute; left: 0; right: 0; text-align: center; }
+#bw1 { top: 560px; font-size: 136px; font-weight: 700; letter-spacing: -3px; font-variation-settings: "wdth" 100, "opsz" 144; color: #e5e3ec; }
+#bw2 { top: 740px; font-size: 44px; font-weight: 400; color: #bebbcd; font-variation-settings: "opsz" 36; }
+#bw2 b { color: #cdacff; font-weight: 600; }
+
+/* ---------- desktop ---------- */
+#deskLayer { overflow: hidden; }
+#deskCam { position: absolute; inset: 0; transform-origin: 960px 540px; }
+.deskWrap { position: absolute; inset: 0; overflow: hidden; }
+.desk { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform: scale(1.5); transform-origin: 0 0;
+  background: var(--wall); font-size: 13px; color: var(--on-s); }
+.desk .eagle { position: absolute; left: 375px; top: 16px; width: 331px; height: 331px; background: var(--eagle);
+  -webkit-mask: url(logo.png) center / contain no-repeat; }
+.desk .wordmark { position: absolute; right: 48px; top: 607px; font-size: 22px; letter-spacing: 0; color: var(--wall-onsv); opacity: .85; white-space: pre; }
+.bar { position: absolute; left: 8px; right: 8px; top: 8px; height: 44px; border-radius: 16px;
+  background: color-mix(in srgb, var(--sc-low) 86%, transparent); display: flex; align-items: center; padding: 0 6px; gap: 6px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--outline-v) 60%, transparent); }
+.bar .btn { height: 34px; min-width: 34px; border-radius: 17px; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 0 8px; color: var(--on-s); }
+.bar .btn .sym { font-size: 19px; }
+.bar .launch { background: var(--pc); width: 34px; padding: 0; }
+.bar .launch i { width: 20px; height: 20px; background: var(--on-pc); -webkit-mask: url(eagle.svg) center / contain no-repeat; }
+.ws { display: flex; gap: 5px; align-items: center; padding: 0 8px; }
+.ws i { width: 8px; height: 8px; border-radius: 4px; background: var(--on-sv); opacity: .45; }
+.ws i.on { width: 24px; background: var(--primary); opacity: 1; }
+.bar .spacer { flex: 1; }
+.clock { font-weight: 600; font-size: 13.5px; letter-spacing: .2px; }
+.clock span { color: var(--on-sv); font-weight: 450; margin-right: 8px; }
+.qsbtn { background: color-mix(in srgb, var(--on-s) 8%, transparent); }
+.dock { position: absolute; left: 50%; bottom: 8px; height: 66px; transform: translateX(-50%); border-radius: 22px; padding: 0 9px; display: flex; align-items: center; gap: 2px;
+  background: color-mix(in srgb, var(--sc-low) 86%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--outline-v) 60%, transparent); }
+.cell { width: 56px; height: 56px; position: relative; display: flex; align-items: center; justify-content: center; }
+.tile { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid; }
+.tile img { width: 31px; height: 31px; }
+.cell .run { position: absolute; bottom: 3px; left: 50%; height: 3px; width: 6px; margin-left: -3px; border-radius: 2px; background: var(--on-sv); }
+.cell .run.f { width: 17px; margin-left: -8.5px; background: var(--primary); }
+
+.qs { position: absolute; right: 8px; top: 60px; width: 356px; padding: 8px; border-radius: 32px; transform-origin: 85% 0;
+  background: color-mix(in srgb, var(--sc) 94%, transparent); box-shadow: 0 0 0 1px color-mix(in srgb, var(--outline-v) 70%, transparent), 0 18px 40px rgba(0,0,0,.35); }
+.qgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.qt { height: 76px; border-radius: 14px; background: var(--sc-high); color: var(--on-s); position: relative; padding: 12px 12px 10px; display: flex; flex-direction: column; justify-content: space-between; }
+.qt .sym { font-size: 21px; }
+.qt b { font-size: 13px; font-weight: 600; display: block; }
+.qt small { font-size: 11.5px; opacity: .8; display: block; margin-top: 1px; }
+.qsl { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+.sl { height: 36px; border-radius: 18px; background: var(--sc-highest); position: relative; overflow: hidden; }
+.sl .fill { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 18px; background: var(--primary); display: flex; align-items: center; padding-left: 10px; color: var(--on-primary); }
+.sl .fill .sym { font-size: 19px; }
+.accent { margin-top: 14px; display: flex; align-items: center; justify-content: space-between; padding: 0 6px 0 10px; }
+.accent span { font-size: 13px; font-weight: 600; color: var(--on-sv); }
+.dots { display: flex; gap: 10px; }
+.dot { width: 26px; height: 26px; border-radius: 13px; position: relative; }
+.dot.sel::after { content: ""; position: absolute; inset: -4px; border-radius: 50%; border: 2px solid var(--on-s); }
+.qdiv { height: 1px; background: var(--outline-v); margin: 14px 4px 10px; }
+.qfoot { display: flex; align-items: center; gap: 8px; padding: 0 6px 2px 10px; color: var(--on-sv); }
+.qfoot .sym { font-size: 19px; }
+.qfoot .grow { flex: 1; font-size: 12.5px; }
+.qfoot .ib { width: 36px; height: 36px; border-radius: 18px; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--on-s) 8%, transparent); color: var(--on-s); }
+
+/* ---------- installer ---------- */
+#instLayer { pointer-events: none; }
+#scrim { position: absolute; inset: 0; background: #07060b; }
+#win { position: absolute; left: 0; top: 0; width: 760px; height: 480px; transform-origin: 50% 50%; border-radius: 16px; overflow: hidden;
+  background: #0d0b13; color: #e5e3ec; font-size: 13px; box-shadow: 0 0 0 1px #3e3b47, 0 30px 80px rgba(0,0,0,.55); }
+.tb { height: 30px; background: #181521; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: #bebbcd; position: relative; }
+.tb .cl { position: absolute; right: 10px; top: 8px; width: 14px; height: 14px; border-radius: 7px; background: #262331; }
+.ibody { position: absolute; top: 30px; left: 0; right: 0; bottom: 0; display: flex; }
+.side { width: 178px; background: #12101b; padding: 18px 10px; position: relative; }
+.side .mk { width: 34px; height: 34px; margin: 0 0 16px 8px; background: #cdacff; -webkit-mask: url(eagle.svg) center / contain no-repeat; }
+.step { height: 32px; border-radius: 16px; display: flex; align-items: center; gap: 10px; padding: 0 12px; color: #bebbcd; font-size: 13px; position: relative; z-index: 1; }
+.step .sym { font-size: 17px; }
+.step.cur { color: #dfdbed; font-weight: 600; }
+.step.done .sym { color: #cdacff; }
+#stepHi { position: absolute; left: 10px; right: 10px; height: 32px; border-radius: 16px; background: #37304e; z-index: 0; }
+.side .ver { position: absolute; left: 22px; bottom: 16px; font-size: 11px; color: #878491; }
+.main { flex: 1; position: relative; }
+.page { position: absolute; left: 0; right: 0; top: 0; bottom: 56px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 40px; }
+.morph { width: 84px; height: 84px; background: #4b2888; border-radius: 42px 42px 42px 23px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+.morph i { width: 48px; height: 48px; background: #eae2ff; -webkit-mask: url(eagle.svg) center / contain no-repeat; }
+.page h1 { font-size: 30px; font-weight: 700; letter-spacing: -.3px; margin-bottom: 10px; }
+.page p { font-size: 13px; color: #bebbcd; max-width: 380px; line-height: 1.4; }
+.chips { display: flex; gap: 6px; margin-top: 18px; flex-wrap: wrap; justify-content: center; }
+.chip { height: 28px; border-radius: 8px; border: 1px solid #3e3b47; display: flex; align-items: center; gap: 5px; padding: 0 9px 0 7px; font-size: 11.5px; }
+.chip .sym { font-size: 16px; color: #cdacff; }
+.dd { margin-top: 14px; height: 34px; border-radius: 17px; border: 1px solid #878491; display: flex; align-items: center; gap: 8px; padding: 0 14px; font-size: 12.5px; color: #e5e3ec; }
+.dd .sym { font-size: 17px; color: #bebbcd; }
+.nav { position: absolute; left: 0; right: 0; bottom: 0; height: 56px; display: flex; align-items: center; gap: 8px; padding: 0 16px 0 22px; border-top: 1px solid #262331; }
+.nav .st { flex: 1; font-size: 12px; color: #bebbcd; }
+.pb { height: 34px; border-radius: 17px; padding: 0 18px; display: flex; align-items: center; font-weight: 600; font-size: 12.5px; }
+.pb.t { color: #cdacff; }
+.pb.ton { background: #37304e; color: #dfdbed; }
+.pb.fill { background: #cdacff; color: #2d1c50; }
+.pb.out { border: 1px solid #878491; color: #cdacff; }
+.slide { width: 100%; max-width: 420px; text-align: left; }
+.slide .ic { width: 56px; height: 56px; border-radius: 18px; background: #4b2888; color: #eae2ff; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
+.slide .ic .sym { font-size: 30px; }
+.slide .n { font-family: "Roboto Mono"; font-size: 11px; color: #878491; margin-bottom: 6px; }
+.slide h2 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+.slide p { max-width: none; text-align: left; }
+.prog { margin-top: 26px; height: 8px; border-radius: 4px; background: #262331; position: relative; overflow: hidden; width: 100%; }
+.prog i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 4px; background: #cdacff; }
+.progl { margin-top: 10px; font-size: 11.5px; color: #bebbcd; display: flex; justify-content: space-between; width: 100%; }
+.done1 { width: 92px; height: 92px; border-radius: 46px 46px 46px 25px; background: #cdacff; color: #2d1c50; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+.done1 .sym { font-size: 52px; font-variation-settings: "FILL" 1, "wght" 600; }
+.btnrow { display: flex; gap: 8px; margin-top: 22px; }
+
+/* ---------- limine ---------- */
+#lim { background: #0d0b13; }
+#card { position: absolute; left: 400px; top: 96px; width: 1120px; height: 620px; border-radius: 26px; background: rgba(30,27,41,.96);
+  font-family: "Roboto Mono"; font-size: 30px; color: #e5e3ec; }
+#card .brand { position: absolute; top: 40px; left: 0; right: 0; text-align: center; color: #cdacff; font-weight: 500; font-size: 30px; }
+#card .ents { position: absolute; left: 60px; right: 60px; top: 118px; }
+.ent { height: 64px; display: flex; align-items: center; white-space: pre; padding: 0 18px; position: relative; z-index: 1; }
+.ent.sub { padding-left: 62px; color: #bebbcd; }
+.ent .tag { color: #878491; }
+#limHi { position: absolute; left: 0; right: 0; height: 64px; border-radius: 10px; background: #cdacff; z-index: 0; }
+.ent.hi { color: #2d1c50; }
+.ent.hi .tag { color: #4b2888; }
+#card .foot { position: absolute; left: 0; right: 0; bottom: 34px; text-align: center; font-size: 22px; color: #878491; }
+
+/* ---------- outro ---------- */
+#outro { background: #0d0b13; }
+#oshape { position: absolute; left: 0; top: 0; overflow: visible; }
+#oeagle { position: absolute; width: 150px; height: 150px; background: #eae2ff; -webkit-mask: url(eagle.svg) center / contain no-repeat; }
+.ol { position: absolute; left: 0; right: 0; text-align: center; }
+#o1 { top: 560px; font-size: 128px; font-weight: 700; letter-spacing: -3px; font-variation-settings: "opsz" 144; }
+#o2 { top: 728px; font-size: 40px; color: #bebbcd; }
+#o2 b { color: #cdacff; font-weight: 500; padding: 0 14px; }
+#o3w { top: 820px; }
+#o3 { display: inline-flex; align-items: center; gap: 14px; height: 70px; padding: 0 30px; border-radius: 35px; border: 2px solid #3e3b47; font-family: "Roboto Mono"; font-size: 30px; color: #cdacff; }
+#o3 .sym { font-size: 34px; color: #bebbcd; }
+
+/* ---------- captions / cursor ---------- */
+.cap { position: absolute; left: 120px; will-change: transform; text-shadow: 0 2px 24px rgba(0,0,0,.45); }
+.cap .l { display: block; font-size: 80px; font-weight: 650; letter-spacing: -1.6px; line-height: 1.04; font-variation-settings: "opsz" 144; color: #f1eff6; }
+.cap .l.a { color: var(--capacc, #cdacff); }
+.cap .s { display: block; margin-top: 22px; font-size: 32px; color: #d4d1df; max-width: 760px; line-height: 1.3; }
+#capLim { left: 0; right: 0; text-align: center; top: 790px; }
+#capInst .l { font-size: 68px; }
+#capLim .s { margin-left: auto; margin-right: auto; max-width: none; }
+#cursor { position: absolute; left: 0; top: 0; width: 48px; height: 48px; transform-origin: 8px 6px; }
+#cursor svg { width: 48px; height: 48px; display: block; }
+</style></head>
+<body><div id="stage">
+
+<div id="boot" class="layer">
+  <svg id="loader" width="1920" height="1080"><path id="lpath" fill="#cdacff"/></svg>
+  <div id="bw1" class="bootword">AedwenOS</div>
+  <div id="bw2" class="bootword">Arch Linux in <b>Material 3 Expressive</b>.</div>
+</div>
+
+<div id="deskLayer" class="layer"><div id="deskCam">
+  <div class="deskWrap" id="wrapA"></div>
+  <div class="deskWrap" id="wrapB"></div>
+</div></div>
+
+<div id="instLayer" class="layer">
+  <div id="scrim"></div>
+  <div id="win">
+    <div class="tb">Install AedwenOS<span class="cl"></span></div>
+    <div class="ibody">
+      <div class="side"><div class="mk"></div><div id="steps" style="position:relative"><div id="stepHi"></div></div><div class="ver">AedwenOS rolling</div></div>
+      <div class="main">
+        <div class="page" id="pWelcome">
+          <div class="morph"><i></i></div>
+          <h1>Welcome to AedwenOS</h1>
+          <p>Installing takes about 10 minutes. Nothing on this computer changes until you press Install now.</p>
+          <div class="dd"><span class="sym">translate</span>English (United Kingdom)<span class="sym">arrow_drop_down</span></div>
+          <div class="chips">
+            <div class="chip"><span class="sym">check_circle</span>Enough disk space</div>
+            <div class="chip"><span class="sym">check_circle</span>Enough memory</div>
+            <div class="chip"><span class="sym">check_circle</span>Plugged in</div>
+            <div class="chip"><span class="sym">check_circle</span>Online</div>
+          </div>
+        </div>
+        <div class="page" id="pInstall">
+          <div class="slide">
+            <div class="ic"><span class="sym">storefront</span></div>
+            <div class="n">04 / 04</div>
+            <h2>Apps from Octopi</h2>
+            <p>The Arch repositories and the AUR in one app, with updates in the background.</p>
+            <div class="prog"><i id="progFill"></i></div>
+            <div class="progl"><span id="progTxt">Installing packages…</span><span id="progPct">0%</span></div>
+          </div>
+        </div>
+        <div class="page" id="pDone">
+          <div class="done1"><span class="sym">check</span></div>
+          <h1>AedwenOS is installed</h1>
+          <p>Remove the USB drive, then restart. Your new system starts with everything you chose here.</p>
+          <div class="btnrow"><div class="pb out">Keep trying it out</div><div class="pb fill" id="restartBtn">Restart now</div></div>
+        </div>
+        <div class="nav" id="nav"><span class="st" id="navSt">Step 1 of 7</span><div class="pb t">Cancel</div><div class="pb ton">Back</div><div class="pb fill" id="nextBtn">Next</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="lim" class="layer">
+  <div id="card">
+    <div class="brand">AedwenOS</div>
+    <div class="ents" id="ents"><div id="limHi"></div></div>
+    <div class="foot">↑↓ select · Enter boot</div>
+  </div>
+</div>
+
+<div id="outro" class="layer">
+  <svg id="oshape" width="1920" height="1080"><path id="opath" fill="#4b2888"/></svg>
+  <div id="oeagle"></div>
+  <div id="o1" class="ol">AedwenOS</div>
+  <div id="o2" class="ol">Arch-based<b>·</b>rolling<b>·</b>pre-alpha</div>
+  <div id="o3w" class="ol"><span id="o3"><span class="sym">code</span>github.com/SECT19N/AedwenOS</span></div>
+</div>
+
+<div id="capDesk" class="cap"><span class="l">Its own desktop shell,</span><span class="l a">built on KDE Plasma.</span></div>
+<div id="capSeed" class="cap"><span class="l">One colour,</span><span class="l a">everywhere.</span><span class="s">The desktop, apps, icons and even the cursor follow it.</span></div>
+<div id="capInst" class="cap"><span class="l">A graphical</span><span class="l">installer.</span><span class="l a">About 10 minutes.</span></div>
+<div id="capLim" class="cap"><span class="l">Broke it? <span style="color:#cdacff">Boot yesterday.</span></span><span class="s">Btrfs snapshots, right in the Limine boot menu.</span></div>
+
+<div id="cursor"></div>
+</div>
+
+<script>
+const D = window.DATA;
+// ---------- math ----------
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, t) => a + (b - a) * t;
+const P = (t, a, b) => clamp((t - a) / (b - a));
+function bez(x1, y1, x2, y2) {
+  const B = (t, p1, p2) => { const u = 1 - t; return 3*u*u*t*p1 + 3*u*t*t*p2 + t*t*t; };
+  return x => { if (x <= 0) return 0; if (x >= 1) return 1; let lo = 0, hi = 1;
+    for (let i = 0; i < 40; i++) { const m = (lo + hi) / 2; if (B(m, x1, x2) < x) lo = m; else hi = m; }
+    return B((lo + hi) / 2, y1, y2); };
+}
+const SPRING = bez(.34, 1.45, .55, 1), STD = bez(.2, 0, 0, 1), DEC = bez(.05, .7, .1, 1), ACC = bez(.3, 0, .8, .15), INOUT = bez(.6, 0, .25, 1);
+const $ = s => document.querySelector(s);
+const set = (el, css) => { for (const k in css) el.style[k] = css[k]; };
+
+// ---------- loader (ported from scripts/generate-plymouth-assets.py) ----------
+const L = window.LOADER, N = L.length, S = L[0].length;
+function unitArea(r) { let a = 0; for (const x of r) a += x * x; a *= 0.5 * (2 * Math.PI / S); const k = Math.sqrt(Math.PI / a); return r.map(x => x * k); }
+function loaderPath(cx, cy, unit, phase, rotExtra = 0, forceTo = null, forceT = 0) {
+  // phase: continuous shape-step position; HOLD .30 rest then spring morph, 140deg/step spin
+  const step = Math.floor(phase), p = phase - step;
+  const m = p < .3 ? 0 : (p - .3) / .7, t = SPRING(m);
+  let a = L[((step % N) + N) % N], b = L[(((step + 1) % N) + N) % N];
+  let r = unitArea(a.map((ra, i) => Math.max(.2, ra + (b[i] - ra) * t)));
+  if (forceTo !== null) { const c = L[forceTo]; r = unitArea(r.map((x, i) => x + (c[i] - x) * forceT)); }
+  const rot = (140 * (step + .4 * p + .6 * t) + rotExtra) * Math.PI / 180;
+  let d = "";
+  for (let i = 0; i < S; i++) { const th = 2 * Math.PI * i / S + rot; const x = cx + unit * r[i] * Math.cos(th), y = cy + unit * r[i] * Math.sin(th); d += (i ? "L" : "M") + x.toFixed(2) + " " + y.toFixed(2); }
+  return d + "Z";
+}
+
+// ---------- desktop markup ----------
+const APPS = [["dolphin", 205, 1], ["zen", 25, 1], ["konsole", null, 0], ["kate", 230, 0], ["octopi", 210, 0], ["settings", 200, 0]];
+const SEEDS = ["blue", "violet", "teal", "green", "amber", "rose"];
+function deskHTML() {
+  const dock = APPS.map(([n, h, run]) => {
+    const bg = h === null ? "background:color-mix(in srgb,var(--sc-highest) 90%,transparent);border-color:var(--outline-v)"
+      : `background:hsla(${h},55%,68%,.22);border-color:hsla(${h},45%,78%,.3)`;
+    return `<div class="cell"><div class="tile" style="${bg}"><img src="icons/${n}.svg"></div>${run ? '<i class="run' + (n === "dolphin" ? " f" : "") + '"></i>' : ""}</div>`;
+  }).join("");
+  const tiles = [["wifi", "Wi‑Fi", "Home", 1], ["bluetooth", "Bluetooth", "Off", 0, "bt"], ["dark_mode", "Dark mode", "On", 1],
+    ["nightlight", "Night light", "Off", 0], ["do_not_disturb_on", "Focus", "Off", 0], ["bolt", "Performance", "Balanced", 0]]
+    .map(([ic, l, d, on, id]) => `<div class="qt${id ? " " + id : ""}" style="${on ? "background:var(--primary);color:var(--on-primary);border-radius:20px" : ""}"><span class="sym">${ic}</span><div><b>${l}</b><small>${d}</small></div></div>`).join("");
+  const dots = SEEDS.map(s => `<div class="dot d-${s}" style="background:${D.pal[s].primary}"></div>`).join("");
+  return `<div class="desk">
+    <div class="eagle"></div><div class="wordmark">A E D W E N O S</div>
+    <div class="bar">
+      <div class="btn launch"><i></i></div>
+      <div class="ws"><i class="on"></i><i></i><i></i><i></i></div>
+      <div class="spacer"></div>
+      <div class="clock"><span>Fri 9 Oct</span>10:24</div>
+      <div class="spacer"></div>
+      <div class="btn"><span class="sym">search</span></div>
+      <div class="btn qsbtn"><span class="sym">wifi</span><span class="sym">volume_up</span><span class="sym">battery_5_bar</span></div>
+      <div class="btn"><span class="sym">notifications</span></div>
+    </div>
+    <div class="dock">${dock}</div>
+    <div class="qs">
+      <div class="qgrid">${tiles}</div>
+      <div class="qsl">
+        <div class="sl"><div class="fill" style="width:68%"><span class="sym">light_mode</span></div></div>
+        <div class="sl"><div class="fill" style="width:52%"><span class="sym">volume_up</span></div></div>
+      </div>
+      <div class="accent"><span>Accent colour</span><div class="dots">${dots}</div></div>
+      <div class="qdiv"></div>
+      <div class="qfoot"><span class="sym">battery_5_bar</span><span class="grow">84% · 3 h 12 min left</span><div class="ib"><span class="sym">settings</span></div></div>
+    </div>
+  </div>`;
+}
+const wrapA = $("#wrapA"), wrapB = $("#wrapB");
+wrapA.innerHTML = deskHTML(); wrapB.innerHTML = deskHTML();
+function setPal(wrap, seed) {
+  if (wrap._seed === seed) return; wrap._seed = seed;
+  const p = D.pal[seed], w = D.wall[seed], st = wrap.firstElementChild.style;
+  for (const k in p) st.setProperty("--" + k, p[k]);
+  st.setProperty("--wall", w.wall); st.setProperty("--eagle", w.eagle); st.setProperty("--wall-onsv", w.onsv);
+  wrap.querySelectorAll(".dot").forEach(d => d.classList.toggle("sel", d.classList.contains("d-" + seed)));
+}
+
+// ---------- installer markup ----------
+const STEPS = [["Welcome"], ["Location"], ["Keyboard"], ["Disk"], ["Users"], ["Summary"], ["Install"], ["Finish"]];
+$("#steps").insertAdjacentHTML("beforeend", STEPS.map(([n], i) => `<div class="step" data-i="${i}"><span class="sym">radio_button_unchecked</span>${n}</div>`).join(""));
+function setStep(cur, hiPos) {
+  document.querySelectorAll(".step").forEach((el, i) => {
+    el.classList.toggle("cur", i === cur); el.classList.toggle("done", i < cur);
+    el.firstElementChild.textContent = i < cur ? "check_circle" : i === cur ? "radio_button_checked" : "radio_button_unchecked";
+  });
+  $("#stepHi").style.top = (hiPos * 32) + "px";
+  $("#navSt").textContent = `Step ${Math.min(cur + 1, 7)} of 7`;
+}
+
+// ---------- limine markup ----------
+const ENTS = [
+  ["AedwenOS (linux-zen)", "", 0],
+  ["AedwenOS (linux-zen, fallback)", "", 0],
+  ["▾ Snapshots", "", 0],
+  ["2026-10-09 09:58", "  pre  · pacman -Syu", 1],
+  ["2026-10-08 21:40", "  timeline", 1],
+  ["2026-10-08 18:12", "  post · pacman -S kate", 1],
+];
+$("#ents").insertAdjacentHTML("beforeend", ENTS.map(([a, b, sub]) => `<div class="ent${sub ? " sub" : ""}">${a}<span class="tag">${b}</span></div>`).join(""));
+
+// ---------- cursor ----------
+const curEl = $("#cursor");
+function setCursorSeed(seed) { if (curEl._s !== seed) { curEl._s = seed; curEl.innerHTML = D.cursor[seed]; } }
+function center(el) { const r = el.getBoundingClientRect(); return [r.left + r.width / 2, r.top + r.height / 2]; }
+
+// ---------- timeline ----------
+const T = { reveal: 2.62, s3: 7.0, s4: 12.0, s5: 16.0, s6: 19.8, end: 23.0 };
+const RIPPLES = [[7.9, "teal"], [8.9, "rose"], [9.9, "amber"], [10.9, "violet"]];
+const RIP = 0.72;
+const POS = {};
+
+function capAnim(el, t, a, b, rise = 34) {
+  // lines rise in staggered, whole caption drops out
+  const out = P(t, b - .22, b);
+  el.style.display = (t < a - .01 || t > b) ? "none" : "block";
+  [...el.children].forEach((c, i) => {
+    const k = SPRING(P(t, a + i * .12, a + i * .12 + .5)), o = P(t, a + i * .12, a + i * .12 + .22);
+    c.style.transform = `translateY(${(1 - k) * rise - out * 18}px)`; c.style.opacity = o * (1 - out);
+  });
+}
+
+function render(t) {
+  // ===== boot (S1) =====
+  const boot = $("#boot");
+  boot.style.display = t < 3.6 ? "block" : "none";
+  if (t < 3.6) {
+    const sIn = SPRING(P(t, 0, .55));
+    const unit = 118 * lerp(.55, 1, sIn);
+    const phase = 1.45 + t / .5;                         // a new shape every 0.5s, mid-morph at frame 0
+    const toCircle = STD(P(t, 2.15, 2.6));
+    $("#lpath").setAttribute("d", loaderPath(960, 330, unit * (1 + .06 * toCircle), phase, 0, toCircle > 0 ? 0 : null, toCircle));
+    const w1 = SPRING(P(t, .3, .85)), w2 = SPRING(P(t, .55, 1.1)), out = ACC(P(t, 2.3, 2.6));
+    set($("#bw1"), { opacity: P(t, .3, .5) * (1 - out), transform: `translateY(${(1 - w1) * 46 - out * 20}px)` });
+    set($("#bw2"), { opacity: P(t, .55, .75) * (1 - out), transform: `translateY(${(1 - w2) * 36 - out * 20}px)` });
+  }
+
+  // ===== desktop (S2, S3) =====
+  const deskOn = t >= T.reveal && t < T.s5 + .05;
+  $("#deskLayer").style.display = deskOn ? "block" : "none";
+  if (deskOn) {
+    const rv = DEC(P(t, T.reveal, T.reveal + 1.15));
+    $("#deskLayer").style.clipPath = rv < 1 ? `circle(${lerp(124, 2300, rv)}px at 960px 330px)` : "none";
+    const cam = lerp(1.12, 1, DEC(P(t, T.reveal, T.reveal + 1.6))) * lerp(1, 1.035, INOUT(P(t, 7, 11.8)));
+    const cs = $("#deskCam"); cs.style.transform = `scale(${cam})`;
+
+    // palette ripples
+    let base = "violet", inc = null, rr = 0, rc = [0, 0];
+    for (const [rt, s] of RIPPLES) {
+      if (t >= rt + RIP) base = s;
+      else if (t >= rt) { inc = s; rr = DEC(P(t, rt, rt + RIP)); }
+    }
+    setPal(wrapA, base);
+    if (inc) { setPal(wrapB, inc); wrapB.style.display = "block"; } else wrapB.style.display = "none";
+
+    // quick settings popup + bluetooth tile, identical in both copies
+    const qo = SPRING(P(t, 4.72, 5.2)), qa = P(t, 4.72, 4.86), qc = ACC(P(t, 11.85, 12.05));
+    const bt = SPRING(P(t, 6.05, 6.47)), btc = STD(P(t, 6.05, 6.25));
+    for (const w of [wrapA, wrapB]) {
+      const qs = w.querySelector(".qs");
+      qs.style.display = t < 4.72 || t > 12.05 ? "none" : "block";
+      qs.style.opacity = qa * (1 - qc);
+      qs.style.transform = `translateY(${(1 - qo) * -14}px) scale(${lerp(.9, 1, qo) - qc * .04})`;
+      w.querySelectorAll(".qt").forEach((el, i) => {
+        const k = SPRING(P(t, 4.8 + i * .045, 5.25 + i * .045));
+        el.style.transform = `scale(${lerp(.8, 1, k)})`; el.style.opacity = P(t, 4.8 + i * .045, 4.95 + i * .045);
+      });
+      const b = w.querySelector(".bt");
+      b.style.borderRadius = lerp(14, 20, bt) + "px";
+      b.style.background = `color-mix(in srgb, var(--primary) ${btc * 100}%, var(--sc-high))`;
+      b.style.color = `color-mix(in srgb, var(--on-primary) ${btc * 100}%, var(--on-s))`;
+      b.querySelector(".sym").textContent = btc > .5 ? "bluetooth" : "bluetooth_disabled";
+      b.querySelector("small").textContent = btc > .5 ? "On" : "Off";
+    }
+
+    // cursor path (video px): targets measured once at rest, then put through the camera
+    const sc = ([x, y] = [0, 0]) => [960 + (x - 960) * cam, 540 + (y - 540) * cam];
+    const qsb = sc(POS.qsb), btT = sc(POS.bt), dotsPos = k => sc(POS["d-" + k]);
+    const keys = [[3.4, 1240, 760], [4.55, ...qsb], [5.55, ...qsb], [5.98, ...btT], [7.2, ...btT], [7.82, ...dotsPos("teal")],
+      [8.5, ...dotsPos("teal")], [8.84, ...dotsPos("rose")], [9.5, ...dotsPos("rose")], [9.84, ...dotsPos("amber")],
+      [10.5, ...dotsPos("amber")], [10.84, ...dotsPos("violet")], [11.6, ...dotsPos("violet")], [12.6, 1500, 860]];
+    let cx = keys[0][1], cy = keys[0][2];
+    for (let i = 0; i < keys.length - 1; i++) {
+      const [ta, xa, ya] = keys[i], [tb, xb, yb] = keys[i + 1];
+      if (t >= ta && t <= tb) { const k = INOUT(P(t, ta, tb)); cx = lerp(xa, xb, k); cy = lerp(ya, yb, k); }
+      else if (t > tb) { cx = xb; cy = yb; }
+    }
+    curEl._pos = [cx, cy];
+    if (inc) {
+      // ripple centre in wrap space (inverse camera)
+      const ux = 960 + (cx - 960) / cam, uy = 540 + (cy - 540) / cam;
+      wrapB.style.clipPath = `circle(${lerp(0, 2300, rr)}px at ${ux}px ${uy}px)`;
+    }
+    $("#capDesk").style.setProperty("--capacc", "#cdacff");
+    const capSeed = inc && rr > .15 ? inc : base;
+    $("#capSeed").style.setProperty("--capacc", D.pal[capSeed].primary);
+    setCursorSeed(t >= 7.0 ? (RIPPLES.filter(([r]) => t >= r).pop() || [0, "violet"])[1] : "violet");
+  }
+
+  // ===== installer (S4) =====
+  const instOn = t >= 11.95 && t < T.s5 + .05;
+  $("#instLayer").style.display = instOn ? "block" : "none";
+  if (instOn) {
+    $("#scrim").style.opacity = .55 * STD(P(t, 11.95, 12.35));
+    const wi = SPRING(P(t, 12.02, 12.55));
+    const W = 760 * 1.5, H = 480 * 1.5, x0 = 1840 - W, y0 = (1080 - H) / 2;
+    set($("#win"), { left: (x0 + W / 2 - 380) + "px", top: (y0 + H / 2 - 240) + "px", opacity: P(t, 12.02, 12.2),
+      transform: `scale(${1.5 * lerp(.9, 1, wi)}) translateY(${(1 - wi) * 20}px)` });
+    // pages
+    const next = 13.42, fin = 14.85;
+    let cur = 0, hi = 0;
+    if (t >= next) { const k = P(t, next + .05, next + .6); cur = 1 + Math.min(5, Math.floor(k * 6)); hi = lerp(0, 6, STD(k)); }
+    if (t >= next + .6) { cur = 6; hi = 6; }
+    if (t >= fin) { cur = 7; hi = lerp(6, 7, SPRING(P(t, fin, fin + .4))); }
+    setStep(cur, hi);
+    const pw = 1 - P(t, next, next + .12), pin = P(t, next + .12, next + .3) * (1 - P(t, fin, fin + .12)), pd = P(t, fin + .12, fin + .3);
+    const riseIn = (a) => `translateY(${(1 - SPRING(P(t, a, a + .45))) * 16}px)`;
+    set($("#pWelcome"), { opacity: pw, display: pw > 0 ? "flex" : "none" });
+    set($("#pInstall"), { opacity: pin, display: pin > 0 ? "flex" : "none", transform: riseIn(next + .12) });
+    set($("#pDone"), { opacity: pd, display: pd > 0 ? "flex" : "none", transform: riseIn(fin + .12) });
+    $("#nav").style.opacity = 1 - P(t, fin, fin + .15);
+    const pr = P(t, next + .25, fin - .1), prE = STD(pr);
+    $("#progFill").style.width = (prE * 100) + "%";
+    $("#progPct").textContent = Math.round(prE * 100) + "%";
+    $("#progTxt").textContent = prE < .55 ? "Installing packages…" : prE < .9 ? "Configuring Limine…" : "Finishing up…";
+    const done = $("#pDone .done1");
+    const dk = SPRING(P(t, fin + .1, fin + .6)); done.style.transform = `scale(${lerp(.5, 1, dk)}) rotate(${(1 - dk) * -30}deg)`;
+    // cursor: Next, then Restart now
+    const nb = POS.next || [0, 0], rb = POS.restart || [0, 0];
+    const keys = [[12.0, 1500, 860], [13.3, ...nb], [14.9, ...nb], [15.55, ...rb], [16.2, ...rb]];
+    let cx = keys[0][1], cy = keys[0][2];
+    for (let i = 0; i < keys.length - 1; i++) {
+      const [ta, xa, ya] = keys[i], [tb, xb, yb] = keys[i + 1];
+      if (t >= ta && t <= tb) { const k = INOUT(P(t, ta, tb)); cx = lerp(xa, xb, k); cy = lerp(ya, yb, k); } else if (t > tb) { cx = xb; cy = yb; }
+    }
+    if (t >= 12.6) curEl._pos = [cx, cy];
+    setCursorSeed("violet");
+  }
+
+  // ===== limine (S5) =====
+  const limOn = t >= T.s5 - .2 && t < T.s6 + .4;
+  $("#lim").style.display = limOn ? "block" : "none";
+  if (limOn) {
+    // restart: dip to black, then the menu card rises
+    $("#lim").style.opacity = STD(P(t, 15.82, 16.02));
+    const ci = SPRING(P(t, 16.15, 16.7));
+    set($("#card"), { opacity: P(t, 16.15, 16.35), transform: `translateY(${(1 - ci) * 30}px) scale(${lerp(.96, 1, ci)})` });
+    const ents = document.querySelectorAll(".ent");
+    const expand = P(t, 17.05, 17.3);
+    // highlight walk: 0 -> 1 -> 2 (expand) -> 3 -> 4
+    const moves = [[16.75, 1], [17.0, 2], [17.45, 3], [17.75, 4]];
+    let pos = 0; for (const [mt, to] of moves) { if (t >= mt) pos = lerp(pos, to, SPRING(P(t, mt, mt + .28))); }
+    const hiIdx = Math.round(pos);
+    ents.forEach((e, i) => {
+      if (i >= 3) { const k = SPRING(P(t, 17.05 + (i - 3) * .06, 17.4 + (i - 3) * .06)); e.style.opacity = P(t, 17.05 + (i - 3) * .06, 17.2 + (i - 3) * .06); e.style.transform = `translateX(${(1 - k) * -20}px)`; e.style.height = (64 * expand) + "px"; e.style.overflow = "hidden"; }
+      e.classList.toggle("hi", i === hiIdx);
+    });
+    ents[2].firstChild.textContent = expand > .5 ? "▾ Snapshots" : "▸ Snapshots";
+    $("#limHi").style.top = (pos * 64) + "px";
+    $("#lim").style.opacity = STD(P(t, 15.82, 16.02)) * (1 - P(t, T.s6 - .05, T.s6 + .25));
+  }
+
+  // ===== outro (S6) =====
+  const oOn = t >= T.s6 - .05;
+  $("#outro").style.display = oOn ? "block" : "none";
+  if (oOn) {
+    $("#outro").style.opacity = P(t, T.s6 - .05, T.s6 + .2);
+    const s = SPRING(P(t, T.s6, T.s6 + .6));
+    const settle = STD(P(t, T.s6 + .6, T.s6 + 1.5));
+    const phase = 3 + (t - T.s6) / .55;
+    $("#opath").setAttribute("d", loaderPath(960, 330, 150 * lerp(.4, 1, s), phase, 0, settle > 0 ? 0 : null, settle));
+    $("#opath").setAttribute("fill", "#4b2888");
+    const ek = SPRING(P(t, T.s6 + .15, T.s6 + .7));
+    set($("#oeagle"), { left: (960 - 75) + "px", top: (330 - 75) + "px", opacity: P(t, T.s6 + .15, T.s6 + .3), transform: `scale(${lerp(.6, 1, ek)})` });
+    [["#o1", .3, 40], ["#o2", .5, 30], ["#o3w", .7, 26]].forEach(([id, d, r]) => {
+      const k = SPRING(P(t, T.s6 + d, T.s6 + d + .55));
+      set($(id), { opacity: P(t, T.s6 + d, T.s6 + d + .2), transform: `translateY(${(1 - k) * r}px)` });
+    });
+  }
+
+  // ===== captions =====
+  capAnim($("#capDesk"), t, 3.45, 6.95);
+  capAnim($("#capSeed"), t, 7.1, 11.9);
+  capAnim($("#capInst"), t, 12.3, 15.75);
+  capAnim($("#capLim"), t, 16.95, 19.7);
+  $("#capDesk").style.top = "600px"; $("#capSeed").style.top = "560px"; $("#capInst").style.top = "345px";
+
+  // ===== cursor =====
+  const curOn = t >= 3.4 && t < 15.85;
+  curEl.style.display = curOn ? "block" : "none";
+  if (curOn && curEl._pos) {
+    const clicks = [4.62, 6.0, 7.86, 8.86, 9.86, 10.86, 13.38, 15.62];
+    let press = 0; for (const c of clicks) press = Math.max(press, 1 - Math.abs(t - c) / .09);
+    const fade = P(t, 3.4, 3.6);
+    const [x, y] = curEl._pos;
+    // hotspot of the 32-grid arrow is ~(5.5,4) -> (8.25,6) at 48px
+    set(curEl, { opacity: fade, transform: `translate(${x - 8.25}px, ${y - 6}px) scale(${1 - .14 * clamp(press)})` });
+  }
+}
+window.render = render;
+window.DUR = T.end;
+window.ready = (async () => {
+  await document.fonts.load('24px "Material Symbols Rounded"', "wifi");
+  await document.fonts.load('700 80px "Roboto Flex"'); await document.fonts.load('400 26px "Roboto Mono"');
+  await document.fonts.ready;
+  await Promise.all([...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+  // measure cursor targets at rest
+  render(8.0); $("#deskCam").style.transform = "none";
+  wrapA.querySelectorAll(".qt").forEach(e => e.style.transform = "none");
+  POS.qsb = center(wrapA.querySelector(".qsbtn")); POS.bt = center(wrapA.querySelector(".bt"));
+  SEEDS.forEach(k => POS["d-" + k] = center(wrapA.querySelector(".d-" + k)));
+  render(15.5); POS.next = center($("#nextBtn")); POS.restart = center($("#restartBtn"));
+  render(0); return true;
+})();
+</script>
+</body></html>

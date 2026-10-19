@@ -8,10 +8,27 @@ theme=__aurorae__svg__AedwenOS-Dark
 ButtonsOnLeft=M
 ButtonsOnRight=IAX
 
-# Top-left hot corner opens Overview (7 = ElectricTopLeft), set explicitly
-# so it doesn't depend on KWin's built-in default.
-[Effect-overview]
+# AedwenOS Overview (usr/share/kwin/effects/aedwen-overview) replaces the
+# stock one. Top-left hot corner opens it (7 = ElectricTopLeft); the stock
+# effect's own hot corner is cleared so the two never fight over it.
+[Effect-aedwen-overview]
 BorderActivate=7
+
+[Effect-overview]
+BorderActivate=9
+
+# Desktop switching slides with the design's 8 px gap between desktops.
+[Effect-slide]
+HorizontalGap=8
+VerticalGap=8
+SlideBackground=false
+
+# aedwen-gaps (usr/share/kwin/scripts/aedwen-gaps): 8 px gaps around tiled
+# and maximised windows, borders kept.
+[Plugins]
+aedwen-gapsEnabled=true
+aedwen-overviewEnabled=true
+overviewEnabled=false
 
 # Four virtual desktops, so the top bar's workspace dots and Overview have
 # something to show. Users add/remove them in Overview or System Settings.

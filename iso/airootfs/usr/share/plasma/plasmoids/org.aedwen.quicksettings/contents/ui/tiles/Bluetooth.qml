@@ -10,6 +10,7 @@ Tile {
         return out
     }
     available: manager.operational && manager.adapters.length > 0
+    unavailableText: i18n("No adapter")
     active: manager.bluetoothOperational && !manager.bluetoothBlocked
     icon: active ? (connected.length ? "bluetooth_connected" : "bluetooth") : "bluetooth_disabled"
     label: i18n("Bluetooth")

@@ -125,7 +125,8 @@ plasma-thunderbolt
 # plasma-firewall: System Settings page for firewalld (enabled by default)
 plasma-firewall
 # breeze: widget style, Plasma theme and cursors the AedwenOS look-and-feel
-# builds on (widgetStyle=Breeze, cursorTheme=breeze_cursors) -- required
+# builds on (aedwen-qstyle wraps the Breeze widget style; cursorTheme=
+# breeze_cursors) -- required
 breeze
 breeze-gtk
 aurorae
@@ -279,6 +280,10 @@ edk2-shell
 # scripts/build-localrepo.sh -- no longer in the official repos.
 calamares
 ckbcomp
+# aedwen-qstyle: the "Aedwen" widget style (Breeze + AedwenOS context menus,
+# kdeglobals [KDE] widgetStyle=Aedwen), built from packages/aedwen-qstyle into
+# [aedwen-local] by the same script.
+aedwen-qstyle
 # os-prober: Calamares' partition module (via KPMcore) calls this itself to
 # detect other installed OSes and power the "Install alongside" option on the
 # partitioning screen -- no extra config needed, it's automatic upstream

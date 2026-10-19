@@ -2,6 +2,8 @@
 // On = primary fill and a rounder square; off = surface-container-high and a
 // tighter corner, so toggling morphs the shape (M3E). Click toggles;
 // right-click or the chevron (when `configurable`) asks for details.
+// A tile whose service or hardware is missing stays in place, greyed out,
+// with `unavailableText` as its detail line.
 import QtQuick
 
 Rectangle {
@@ -12,16 +14,19 @@ Rectangle {
     property bool active: false
     property bool configurable: false
     property bool busy: false
+    property bool available: true
+    property string unavailableText: qsTr("Unavailable")
+    readonly property bool usable: enabled && available
     signal toggled()
     signal configureRequested()
 
-    readonly property color fg: active ? Theme.primaryFg : Theme.fg
+    readonly property color fg: active && available ? Theme.primaryFg : Theme.fg
 
     implicitWidth: 104
     implicitHeight: 76
-    radius: active ? Theme.rCard : Theme.rInner + 4
-    color: active ? Theme.primary : Theme.scHigh
-    opacity: enabled ? 1 : 0.45
+    radius: active && available ? Theme.rCard : Theme.rInner + 4
+    color: active && available ? Theme.primary : Theme.scHigh
+    opacity: usable ? 1 : 0.38
     Behavior on radius { NumberAnimation { duration: Theme.dur; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.spring } }
     Behavior on color { ColorAnimation { duration: Theme.durShort } }
 
@@ -30,7 +35,7 @@ Rectangle {
     Sym {
         id: glyph
         name: root.icon
-        fill: root.active ? 1 : 0
+        fill: root.active && root.available ? 1 : 0
         color: root.fg
         anchors.left: parent.left
         anchors.top: parent.top
@@ -47,7 +52,7 @@ Rectangle {
         anchors.margins: 12
     }
     Sym {
-        visible: root.configurable && !root.busy
+        visible: root.configurable && root.available && !root.busy
         name: "chevron_right"
         size: 18
         color: root.fg
@@ -69,9 +74,9 @@ Rectangle {
             color: root.fg
         }
         Label {
-            visible: root.detail !== ""
+            visible: text !== ""
             width: parent.width
-            text: root.detail
+            text: root.available ? root.detail : root.unavailableText
             role: "caption"
             color: root.fg
             opacity: 0.8
@@ -81,7 +86,7 @@ Rectangle {
         id: mouse
         anchors.fill: parent
         hoverEnabled: true
-        enabled: root.enabled
+        enabled: root.usable
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         cursorShape: Qt.PointingHandCursor
         onClicked: mouse => {

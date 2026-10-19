@@ -1,0 +1,19 @@
+{
+    "KPackageStructure": "KWin/Effect",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "AedwenOS"
+            }
+        ],
+        "Category": "Window Management",
+        "Description": "AedwenOS Overview: desktops along the top, this desktop's windows below; top-left hot corner or Meta+W",
+        "EnabledByDefault": true,
+        "Id": "aedwen-overview",
+        "License": "GPL-3.0-or-later",
+        "Name": "AedwenOS Overview"
+    },
+    "X-KDE-Ordering": 60,
+    "X-KWin-Border-Activate": true,
+    "X-Plasma-API": "declarativescript"
+}

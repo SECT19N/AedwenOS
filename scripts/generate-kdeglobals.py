@@ -57,7 +57,6 @@ def build_kdeglobals(seed, dark, expressive):
     cp.read_string(base_text)
 
     # Extra keys layered on top of the generated colour/WM/effects sections.
-    cp.set("General", "widgetStyle", "Breeze")
     cp.set("General", "font", "Roboto,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
     cp.set("General", "menuFont", "Roboto,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
     cp.set("General", "toolBarFont", "Roboto,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
@@ -74,6 +73,9 @@ def build_kdeglobals(seed, dark, expressive):
     cp.set("KDE", "DefaultDarkLookAndFeel", "org.kde.aedwen.desktop")
     cp.set("KDE", "DefaultLightLookAndFeel", "org.kde.aedwen.light.desktop")
     cp.set("KDE", "SingleClick", "false")
+    # Widget style: Breeze with AedwenOS context menus (packages/aedwen-qstyle).
+    # KDE reads this from [KDE]; Qt falls back to Breeze if it isn't installed.
+    cp.set("KDE", "widgetStyle", "Aedwen")
 
     cp.add_section("Icons")
     cp.set("Icons", "Theme", "breeze-dark")

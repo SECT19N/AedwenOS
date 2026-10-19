@@ -1,5 +1,6 @@
-// 6-column grid of apps (pinned). Drag an app to the dock to pin it there;
-// right-click to unpin.
+// Grid of apps (pinned): as many columns of at least 88 px as fit (6 at the
+// design's 560 px popup), so resizing reflows instead of stretching. Drag an
+// app to the dock to pin it there; right-click to unpin.
 import QtQuick
 import org.kde.plasma.extras as PlasmaExtras
 import org.aedwen.ui
@@ -9,8 +10,9 @@ GridView {
     property var favorites
     signal launched()
 
+    readonly property int columns: Math.max(3, Math.floor(width / 88))
     clip: true
-    cellWidth: Math.floor(width / 6)
+    cellWidth: Math.floor(width / columns)
     cellHeight: 92
     boundsBehavior: Flickable.StopAtBounds
     keyNavigationEnabled: true

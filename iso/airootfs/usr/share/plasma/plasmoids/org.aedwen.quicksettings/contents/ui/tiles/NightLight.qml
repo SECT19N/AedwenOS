@@ -16,6 +16,7 @@ Tile {
     }
 
     available: Boolean(kwin.properties.available)
+    unavailableText: i18n("Not supported")
     active: Boolean(kwin.properties.enabled) && Boolean(kwin.properties.running)
     icon: "nightlight"
     label: i18n("Night light")

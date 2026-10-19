@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Build the packages that Arch dropped from its official repos and stage them in
+# Build the packages that Arch dropped from its official repos, plus
+# AedwenOS's own (packages/), and stage them in
 # iso/localrepo/ so mkarchiso can pull them (see the [aedwen-local] repo in
 # iso/pacman.conf).
 #
@@ -69,7 +70,10 @@ if [[ $clean -eq 1 ]]; then
 fi
 
 # AUR packages to build, in dependency order.
-pkgs=(ckbcomp calamares)
+aurpkgs=(ckbcomp calamares)
+# AedwenOS's own packages: PKGBUILD dirs under packages/ in this repo.
+localpkgs=(aedwen-qstyle)
+pkgs=("${aurpkgs[@]}" "${localpkgs[@]}")
 
 mkdir -p "$repo"
 if [[ -n "$builddir" ]]; then
@@ -86,9 +90,14 @@ for name in "${pkgs[@]}"; do
         echo ">> $name: already built, skipping (use --force to rebuild)"
         continue
     fi
-    echo ">> $name: cloning + building"
     rm -rf "$work/$name"
-    git clone --depth 1 "https://aur.archlinux.org/${name}.git" "$work/$name"
+    if [[ -d "$here/packages/$name" ]]; then
+        echo ">> $name: building from packages/$name"
+        cp -r "$here/packages/$name" "$work/$name"
+    else
+        echo ">> $name: cloning + building"
+        git clone --depth 1 "https://aur.archlinux.org/${name}.git" "$work/$name"
+    fi
     (
         cd "$work/$name"
         # -s: pull deps, -c: clean, -f: overwrite, --noconfirm: unattended

@@ -121,7 +121,6 @@ AccentColor=205,172,255
 ColorScheme=AedwenOSVioletDarkExpressive
 Name=AedwenOS · Violet (Dark)
 shadeSortColumn=true
-widgetStyle=Breeze
 font=Roboto,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
 menuFont=Roboto,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
 toolBarFont=Roboto,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
@@ -133,6 +132,7 @@ LookAndFeelPackage=org.kde.aedwen.desktop
 DefaultDarkLookAndFeel=org.kde.aedwen.desktop
 DefaultLightLookAndFeel=org.kde.aedwen.light.desktop
 SingleClick=false
+widgetStyle=Aedwen
 
 [WM]
 activeBackground=#181521

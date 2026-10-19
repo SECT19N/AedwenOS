@@ -1,0 +1,1 @@
+AedwenOS: Arch underneath, Material 3 Expressive on top. Pick one seed colour and everything follows, from the boot splash and installer to the shell and the cursor. Broke it anyway? Your Btrfs snapshots are right there in the Limine boot menu. Pre-alpha and rolling: github.com/SECT19N/AedwenOS

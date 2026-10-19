@@ -1,0 +1,17 @@
+{
+    "KPackageStructure": "KWin/Script",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "AedwenOS"
+            }
+        ],
+        "Description": "8 px gaps around tiled and maximised windows, as in the AedwenOS Desktop design",
+        "EnabledByDefault": true,
+        "Icon": "preferences-system-windows-script-test",
+        "Id": "aedwen-gaps",
+        "License": "GPL-3.0-or-later",
+        "Name": "AedwenOS window gaps"
+    },
+    "X-Plasma-API": "javascript"
+}

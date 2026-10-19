@@ -1,0 +1,5 @@
+# Alt+Space search floats centred near the top of the screen (Desktop design:
+# KRUNNER SEARCH, 18% from the top) instead of docking to the top edge, where
+# the floating top bar covers it.
+[General]
+FreeFloating=true

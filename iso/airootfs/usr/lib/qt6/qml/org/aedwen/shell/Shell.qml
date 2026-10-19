@@ -37,12 +37,21 @@ QtObject {
     function switchDesktop(n) {
         call("org.kde.KWin", "/KWin", "org.kde.KWin", "setCurrentDesktop", [new DBus.int32(n)])
     }
+    // New virtual desktop at position `count` (the end); KWin names it.
+    function addDesktop(count) {
+        call("org.kde.KWin", "/VirtualDesktopManager", "org.kde.KWin.VirtualDesktopManager",
+             "createDesktop", [new DBus.uint32(count), new DBus.string("")])
+    }
+    function removeDesktop(id) {
+        call("org.kde.KWin", "/VirtualDesktopManager", "org.kde.KWin.VirtualDesktopManager",
+             "removeDesktop", [new DBus.string(id)])
+    }
     function showDesktop() {
         call("org.kde.kglobalaccel", "/component/kwin", "org.kde.kglobalaccel.Component",
              "invokeShortcut", [new DBus.string("Show Desktop")])
     }
     function overview() {
         call("org.kde.kglobalaccel", "/component/kwin", "org.kde.kglobalaccel.Component",
-             "invokeShortcut", [new DBus.string("Overview")])
+             "invokeShortcut", [new DBus.string("AedwenOverview")])
     }
 }
