@@ -1,0 +1,15 @@
+{
+    "KPackageStructure": "KWin/WindowSwitcher",
+    "KPlugin": {
+        "Authors": [
+            {
+                "Name": "AedwenOS"
+            }
+        ],
+        "Description": "AedwenOS window switcher: one card per window, the selected app morphs to a circle",
+        "Icon": "preferences-system-windows-switcher-big-icons",
+        "Id": "aedwen",
+        "License": "GPL-3.0-or-later",
+        "Name": "AedwenOS"
+    }
+}

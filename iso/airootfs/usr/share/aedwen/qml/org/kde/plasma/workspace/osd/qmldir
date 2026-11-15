@@ -1,0 +1,10 @@
+module org.kde.plasma.workspace.osd
+# AedwenOS shadow of Plasma's OSD module. plasmashell loads the on-screen
+# display (volume, brightness, mute, power profile...) by module name, and
+# Plasma 6.8 has no other way to restyle it: the stock QML is compiled into
+# plasmashell_osd.so ("prefer :/qt/qml/..."), so files on disk are ignored.
+# /etc/xdg/plasma-workspace/env/aedwen-qml.sh puts /usr/share/aedwen/qml
+# ahead of the system import path, so this module wins. It needs none of
+# Plasma's C++ (OsdWindow): plasmashell only sets plain properties on the
+# root object -- see Osd.qml.
+Osd 254.0 Osd.qml

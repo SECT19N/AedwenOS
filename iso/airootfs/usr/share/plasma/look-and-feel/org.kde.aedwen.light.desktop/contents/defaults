@@ -25,3 +25,6 @@ ButtonsOnRight=IAX
 [ksplashrc][KSplash]
 Engine=KSplashQML
 Theme=org.kde.aedwen.desktop
+
+[kwinrc][TabBox]
+LayoutName=aedwen

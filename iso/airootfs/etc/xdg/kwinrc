@@ -11,6 +11,16 @@ ButtonsOnRight=IAX
 # AedwenOS Overview (usr/share/kwin/effects/aedwen-overview) replaces the
 # stock one. Top-left hot corner opens it (7 = ElectricTopLeft); the stock
 # effect's own hot corner is cleared so the two never fight over it.
+# AedwenOS window switcher (usr/share/kwin/tabbox/aedwen) for Alt+Tab and
+# Alt+`. DesktopMode=0 lists windows from every desktop, as the design's
+# "Desktop N" subtitles show.
+[TabBox]
+LayoutName=aedwen
+DesktopMode=0
+
+[TabBoxAlternative]
+LayoutName=aedwen
+
 [Effect-aedwen-overview]
 BorderActivate=7
 
