@@ -1,0 +1,7 @@
+# Dolphin opens folders and the trash (dock trash button: trash:/). Plasma
+# resolves trash:/ through KIO when it can, but xdg-open's generic path and
+# anything outside a full KDE environment look up x-scheme-handler/trash,
+# which nothing claims by default -- the click then does nothing.
+[Default Applications]
+inode/directory=org.kde.dolphin.desktop
+x-scheme-handler/trash=org.kde.dolphin.desktop

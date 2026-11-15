@@ -127,4 +127,7 @@ Item {
                                                     popup.month.getMonth() + (event.angleDelta.y < 0 ? 1 : -1), 1)
         }
     }
+
+    // design: a corner grip that only widens the calendar
+    ResizeGrip { edges: Qt.RightEdge; isCorner: true }
 }

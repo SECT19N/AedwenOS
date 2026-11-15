@@ -145,4 +145,7 @@ Item {
             }
         }
     }
+
+    // design: drag the bottom-right corner to resize; the grid reflows
+    ResizeGrip { edges: Qt.BottomEdge | Qt.RightEdge }
 }

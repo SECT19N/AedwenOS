@@ -3,7 +3,8 @@
 // is a 40 px primary pill, desktops with windows have full-strength numbers,
 // empty ones muted. Past six desktops the others shrink to 12 px dots
 // (outline colour when they hold windows). Click switches, scrolling cycles,
-// right- or middle-click removes an empty desktop, and the trailing dashed +
+// right- or middle-click removes that desktop (KWin moves its windows to a
+// neighbour), and the trailing dashed +
 // adds one. Overview stays on the top-left hot corner and Meta+W.
 import QtQuick
 import QtQuick.Layouts
@@ -55,20 +56,33 @@ PlasmoidItem {
             Repeater {
                 model: desktops.desktopIds
                 delegate: Rectangle {
+                    id: pill
                     required property int index
                     required property var modelData
                     readonly property bool current: modelData === desktops.currentDesktop
                     readonly property bool used: !!root.occupied[modelData]
                     readonly property bool dot: root.compact && !current
                     anchors.verticalCenter: parent.verticalCenter
+                    // set on right/middle-click: this pill collapses first, then
+                    // KWin removes this desktop. The pills are numbered by
+                    // position, so without it the remaining ones renumber and it
+                    // looks as if the last desktop was removed.
+                    property bool leaving: false
                     height: dot ? 12 : area.pill
-                    width: current ? 40 : dot ? 12 : Math.max(area.pill, number.implicitWidth + 12)
+                    width: leaving ? 0 : current ? 40 : dot ? 12 : Math.max(area.pill, number.implicitWidth + 12)
+                    opacity: leaving ? 0 : 1
                     radius: height / 2
                     color: current ? Theme.primary
                          : dot && used ? Theme.outline
                          : mouse.containsMouse ? Theme.mix(Theme.scHighest, Theme.fg, 0.08) : Theme.scHighest
                     Behavior on width { NumberAnimation { duration: Theme.dur; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.spring } }
                     Behavior on color { ColorAnimation { duration: Theme.durShort } }
+                    Behavior on opacity { NumberAnimation { duration: Theme.durShort } }
+                    Timer {
+                        running: pill.leaving
+                        interval: Theme.durShort
+                        onTriggered: Shell.removeDesktop(modelData)
+                    }
 
                     Text {
                         id: number
@@ -87,8 +101,10 @@ PlasmoidItem {
                         anchors.fill: parent
                         anchors.margins: -2
                         mainText: desktops.desktopNames[index] || i18n("Desktop %1", index + 1)
-                        subText: !current && !used && desktops.numberOfDesktops > 1
-                                 ? i18n("Right-click to remove") : ""
+                        subText: desktops.numberOfDesktops > 1
+                                 ? (used ? i18n("Right-click to remove (its windows move to a neighbouring desktop)")
+                                         : i18n("Right-click to remove"))
+                                 : ""
                         MouseArea {
                             id: mouse
                             anchors.fill: parent
@@ -98,8 +114,8 @@ PlasmoidItem {
                             onClicked: ev => {
                                 if (ev.button === Qt.LeftButton)
                                     Shell.switchDesktop(index + 1)
-                                else if (!current && !used && desktops.numberOfDesktops > 1)
-                                    Shell.removeDesktop(modelData)
+                                else if (desktops.numberOfDesktops > 1 && !pill.leaving)
+                                    pill.leaving = true
                             }
                         }
                     }

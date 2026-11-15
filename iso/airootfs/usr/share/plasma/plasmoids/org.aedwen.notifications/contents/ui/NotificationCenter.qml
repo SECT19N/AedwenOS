@@ -76,4 +76,7 @@ Item {
             }
         }
     }
+
+    // design: a bar on the left edge widens the notification centre
+    ResizeGrip { edges: Qt.LeftEdge }
 }

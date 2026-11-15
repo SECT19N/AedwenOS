@@ -16,5 +16,6 @@ ToggleTile 1.0 ToggleTile.qml
 AppIcon 1.0 AppIcon.qml
 EagleMark 1.0 EagleMark.qml
 MorphShape 1.0 MorphShape.qml
+ResizeGrip 1.0 ResizeGrip.qml
 PanelButton 1.0 PanelButton.qml
 Label 1.0 Label.qml

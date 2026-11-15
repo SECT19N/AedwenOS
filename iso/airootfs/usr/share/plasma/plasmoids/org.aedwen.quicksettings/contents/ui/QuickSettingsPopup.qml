@@ -118,4 +118,7 @@ Item {
             }
         }
     }
+
+    // design: the panel opens from the top-right, so its grip is bottom-left
+    ResizeGrip { edges: Qt.BottomEdge | Qt.LeftEdge }
 }
