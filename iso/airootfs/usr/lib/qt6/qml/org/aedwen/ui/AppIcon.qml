@@ -14,6 +14,10 @@ Rectangle {
     property bool hovered: false
     property int size: 40
     property real iconScale: 0.7
+    // symbol tiles (design: dock launcher = primary container, trash =
+    // surface-container-highest with the muted text colour)
+    property color symbolTile: Theme.scHighest
+    property color symbolColor: Theme.fgVariant
 
     // The icon's accent hue at a fixed tone (design: oklch(.72 .12 h)), so
     // every app's tile has the same weight whatever its icon looks like.
@@ -27,9 +31,10 @@ Rectangle {
     implicitWidth: size
     implicitHeight: size
     radius: Math.round(size * 0.28)
-    color: !_ok ? Theme.alpha(Theme.scHighest, Theme.dark ? 0.9 : 0.7)
+    color: symbol !== "" ? symbolTile
+         : !_ok ? Theme.alpha(Theme.scHighest, Theme.dark ? 0.9 : 0.7)
          : Theme.alpha(tint, hovered ? (Theme.dark ? 0.32 : 0.34) : (Theme.dark ? 0.22 : 0.24))
-    border.width: 1
+    border.width: symbol !== "" ? 0 : 1
     border.color: !_ok ? Theme.outlineV
                 : Theme.alpha(Theme.mix(tint, Theme.dark ? "white" : "black", 0.2), Theme.dark ? 0.3 : 0.24)
     Behavior on color { ColorAnimation { duration: Theme.durShort } }
@@ -53,5 +58,6 @@ Rectangle {
         size: Math.round(root.size * 0.55)
         fill: 1
         weight: 500
+        color: root.symbolColor
     }
 }

@@ -18,5 +18,8 @@ Text {
     color: Theme.fg
     horizontalAlignment: Text.AlignHCenter
     verticalAlignment: Text.AlignVCenter
-    renderType: Text.QtRendering
+    // Not QtRendering: its distance-field glyph cache ignores variable font
+    // axes, so a filled symbol drawn after the outlined one (or the other way
+    // round) comes out as a mix of both -- the dock's "scuffed" trash can.
+    renderType: Text.NativeRendering
 }

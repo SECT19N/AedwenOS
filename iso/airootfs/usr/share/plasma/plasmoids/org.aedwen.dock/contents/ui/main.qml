@@ -99,6 +99,7 @@ PlasmoidItem {
                 visible: Plasmoid.configuration.showLauncherButton
                 cell: area.cell
                 symbol: "apps"
+                accent: true
                 label: i18n("Applications")
                 onActivated: Shell.openLauncher()
             }

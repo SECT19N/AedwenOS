@@ -86,6 +86,25 @@ else
     trap 'rm -rf "$work"' EXIT
 fi
 
+# makepkg settings: the host's, but always compiled for baseline x86-64.
+# The ISO runs on any x86-64 machine (and in VMs, which often hide AVX), so a
+# host tuned for x86-64-v3 or -march=native must not leak into these
+# packages: an AVX instruction in the widget style once made plasmashell die
+# with SIGILL on the first right-click in VirtualBox.
+makepkg_conf="$work/makepkg.conf"
+cat > "$makepkg_conf" <<'EOF'
+source /etc/makepkg.conf
+for _f in /etc/makepkg.conf.d/*.conf; do
+    [[ -r "$_f" ]] && source "$_f"
+done
+for _v in CFLAGS CXXFLAGS; do
+    _flags="$(sed -E 's/(^| )-m(arch|tune|cpu)=[^ ]*//g' <<<"${!_v}")"
+    printf -v "$_v" '%s' "-march=x86-64 -mtune=generic $_flags"
+done
+RUSTFLAGS="$(sed -E 's/-C ?target-cpu=[^ ]*//g' <<<"${RUSTFLAGS:-}")"
+unset _f _v _flags
+EOF
+
 # Is this package already in the repo? A package from packages/ counts only
 # at the exact version its PKGBUILD names, so bumping pkgver/pkgrel there
 # rebuilds it; an AUR package counts at any version.
@@ -119,7 +138,7 @@ for name in "${pkgs[@]}"; do
     (
         cd "$work/$name"
         # -s: pull deps, -c: clean, -f: overwrite, --noconfirm: unattended
-        makepkg -scf --noconfirm
+        makepkg --config "$makepkg_conf" -scf --noconfirm
         # replace any older build, so the repo holds one version per package
         rm -f "$repo/$name"-[0-9]*.pkg.tar.zst
         mv ./*.pkg.tar.zst "$repo"/

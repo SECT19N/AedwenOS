@@ -14,5 +14,6 @@ Text {
     color: Theme.fg
     horizontalAlignment: Text.AlignHCenter
     verticalAlignment: Text.AlignVCenter
-    renderType: Text.QtRendering
+    // not QtRendering: its glyph cache ignores variable axes (FILL/opsz)
+    renderType: Text.NativeRendering
 }
