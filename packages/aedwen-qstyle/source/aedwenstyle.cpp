@@ -1,6 +1,8 @@
 #include "aedwenstyle.h"
 
 #include <KColorScheme>
+#include <KConfigGroup>
+#include <KSharedConfig>
 
 #include <QAction>
 #include <QFontDatabase>
@@ -9,6 +11,7 @@
 #include <QPainterPath>
 #include <QStyleFactory>
 #include <QStyleOptionMenuItem>
+#include <QStyleOptionProgressBar>
 
 namespace
 {
@@ -123,6 +126,89 @@ void drawChevron(QPainter *p, const QRectF &box, const QColor &color, bool rtl)
     p->drawPath(path);
 }
 
+// --- progress bars (System Surfaces design, section 01) ---------------------
+// Active indicator: the Expressive wave (24 px wavelength, 4 px round stroke),
+// flat when animations are off. Then a 4 px gap, then a 4 px track in the
+// secondary container with a 4 px primary stop dot at its end.
+constexpr qreal ProgressStroke = 4.0;
+constexpr qreal ProgressGap = 4.0;
+constexpr qreal WaveLength = 24.0;
+constexpr qreal WaveAmplitude = 2.25;
+constexpr int ProgressHeight = 12;
+
+bool reducedMotion()
+{
+    // KDE's "Animation speed: instant" (System Settings > General Behaviour)
+    const KConfigGroup kde = KSharedConfig::openConfig()->group(QStringLiteral("KDE"));
+    return kde.readEntry("AnimationDurationFactor", 1.0) <= 0.0;
+}
+
+bool sameHue(const QColor &a, const QColor &b)
+{
+    const qreal d = std::abs(a.hsvHueF() - b.hsvHueF());
+    return a.hsvSaturationF() > 0.15 && std::min(d, 1 - d) < 0.08;
+}
+
+struct ProgressColors {
+    QColor active; // primary
+    QColor track; // secondary container
+};
+
+ProgressColors progressColors(const QPalette &palette)
+{
+    ProgressColors c;
+    c.active = palette.color(QPalette::Active, QPalette::Highlight);
+    // AedwenOS colour schemes carry the secondary container in
+    // ForegroundVisited (scripts/generate-colorscheme.py; Theme.qml reads it
+    // the same way). Any other scheme: derive it from the primary.
+    const QColor visited = KColorScheme(QPalette::Active, KColorScheme::View).foreground(KColorScheme::VisitedText).color();
+    c.track = sameHue(visited, c.active) ? visited : mix(c.active, palette.color(QPalette::Window), 0.72);
+    if (palette.currentColorGroup() == QPalette::Disabled) {
+        c.active = alpha(c.active, DisabledOpacity);
+        c.track = alpha(c.track, DisabledOpacity);
+    }
+    return c;
+}
+
+void drawProgress(QPainter *p, const QRectF &r, qreal fraction, const ProgressColors &colors, bool flat)
+{
+    const qreal cy = r.center().y();
+    const qreal half = ProgressStroke / 2;
+    const qreal left = r.left() + half, right = r.right() - half;
+    const qreal valueX = left + (right - left) * std::clamp(fraction, 0.0, 1.0);
+
+    p->save();
+    p->setRenderHint(QPainter::Antialiasing);
+
+    // active indicator
+    if (fraction > 0) {
+        QPainterPath wave;
+        wave.moveTo(left, cy);
+        if (flat) {
+            wave.lineTo(valueX, cy);
+        } else {
+            for (qreal x = left; x <= valueX; x += 1.0)
+                wave.lineTo(x, cy - WaveAmplitude * std::sin((x - left) * 2 * M_PI / WaveLength));
+            wave.lineTo(valueX, cy - WaveAmplitude * std::sin((valueX - left) * 2 * M_PI / WaveLength));
+        }
+        p->setPen(QPen(colors.active, ProgressStroke, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+        p->setBrush(Qt::NoBrush);
+        p->drawPath(wave);
+    }
+
+    // track + stop dot
+    const qreal trackLeft = fraction > 0 ? valueX + half + ProgressGap : r.left();
+    if (fraction < 1 && trackLeft < r.right()) {
+        p->setPen(Qt::NoPen);
+        p->setBrush(colors.track);
+        const QRectF track(trackLeft, cy - half, r.right() - trackLeft, ProgressStroke);
+        p->drawRoundedRect(track, half, half);
+        p->setBrush(colors.active);
+        p->drawEllipse(QRectF(r.right() - ProgressStroke, cy - half, ProgressStroke, ProgressStroke));
+    }
+    p->restore();
+}
+
 QStyle *breeze()
 {
     QStyle *base = QStyleFactory::create(QStringLiteral("Breeze"));
@@ -205,6 +291,62 @@ void AedwenStyle::drawControl(ControlElement element, const QStyleOption *option
 {
     if (element == CE_MenuEmptyArea && qobject_cast<const QMenu *>(widget))
         return;
+    if (element == CE_ProgressBar || element == CE_ProgressBarGroove || element == CE_ProgressBarContents
+        || element == CE_ProgressBarLabel) {
+        // Determinate, horizontal, left-to-right fill only; busy indicators,
+        // vertical and inverted bars stay Breeze.
+        const auto *bar = qstyleoption_cast<const QStyleOptionProgressBar *>(option);
+        if (bar && (bar->state & State_Horizontal) && bar->maximum > bar->minimum && !bar->invertedAppearance) {
+            const qreal fraction = qreal(bar->progress - bar->minimum) / qreal(bar->maximum - bar->minimum);
+            const auto drawBar = [&](const QRect &area) {
+                const bool rtl = bar->direction == Qt::RightToLeft;
+                painter->save();
+                if (rtl) {
+                    // mirror so the bar fills from the right
+                    painter->translate(area.left() + area.right() + 1, 0);
+                    painter->scale(-1, 1);
+                }
+                drawProgress(painter, QRectF(area), fraction, progressColors(option->palette), reducedMotion());
+                painter->restore();
+            };
+            const auto drawLabel = [&](const QRect &rect, Qt::Alignment align) {
+                painter->save();
+                painter->setPen(alpha(option->palette.color(QPalette::Text), 0.72));
+                painter->drawText(rect, Qt::AlignVCenter | align | Qt::TextSingleLine, bar->text);
+                painter->restore();
+            };
+            switch (element) {
+            case CE_ProgressBar: {
+                // the whole bar: a visible label sits after the track, as
+                // M3 has no text inside the bar
+                QRect area = bar->rect;
+                if (bar->textVisible && !bar->text.isEmpty()) {
+                    const int w = bar->fontMetrics.horizontalAdvance(bar->text) + Spacing;
+                    drawLabel(QStyle::visualRect(bar->direction, area, QRect(area.right() - w + 1, area.top(), w, area.height())),
+                              Qt::AlignRight);
+                    area.setRight(area.right() - w);
+                    area = QStyle::visualRect(bar->direction, bar->rect, area);
+                }
+                drawBar(area);
+                return;
+            }
+            // The same bar drawn in parts: what Qt's style sheet engine does
+            // whenever an app style sheet matches the bar (e.g. Calamares'
+            // `QWidget { font-family }`). The groove is the track itself.
+            case CE_ProgressBarGroove:
+                return;
+            case CE_ProgressBarContents:
+                drawBar(bar->rect);
+                return;
+            case CE_ProgressBarLabel:
+                if (bar->textVisible && !bar->text.isEmpty())
+                    drawLabel(bar->rect, Qt::AlignHCenter);
+                return;
+            default:
+                break;
+            }
+        }
+    }
     const auto *item = qstyleoption_cast<const QStyleOptionMenuItem *>(option);
     if (element != CE_MenuItem || !item) {
         QProxyStyle::drawControl(element, option, painter, widget);
@@ -316,6 +458,12 @@ void AedwenStyle::drawControl(ControlElement element, const QStyleOption *option
 
 QSize AedwenStyle::sizeFromContents(ContentsType type, const QStyleOption *option, const QSize &size, const QWidget *widget) const
 {
+    if (type == CT_ProgressBar) {
+        QSize s = QProxyStyle::sizeFromContents(type, option, size, widget);
+        if (const auto *bar = qstyleoption_cast<const QStyleOptionProgressBar *>(option); bar && (bar->state & State_Horizontal))
+            s.setHeight(std::max(ProgressHeight, bar->fontMetrics.height()));
+        return s;
+    }
     const auto *item = qstyleoption_cast<const QStyleOptionMenuItem *>(option);
     if (type != CT_MenuItem || !item)
         return QProxyStyle::sizeFromContents(type, option, size, widget);

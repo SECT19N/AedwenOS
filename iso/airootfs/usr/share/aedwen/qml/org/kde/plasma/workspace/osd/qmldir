@@ -6,5 +6,7 @@ module org.kde.plasma.workspace.osd
 # /etc/xdg/plasma-workspace/env/aedwen-qml.sh puts /usr/share/aedwen/qml
 # ahead of the system import path, so this module wins. It needs none of
 # Plasma's C++ (OsdWindow): plasmashell only sets plain properties on the
-# root object -- see Osd.qml.
+# root object -- see Osd.qml. OsdItem is exported too: the lock screens
+# (ours and Plasma's LockOsd.qml) import it from this module.
 Osd 254.0 Osd.qml
+OsdItem 254.0 OsdItem.qml

@@ -2,13 +2,13 @@
 # scripts/build-localrepo.sh into [aedwen-local], from a copy of this
 # directory (makepkg owns src/ and pkg/; the C++ lives in source/).
 pkgname=aedwen-qstyle
-pkgver=0.1.0
+pkgver=0.2.0
 pkgrel=1
-pkgdesc="AedwenOS widget style: Breeze with Material 3 Expressive context menus"
+pkgdesc="AedwenOS widget style: Breeze with Material 3 Expressive progress bars and context menus"
 arch=('x86_64')
 url="https://github.com/SECT19N/AedwenOS"
 license=('GPL-3.0-or-later')
-depends=('qt6-base' 'kcolorscheme' 'breeze')
+depends=('qt6-base' 'kcolorscheme' 'kconfig' 'breeze')
 makedepends=('cmake')
 source=()
 

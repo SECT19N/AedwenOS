@@ -18,4 +18,7 @@ vars=()
 for v in "${keep[@]}"; do
     [[ -n "${!v:-}" ]] && vars+=("$v=${!v}")
 done
+# The Aedwen widget style (packages/aedwen-qstyle) draws the install step's
+# progress bar; pin it rather than rely on root's platform theme finding it.
+vars+=("QT_STYLE_OVERRIDE=Aedwen")
 exec sudo env -i HOME=/root USER=root PATH=/usr/local/sbin:/usr/local/bin:/usr/bin "${vars[@]}" calamares "$@"

@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """
-Generate the AedwenOS window decorations (title bars) as Aurorae themes,
-following the window chrome in the AedwenOS Desktop design ("WINDOWS") and
+Generate the AedwenOS window decorations (title bars) as Aurorae themes.
+
+FALLBACK ONLY: the default decoration is now the C++ one in
+packages/aedwen-decoration (kwinrc library=org.kde.aedwen), which can round
+all four corners. These themes stay installed for anyone who picks them in
+System Settings; keep the two in step when the design changes.
+
+The themes follow the window chrome in the AedwenOS Desktop design ("WINDOWS") and
 System Surfaces §02:
 
   - window corners at the variant's r-win (Expressive 16, baseline 12)

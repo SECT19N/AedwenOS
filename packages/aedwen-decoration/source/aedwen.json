@@ -1,0 +1,11 @@
+{
+    "KPlugin": {
+        "Description": "AedwenOS window title bars: Material 3 Expressive, rounded on all four corners",
+        "Id": "org.kde.aedwen",
+        "Name": "AedwenOS"
+    },
+    "org.kde.kdecoration3": {
+        "blur": false,
+        "kcmodule": false
+    }
+}

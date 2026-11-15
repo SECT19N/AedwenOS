@@ -1,0 +1,24 @@
+# AedwenOS window decoration (title bars rounded on all four corners). Built
+# by scripts/build-localrepo.sh into [aedwen-local], from a copy of this
+# directory (makepkg owns src/ and pkg/; the C++ lives in source/).
+pkgname=aedwen-decoration
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="AedwenOS window decoration: Material 3 Expressive title bars with all four corners rounded"
+arch=('x86_64')
+url="https://github.com/SECT19N/AedwenOS"
+license=('GPL-3.0-or-later')
+depends=('qt6-base' 'kdecoration' 'kcoreaddons' 'kconfig' 'kcolorscheme' 'kwin')
+makedepends=('cmake')
+source=()
+
+build() {
+    cmake -B build -S "$startdir" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr
+    cmake --build build
+}
+
+package() {
+    DESTDIR="$pkgdir" cmake --install build
+}

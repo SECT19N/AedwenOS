@@ -5,11 +5,10 @@
 */
 
 import QtQuick
-import org.kde.ksvg as KSvg
 import org.kde.kirigami as Kirigami
 import org.kde.plasma.workspace.osd
 
-KSvg.FrameSvgItem {
+Item {
     id: osd
 
     property alias timeout: osdItem.timeout
@@ -20,9 +19,9 @@ KSvg.FrameSvgItem {
 
     objectName: "onScreenDisplay"
     visible: false
-    width: osdItem.width + margins.left + margins.right
-    height: osdItem.height + margins.top + margins.bottom
-    imagePath: "dialogs/background"
+    // the AedwenOS OsdItem draws its own pill (usr/share/aedwen/qml/...osd)
+    width: osdItem.width
+    height: osdItem.height
 
     Kirigami.Theme.inherit: false
     Kirigami.Theme.colorSet: Kirigami.Theme.Window

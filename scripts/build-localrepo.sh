@@ -70,9 +70,10 @@ if [[ $clean -eq 1 ]]; then
 fi
 
 # AUR packages to build, in dependency order.
-aurpkgs=(ckbcomp calamares)
+aurpkgs=(ckbcomp)
 # AedwenOS's own packages: PKGBUILD dirs under packages/ in this repo.
-localpkgs=(aedwen-qstyle)
+# calamares is the AUR PKGBUILD plus an AedwenOS patch (packages/calamares).
+localpkgs=(calamares aedwen-qstyle aedwen-decoration)
 pkgs=("${aurpkgs[@]}" "${localpkgs[@]}")
 
 mkdir -p "$repo"
@@ -85,8 +86,25 @@ else
     trap 'rm -rf "$work"' EXIT
 fi
 
+# Is this package already in the repo? A package from packages/ counts only
+# at the exact version its PKGBUILD names, so bumping pkgver/pkgrel there
+# rebuilds it; an AUR package counts at any version.
+already_built() {
+    local name="$1" f
+    if [[ -d "$here/packages/$name" ]]; then
+        local found=0
+        while read -r f; do
+            [[ -e "$f" ]] || return 1
+            found=1
+        done < <(cd "$here/packages/$name" && PKGDEST="$repo" makepkg --packagelist)
+        [[ $found -eq 1 ]]
+        return
+    fi
+    compgen -G "$repo/${name}-[0-9]*.pkg.tar.zst" >/dev/null
+}
+
 for name in "${pkgs[@]}"; do
-    if [[ $force -eq 0 ]] && compgen -G "$repo/${name}-[0-9]*.pkg.tar.zst" >/dev/null; then
+    if [[ $force -eq 0 ]] && already_built "$name"; then
         echo ">> $name: already built, skipping (use --force to rebuild)"
         continue
     fi
@@ -102,6 +120,8 @@ for name in "${pkgs[@]}"; do
         cd "$work/$name"
         # -s: pull deps, -c: clean, -f: overwrite, --noconfirm: unattended
         makepkg -scf --noconfirm
+        # replace any older build, so the repo holds one version per package
+        rm -f "$repo/$name"-[0-9]*.pkg.tar.zst
         mv ./*.pkg.tar.zst "$repo"/
     )
 done

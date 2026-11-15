@@ -284,6 +284,11 @@ ckbcomp
 # kdeglobals [KDE] widgetStyle=Aedwen), built from packages/aedwen-qstyle into
 # [aedwen-local] by the same script.
 aedwen-qstyle
+# aedwen-decoration: the AedwenOS window title bars (KDecoration3, kwinrc
+# [org.kde.kdecoration2] library=org.kde.aedwen), rounded on all four corners
+# -- the Aurorae themes could only round the top two. packages/aedwen-decoration,
+# built into [aedwen-local] by the same script.
+aedwen-decoration
 # os-prober: Calamares' partition module (via KPMcore) calls this itself to
 # detect other installed OSes and power the "Install alongside" option on the
 # partitioning screen -- no extra config needed, it's automatic upstream

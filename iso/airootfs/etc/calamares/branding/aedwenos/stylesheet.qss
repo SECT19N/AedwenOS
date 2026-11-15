@@ -93,12 +93,35 @@ QToolTip {
     color: #0d0b13;
 }
 
-QProgressBar {
-    min-height: 8px;
-    max-height: 8px;
-    border: none;
-    border-radius: 4px;
-    background-color: #37304e;
-    color: transparent;
+/* Widget pages sit on the same 32 px side / 28 px top inset as the QML
+ * pages and the navigation bar. ChoicePage (the Disk step) lives in a
+ * QStackedWidget inside the view stack; the install step's slideshow is a
+ * QTabWidget, whose own inner stack must stay unpadded. */
+#viewManagerStack QStackedWidget { padding: 28px 32px 0 32px; }
+#viewManagerStack QStackedWidget#qt_tabwidget_stackedwidget { padding: 0; }
+
+/* Install step (Calamares ExecutionViewStep): progress bar, log button and
+ * status line aligned with the slideshow card's 32 px inset. No QProgressBar
+ * colours here on purpose: the Aedwen widget style (packages/aedwen-qstyle)
+ * draws the design's Expressive wavy bar -- gap at the value, thin track,
+ * stop dot -- and any QSS colour or chunk rule would replace it. The
+ * percentage is hidden as the design shows none inside the bar. */
+#slideshow QProgressBar#exec-progress {
+    margin-left: 32px;
+    qproperty-textVisible: false;
 }
-QProgressBar::chunk { border-radius: 4px; background-color: #cdacff; }
+#slideshow QToolBar {
+    border: none;
+    background: transparent;
+}
+/* QToolBar ignores margin/padding here; the button's own margin does it */
+#slideshow QToolBar QToolButton {
+    margin-right: 16px;
+    min-width: 36px;
+    min-height: 36px;
+}
+#slideshow QLabel#exec-message {
+    margin: 2px 32px 0 32px;
+    color: #bebbcd;
+    font-size: 13px;
+}

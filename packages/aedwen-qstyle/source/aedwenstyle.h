@@ -1,5 +1,12 @@
-// Aedwen widget style: Breeze for every widget, except context menus, which
-// follow the AedwenOS System Surfaces design (section 03, Context menus):
+// Aedwen widget style: Breeze for every widget, except progress bars and
+// context menus.
+//
+// Progress bars follow section 01 (App widgets) of the AedwenOS System
+// Surfaces design: the Expressive wavy active indicator (flat when
+// animations are off), a gap at the value, a thin secondary-container track
+// and a stop dot at its end. Busy, vertical and inverted bars stay Breeze.
+//
+// Context menus follow section 03 (Context menus):
 //
 //   - items grouped into rounded surface-container-high blocks; separator
 //     lines become 2 px gaps between groups

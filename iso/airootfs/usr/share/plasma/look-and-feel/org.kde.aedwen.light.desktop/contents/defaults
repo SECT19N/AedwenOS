@@ -17,8 +17,7 @@ Image=AedwenOS
 cursorTheme=Aedwen
 
 [kwinrc][org.kde.kdecoration2]
-library=org.kde.kwin.aurorae
-theme=__aurorae__svg__AedwenOS-Light
+library=org.kde.aedwen
 ButtonsOnLeft=M
 ButtonsOnRight=IAX
 
