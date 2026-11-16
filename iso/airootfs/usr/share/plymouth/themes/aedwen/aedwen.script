@@ -23,9 +23,50 @@ logo.y = Window.GetY() + Window.GetHeight() / 2 - (logo.h + LOADER_GAP + LOADER_
 logo.sprite.SetPosition(logo.x, logo.y, 100);
 
 // ---- shape-morphing loader -------------------------------------------------
-// Pre-rendered frames, one per refresh (~50 Hz). The frames and num_frames
-// below are both written by scripts/generate-plymouth-assets.py.
-loader.num_frames = 196;
+// The Material 3 Expressive loading indicator, as the shell draws it
+// (org.aedwen.ui MorphShape): soft burst -> 9-sided cookie -> pentagon ->
+// pill -> sunny -> 4-sided cookie -> oval, a morph every 640 ms on a spring.
+// The frames hold the morph only; the rotation is applied here: the
+// spring's 90 degree turn per morph (loader.turn[], with its overshoot), the
+// quarter it has reached, and a steady 360 degrees every 4666 ms.
+// Frames, num_frames, frames_per_morph and turn[] are written by
+// scripts/generate-plymouth-assets.py. One frame per refresh (50 Hz).
+//@generated-begin
+loader.num_frames = 224;
+loader.frames_per_morph = 32;
+loader.turn[0] = 0.00000;
+loader.turn[1] = 0.05592;
+loader.turn[2] = 0.19783;
+loader.turn[3] = 0.39142;
+loader.turn[4] = 0.60877;
+loader.turn[5] = 0.82839;
+loader.turn[6] = 1.03483;
+loader.turn[7] = 1.21797;
+loader.turn[8] = 1.37218;
+loader.turn[9] = 1.49539;
+loader.turn[10] = 1.58822;
+loader.turn[11] = 1.65316;
+loader.turn[12] = 1.69386;
+loader.turn[13] = 1.71455;
+loader.turn[14] = 1.71960;
+loader.turn[15] = 1.71317;
+loader.turn[16] = 1.69899;
+loader.turn[17] = 1.68026;
+loader.turn[18] = 1.65954;
+loader.turn[19] = 1.63881;
+loader.turn[20] = 1.61946;
+loader.turn[21] = 1.60239;
+loader.turn[22] = 1.58812;
+loader.turn[23] = 1.57678;
+loader.turn[24] = 1.56830;
+loader.turn[25] = 1.56243;
+loader.turn[26] = 1.55882;
+loader.turn[27] = 1.55705;
+loader.turn[28] = 1.55671;
+loader.turn[29] = 1.55743;
+loader.turn[30] = 1.55883;
+loader.turn[31] = 1.56064;
+//@generated-end
 for (loader.i = 0; loader.i < loader.num_frames; loader.i++) {
     loader.frames[loader.i] = Image("loader/loader-" + loader.i + ".png");
 }
@@ -41,7 +82,11 @@ fun refresh_callback() {
     tick++;
     logo.sprite.SetOpacity(0.78 + 0.22 * Math.Sin(tick / 14));
     frame_index = tick % loader.num_frames;
-    loader.sprite.SetImage(loader.frames[frame_index]);
+    step = Math.Int(tick / loader.frames_per_morph);
+    in_morph = tick % loader.frames_per_morph;
+    angle = loader.turn[in_morph] + ((step + 1) % 4) * Math.Pi / 2
+            + (tick % 233) / 233 * 2 * Math.Pi;
+    loader.sprite.SetImage(loader.frames[frame_index].Rotate(angle));
 }
 Plymouth.SetRefreshFunction(refresh_callback);
 

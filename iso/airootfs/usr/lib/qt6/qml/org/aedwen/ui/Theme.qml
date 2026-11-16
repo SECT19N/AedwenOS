@@ -90,13 +90,49 @@ QtObject {
     // blurs what's behind, this keeps it mostly opaque.
     readonly property real acrylic: 0.86
 
-    // --- shape (expressive variant) ------------------------------------------
-    readonly property int rWin: 16
-    readonly property int rInner: 10
-    readonly property int rPop: 32
-    readonly property int rCard: 20
+    // --- variant -------------------------------------------------------------
+    // "expressive" (shipped default) or "baseline" (plain Material 3), from
+    // kdeglobals [AedwenOS] Variant via the optional org.aedwen.config plugin
+    // (package aedwen-tools, Appearance settings). The plugin is created
+    // dynamically: Theme also loads in SDDM, the lock screen and KSplash, and
+    // a static import of a missing module would be a hard error there.
+    property QtObject _config: {
+        try {
+            return Qt.createQmlObject('import org.aedwen.config; AedwenConfig {}', theme, "AedwenConfig")
+        } catch (e) {
+            return null
+        }
+    }
+    readonly property string variant: _config && _config.variant === "baseline" ? "baseline" : "expressive"
+    readonly property bool expressive: variant !== "baseline"
+
+    // --- shape (Desktop design token tables: baseline | expressive) ------------
+    readonly property int rWin: expressive ? 16 : 12
+    readonly property int rInner: expressive ? 10 : 8
+    readonly property int rPop: expressive ? 32 : 28
+    readonly property int rCard: expressive ? 20 : 16
     readonly property int rTile: 12      // app icon tiles (design: 11-12px at 40px)
+    readonly property int rBar: expressive ? 999 : 16
+    readonly property int rItem: 999     // list rows, nav items, search results
     readonly property int rPill: 999
+    readonly property int sliderH: expressive ? 40 : 16
+    // The Desktop design's Expressive icon shapes (EXPR_SHAPES), as corner
+    // radii [topLeft, topRight, bottomRight, bottomLeft] for a `size` px
+    // tile; list surfaces cycle through them (notifications: i * 3 + 1).
+    // Baseline tiles are circles.
+    readonly property var exprShapes: [
+        [16, 16, 16, 16], ["50%", "50%", "50%", "50%"], ["50%", "50%", "50%", 14], [14, 14, 14, 14],
+        ["50%", "50%", 16, 16], ["50%", "50%", "50%", "50%"], [16, 16, "50%", "50%"], ["30%", "30%", "30%", "30%"],
+        ["50%", 14, "50%", 14], [14, "50%", 14, "50%"]
+    ]
+    function exprShape(i, size) {
+        const s = expressive ? exprShapes[((i % exprShapes.length) + exprShapes.length) % exprShapes.length]
+                             : ["50%", "50%", "50%", "50%"]
+        return s.map(v => typeof v === "string" ? size * parseFloat(v) / 100 : v)
+    }
+
+    // full-screen scrim behind modal surfaces (search, overview)
+    readonly property color scrim: dark ? Qt.rgba(0, 0, 0, 0.36) : Qt.rgba(20 / 255, 20 / 255, 30 / 255, 0.28)
 
     // --- spacing / sizes -----------------------------------------------------
     readonly property int controlShell: 40    // controls in the shell
@@ -109,7 +145,9 @@ QtObject {
     readonly property bool animate: Kirigami.Units.longDuration > 0
     readonly property var spring: [0.34, 1.45, 0.55, 1, 1, 1]   // cubic-bezier(.34,1.45,.55,1)
     readonly property var standard: [0.2, 0, 0, 1, 1, 1]
-    readonly property int dur: animate ? 420 : 0       // shape morphs
+    // shape morphs: spring 420 ms (expressive), standard 300 ms (baseline)
+    readonly property int dur: animate ? (expressive ? 420 : 300) : 0
+    readonly property var morphEasing: expressive ? spring : standard
     readonly property int durShort: animate ? 180 : 0  // hover, colour
     readonly property int durMed: animate ? 260 : 0
 

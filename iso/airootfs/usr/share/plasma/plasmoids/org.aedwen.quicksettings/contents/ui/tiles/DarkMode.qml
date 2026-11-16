@@ -9,7 +9,7 @@ Tile {
     available: true
     active: DarkModeControl.darkMode
     icon: "dark_mode"
-    label: i18n("Dark mode")
+    label: i18n("Dark theme")
     detail: active ? i18n("On") : i18n("Off")
     settingsModule: "kcm_lookandfeel"
     function toggle() { DarkModeControl.darkMode = !DarkModeControl.darkMode }

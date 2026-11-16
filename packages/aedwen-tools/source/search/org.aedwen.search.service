@@ -1,0 +1,3 @@
+[D-BUS Service]
+Name=org.aedwen.search
+Exec=/usr/bin/aedwen-search --background

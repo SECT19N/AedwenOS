@@ -33,7 +33,16 @@ Item {
     KWinComponents.WindowModel { id: allWindows }
     KWinComponents.VirtualDesktopModel { id: desktopModel }
 
-    // Typing hands the text to KRunner (Alt+Space search) and closes.
+    // Typing hands the text to the Alt+Space search overlay (aedwen-search)
+    // and closes; KRunner if the overlay isn't installed.
+    KWinComponents.DBusCall {
+        id: search
+        service: "org.aedwen.search"
+        path: "/Search"
+        dbusInterface: "org.aedwen.Search"
+        method: "query"
+        onFailed: { krunner.arguments = arguments; krunner.call() }
+    }
     KWinComponents.DBusCall {
         id: krunner
         service: "org.kde.krunner"
@@ -46,8 +55,8 @@ Item {
     Keys.onPressed: event => {
         if (event.text.length > 0 && event.text.trim().length > 0
                 && !(event.modifiers & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier))) {
-            krunner.arguments = [event.text]
-            krunner.call()
+            search.arguments = [event.text]
+            search.call()
             effect.deactivate()
             event.accepted = true
         }
@@ -87,11 +96,67 @@ Item {
         Behavior on opacity { NumberAnimation { duration: effect.animationDuration; easing.type: Easing.OutCubic } }
         Behavior on scale { NumberAnimation { duration: effect.animationDuration; easing.type: Easing.OutCubic } }
 
+        // --- search pill (Desktop design: OVERVIEW) ---
+        Rectangle {
+            id: searchPill
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: 24
+            width: Math.min(440, parent.width - 48)
+            height: 48
+            radius: height / 2
+            color: Theme.scHigh
+            StateLayer { area: pillHover }
+            Row {
+                anchors.left: parent.left
+                anchors.leftMargin: 18
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 12
+                Sym { name: "search"; size: 22; color: Theme.fgVariant; anchors.verticalCenter: parent.verticalCenter }
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "Search apps, settings, files"
+                    font.family: Theme.font
+                    font.pixelSize: 15
+                    color: Theme.fgVariant
+                }
+            }
+            Rectangle {
+                anchors.right: parent.right
+                anchors.rightMargin: 14
+                anchors.verticalCenter: parent.verticalCenter
+                width: keys.implicitWidth + 14
+                height: 24
+                radius: 8
+                color: "transparent"
+                border.width: 1
+                border.color: Theme.outlineV
+                Text {
+                    id: keys
+                    anchors.centerIn: parent
+                    text: "Alt Space"
+                    font.family: Theme.mono
+                    font.pixelSize: 11
+                    color: Theme.fgVariant
+                }
+            }
+            MouseArea {
+                id: pillHover
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.IBeamCursor
+                onClicked: {
+                    search.arguments = [""]
+                    search.call()
+                    effect.deactivate()
+                }
+            }
+        }
+
         // --- desktop strip ---
         Row {
             id: strip
             anchors.horizontalCenter: parent.horizontalCenter
-            y: root.gap * 2
+            y: searchPill.y + searchPill.height + 22
             spacing: root.gap * 2
 
             Repeater {

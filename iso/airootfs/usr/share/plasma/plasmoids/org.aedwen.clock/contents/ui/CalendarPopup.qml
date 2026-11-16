@@ -108,7 +108,9 @@ Item {
                         anchors.centerIn: parent
                         width: 34
                         height: 34
-                        radius: 17
+                        // design: today is a 14 px rounded square in Expressive
+                        radius: parent.today && Theme.expressive ? 12 : 17
+                        Behavior on radius { NumberAnimation { duration: Theme.dur; easing.type: Easing.BezierSpline; easing.bezierCurve: Theme.morphEasing } }
                         visible: parent.modelData > 0
                         color: parent.today ? Theme.primary : "transparent"
                         Label {

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Appearance
+GenericName=Colours and style
+Comment=Accent colour, Material 3 or Expressive style, theme and contrast
+Icon=preferences-desktop-color
+Exec=systemsettings kcm_aedwen_appearance
+Categories=Qt;KDE;Settings;DesktopSettings;
+Keywords=accent;colour;color;theme;dark;light;contrast;expressive;

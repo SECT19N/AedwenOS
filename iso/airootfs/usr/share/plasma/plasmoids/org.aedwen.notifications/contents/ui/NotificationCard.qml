@@ -16,7 +16,7 @@ Rectangle {
 
     implicitHeight: content.implicitHeight + 24
     radius: Theme.rCard
-    color: Theme.sc
+    color: Theme.scHigh
 
     function age(d) {
         if (!d) return ""
@@ -46,10 +46,18 @@ Rectangle {
         anchors.margins: 12
         spacing: 12
 
+        // design: a 40 px tile whose shape cycles through the Expressive
+        // set (circle in baseline)
         AppIcon {
+            id: icon
             Layout.alignment: Qt.AlignTop
             source: card.model.applicationIconName || card.model.iconName || "preferences-desktop-notification"
-            size: 34
+            size: 40
+            readonly property var corners: Theme.exprShape(card.index * 3 + 1, size)
+            topLeftRadius: corners[0]
+            topRightRadius: corners[1]
+            bottomRightRadius: corners[2]
+            bottomLeftRadius: corners[3]
         }
         ColumnLayout {
             Layout.fillWidth: true

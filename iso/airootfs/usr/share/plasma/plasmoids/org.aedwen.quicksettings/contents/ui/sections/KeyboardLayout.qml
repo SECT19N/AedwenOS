@@ -16,7 +16,7 @@ Rectangle {
     implicitWidth: row.implicitWidth + 20
     implicitHeight: 32
     radius: height / 2
-    color: Theme.scHigh
+    color: Theme.scHighest
 
     StateLayer { area: mouse }
 

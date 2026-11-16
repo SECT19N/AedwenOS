@@ -126,6 +126,49 @@ def palette(H, dark, expressive):
     }
 
 
+def _hc(H, dark):
+    """High-contrast roles (System Surfaces design, section 09: `hc(H)`).
+    The design only defines the dark set; the light one mirrors it (black
+    on white, primary at the same chroma, dark enough for 7:1)."""
+    if dark:
+        return {
+            "surface": "#000000", "sc-low": "#0a0a0a", "sc": "#111111", "sc-high": "#161616",
+            "sc-highest": "#1f1f1f", "on-s": "#ffffff", "on-sv": "#f0f0f0", "outline": "#ffffff",
+            "outline-v": "#cfcfcf", "primary": o(0.9, 0.12, H), "on-primary": "#000000",
+            "pc": o(0.9, 0.12, H), "on-pc": "#000000", "sec-c": "#ffffff", "on-sec-c": "#000000",
+            "err": "#ffb4ab",
+        }
+    return {
+        "surface": "#ffffff", "sc-low": "#f5f5f5", "sc": "#eeeeee", "sc-high": "#e9e9e9",
+        "sc-highest": "#e0e0e0", "on-s": "#000000", "on-sv": "#0f0f0f", "outline": "#000000",
+        "outline-v": "#303030", "primary": o(0.35, 0.14, H), "on-primary": "#ffffff",
+        "pc": o(0.35, 0.14, H), "on-pc": "#ffffff", "sec-c": "#000000", "on-sec-c": "#ffffff",
+        "err": "#8c0009",
+    }
+
+
+def _mix(a, b, t):
+    a, b = a.lstrip("#"), b.lstrip("#")
+    return "#" + "".join(
+        f"{round(int(a[i:i + 2], 16) * (1 - t) + int(b[i:i + 2], 16) * t):02x}" for i in (0, 2, 4)
+    )
+
+
+CONTRASTS = ("standard", "medium", "high")
+
+
+def palette_contrast(H, dark, expressive, contrast="standard"):
+    """palette() at a contrast level (Appearance settings, "Contrast"):
+    standard is the design palette, high swaps in the high-contrast roles,
+    medium is halfway between the two."""
+    p = palette(H, dark, expressive)
+    if contrast == "standard":
+        return p
+    hc = _hc(H, dark)
+    t = 1.0 if contrast == "high" else 0.5
+    return {k: (_mix(v, hc[k], t) if k in hc else v) for k, v in p.items()}
+
+
 def hex_to_rgb_csv(hex_color):
     hex_color = hex_color.lstrip("#")
     return ",".join(str(int(hex_color[i : i + 2], 16)) for i in (0, 2, 4))

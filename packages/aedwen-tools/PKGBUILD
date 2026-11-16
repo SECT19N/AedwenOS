@@ -1,0 +1,29 @@
+# AedwenOS desktop tools: the Alt+Space search overlay (aedwen-search), the
+# Appearance settings page (kcm_aedwen_appearance), the org.aedwen.config
+# QML plugin the shell's Theme reads its Material 3 / Expressive variant
+# from, and the root helper that recolours the boot screen and bootloader.
+# Built by scripts/build-localrepo.sh into [aedwen-local], from a copy of
+# this directory (makepkg owns src/ and pkg/; the sources live in source/).
+pkgname=aedwen-tools
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="AedwenOS search overlay, Appearance settings and theme helpers"
+arch=('x86_64')
+url="https://github.com/SECT19N/AedwenOS"
+license=('GPL-3.0-or-later')
+depends=('qt6-base' 'qt6-declarative' 'kconfig' 'kcoreaddons' 'kdbusaddons' 'ki18n' 'kio'
+         'kservice' 'kcmutils' 'kirigami' 'layer-shell-qt' 'milou' 'polkit' 'python' 'python-cairo')
+makedepends=('cmake' 'extra-cmake-modules')
+source=()
+
+build() {
+    cmake -B build -S "$startdir/source" \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX=/usr \
+        -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
+    cmake --build build
+}
+
+package() {
+    DESTDIR="$pkgdir" cmake --install build
+}

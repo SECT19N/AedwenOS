@@ -13,3 +13,7 @@ __pycache__/
 # copied from scripts/ by build.sh (used by aedwen-cursors)
 /iso/airootfs/usr/lib/aedwen/generate-cursors.py
 /iso/airootfs/usr/lib/aedwen/palette_lib.py
+/iso/airootfs/usr/lib/aedwen/generate-colorscheme.py
+/iso/airootfs/usr/lib/aedwen/generate-plymouth-assets.py
+/iso/airootfs/usr/lib/aedwen/generate-limine-wallpaper.py
+/iso/airootfs/usr/lib/aedwen/m3_shapes.py

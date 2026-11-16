@@ -51,7 +51,15 @@ Item {
                 anchors.centerIn: parent
                 visible: list.count === 0
                 spacing: 8
-                Sym { anchors.horizontalCenter: parent.horizontalCenter; name: "notifications_off"; size: 32; color: Theme.fgVariant }
+                // M3 cookie behind the symbol (Expressive; a circle in baseline)
+                MaterialShape {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: 72
+                    height: 72
+                    shape: Theme.expressive ? "cookie9" : "circle"
+                    color: Theme.scHigh
+                    Sym { anchors.centerIn: parent; name: "notifications_off"; size: 36; color: Theme.fgVariant }
+                }
                 Label { text: i18n("No new notifications"); color: Theme.fgVariant }
             }
         }

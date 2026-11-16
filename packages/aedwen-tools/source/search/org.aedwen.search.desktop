@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Search
+GenericName=Search apps, settings and files
+Comment=Find apps, settings and files (Alt+Space)
+Icon=search
+Exec=aedwen-search --toggle
+NoDisplay=true
+StartupNotify=false
+X-KDE-Shortcuts=Alt+Space,Alt+F2
+X-DBUS-StartupType=Unique
+X-DBUS-ServiceName=org.aedwen.search

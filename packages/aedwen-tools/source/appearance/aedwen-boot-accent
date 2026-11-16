@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+# Recolour the boot splash (Plymouth) and the Limine boot menu for an accent
+# hue. The Appearance settings run it through pkexec (polkit action
+# org.aedwen.boot-accent) after an accent change; the result shows from the
+# next boot ("Those two change after the next restart").
+#
+#   aedwen-boot-accent --hue 0..359
+#
+# Everything is rendered into a temporary directory first, with the same
+# generators the ISO build uses (/usr/lib/aedwen). Nothing on the system
+# changes unless all of them succeed. /boot/limine.conf keeps its entries,
+# and only the global block above the first entry is replaced; the old file
+# is kept as limine.conf.bak. Plymouth lives in the initramfs, so the
+# initramfs is rebuilt afterwards. One run at a time: a second one waits for
+# the lock (the Appearance page only ever queues one).
+set -euo pipefail
+
+if [[ $# -ne 2 || $1 != --hue || ! $2 =~ ^[0-9]{1,3}$ ]] || (( 10#$2 > 359 )); then
+    echo "usage: aedwen-boot-accent --hue 0..359" >&2
+    exit 2
+fi
+hue=$((10#$2))
+
+exec 9>/run/aedwen-boot-accent.lock
+flock 9
+lib=/usr/lib/aedwen
+theme=/usr/share/plymouth/themes/aedwen
+mask=/usr/share/limine/aedwen-eagle-mask.png
+
+work=$(mktemp -d /var/tmp/aedwen-boot-accent.XXXXXX)
+trap 'rm -rf "$work"' EXIT
+
+# --- render -------------------------------------------------------------------
+if [[ -d $theme ]]; then
+    cp -a "$theme" "$work/plymouth"
+    python3 "$lib/generate-plymouth-assets.py" --hue "$hue" \
+        --out "$work/plymouth/loader" --script "$work/plymouth/aedwen.script" >/dev/null
+    # the eagle: same shape and padding, filled with the new primary
+    python3 - "$work/plymouth/logo.png" "$hue" "$lib" <<'PY'
+import sys
+sys.path.insert(0, sys.argv[3])
+import cairo
+from palette_lib import palette
+path, hue = sys.argv[1], int(sys.argv[2])
+h = palette(hue, dark=True, expressive=True)["primary"].lstrip("#")
+r, g, b = (int(h[i:i + 2], 16) / 255 for i in (0, 2, 4))
+src = cairo.ImageSurface.create_from_png(path)
+out = cairo.ImageSurface(cairo.FORMAT_ARGB32, src.get_width(), src.get_height())
+ctx = cairo.Context(out)
+ctx.set_source_rgb(r, g, b)
+ctx.mask_surface(src, 0, 0)
+out.write_to_png(path)
+PY
+fi
+
+limine_conf=""
+if [[ -f /boot/limine.conf ]]; then
+    python3 "$lib/generate-limine-wallpaper.py" --hue "$hue" --eagle "$mask" \
+        --out "$work/limine-wallpaper.png" --conf "$work/global.conf" >/dev/null
+    limine_conf=$work/limine.conf
+    # new global block + the existing entries (from the first "/" line on)
+    { cat "$work/global.conf"; echo; sed -n '/^\//,$p' /boot/limine.conf; } >"$limine_conf"
+    grep -q '^/' "$limine_conf" || { echo "aedwen-boot-accent: no entries in /boot/limine.conf, leaving it alone" >&2; limine_conf=""; }
+fi
+
+# --- install ------------------------------------------------------------------
+if [[ -d $work/plymouth ]]; then
+    rm -rf "$theme.new"
+    cp -a "$work/plymouth" "$theme.new"
+    rm -rf "$theme.old"
+    mv "$theme" "$theme.old"
+    mv "$theme.new" "$theme"
+    rm -rf "$theme.old"
+fi
+if [[ -n $limine_conf ]]; then
+    cp -a /boot/limine.conf /boot/limine.conf.bak
+    install -m644 "$work/limine-wallpaper.png" /boot/limine-wallpaper.png.new
+    mv /boot/limine-wallpaper.png.new /boot/limine-wallpaper.png
+    install -m644 "$limine_conf" /boot/limine.conf.new
+    mv /boot/limine.conf.new /boot/limine.conf
+fi
+
+# Plymouth is in the initramfs: rebuild it (under the lock, so two runs
+# never write the same image at once)
+if [[ -x /usr/local/bin/aedwen-dracut.sh && -d $theme ]]; then
+    /usr/local/bin/aedwen-dracut.sh all >/var/log/aedwen-boot-accent.log 2>&1 </dev/null
+fi
+echo "aedwen-boot-accent: hue $hue applied"

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Search
+Comment=Starts the Alt+Space search hidden, so it opens instantly
+Exec=aedwen-search --background
+Icon=search
+NoDisplay=true
+OnlyShowIn=KDE;
+X-KDE-autostart-phase=2

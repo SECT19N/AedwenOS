@@ -101,9 +101,13 @@ export GIT_DIRTY=""
 install -Dm644 -o "${SUDO_UID:-0}" -g "${SUDO_GID:-0}" "$profile/packages.x86_64" \
     "$profile/airootfs/usr/share/aedwenos/packages.x86_64"
 # aedwen-cursors builds the accent/tonal cursor themes on the user's machine
-# with the same generator the static themes come from.
+# with the same generator the static themes come from. The Appearance
+# settings (aedwen-tools) run the colour scheme, Plymouth and Limine
+# generators from here too, for a custom accent or contrast.
 install -Dm644 -o "${SUDO_UID:-0}" -g "${SUDO_GID:-0}" -t "$profile/airootfs/usr/lib/aedwen" \
-    "$here/scripts/generate-cursors.py" "$here/scripts/palette_lib.py"
+    "$here/scripts/generate-cursors.py" "$here/scripts/palette_lib.py" \
+    "$here/scripts/generate-colorscheme.py" "$here/scripts/generate-plymouth-assets.py" \
+    "$here/scripts/generate-limine-wallpaper.py" "$here/scripts/m3_shapes.py"
 
 rm -rf "$work"
 mkdir -p "$work" "$out"

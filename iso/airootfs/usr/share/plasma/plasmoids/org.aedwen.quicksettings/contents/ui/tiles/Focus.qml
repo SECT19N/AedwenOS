@@ -10,8 +10,8 @@ Tile {
     available: true
     active: dnd
     icon: "do_not_disturb_on"
-    label: i18n("Focus")
-    detail: active ? i18n("Notifications paused") : i18n("Off")
+    label: i18n("Do not disturb")
+    detail: active ? i18n("On") : i18n("Off")
     settingsModule: "kcm_notifications"
     function toggle() {
         if (dnd) {

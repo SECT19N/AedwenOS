@@ -50,13 +50,13 @@ cfg=$tmp/limine.conf
     cat "$limine/aedwen-limine.conf"
     cat <<EOF
 
-/AedwenOS (live)
+/AedwenOS · live
     comment: Try AedwenOS without changing this computer, or install it
     protocol: linux
     kernel_path: boot():$kernel
 ${modules}    cmdline: $options
 
-/AedwenOS (live, safe graphics)
+/AedwenOS · safe graphics
     comment: Basic graphics and boot messages, for when the desktop won't start
     protocol: linux
     kernel_path: boot():$kernel

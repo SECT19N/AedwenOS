@@ -3,6 +3,7 @@
 // profile.
 import QtQuick
 import org.kde.plasma.private.batterymonitor
+import org.aedwen.shell
 import ".."
 
 Tile {
@@ -12,8 +13,12 @@ Tile {
     active: profiles.activeProfile === "performance"
     icon: profiles.activeProfile === "power-saver" ? "eco" : "bolt"
     label: i18n("Performance")
-    detail: profiles.activeProfile === "performance" ? i18n("On")
+    hasDetails: true
+    // design: the sub-line names the current profile
+    detail: profiles.activeProfile === "performance" ? i18n("Performance")
           : profiles.activeProfile === "power-saver" ? i18n("Power saver") : i18n("Balanced")
     settingsModule: "kcm_powerdevilprofilesconfig"
+    property var openPage: null
+    function configure() { if (openPage) openPage("PowerPage.qml"); else Shell.openSettings(settingsModule) }
     function toggle() { profiles.setProfile(active ? "balanced" : "performance") }
 }

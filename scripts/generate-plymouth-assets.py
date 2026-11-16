@@ -1,27 +1,36 @@
 #!/usr/bin/env python3
 """
-Generate the AedwenOS Plymouth boot-splash loader frames: a shape-morphing
-loading indicator in the seed's primary colour, in the style of the Material 3
-Expressive loading indicator. It cycles circle -> soft burst -> 9-lobe cookie
--> pentagon -> pill -> sunny -> 4-lobe cookie -> back to circle, spinning
-continuously, with a springy overshoot (the design's cubic-bezier(.34,1.45,.55,1)).
-Like the M3E indicator it only rotates and morphs: every frame is rescaled to
-the same area, so the spring's overshoot bends the outline without making the
-shape grow or shrink.
+Generate the AedwenOS Plymouth boot-splash loader: the Material 3 Expressive
+loading indicator in the seed's primary colour, the same one the shell draws
+(org.aedwen.ui MorphShape).
 
-Every shape is a polar radius function r(theta), sampled at the same angles,
-so morphing between two shapes is a per-angle interpolation of radii. Shapes
-are normalised to equal area so the indicator doesn't visibly grow or shrink
-between them.
+The sequence and timing are Compose's indeterminate LoadingIndicator
+(scripts/m3_shapes.py ports the shapes from androidx):
 
-Plymouth's script module can't draw vectors, so this pre-renders the loop as
-transparent PNG frames and rewrites `loader.num_frames` in aedwen.script to
-match. The script advances one frame per refresh (~50 Hz).
+    soft burst -> 9-sided cookie -> pentagon -> pill -> sunny
+    -> 4-sided cookie -> oval -> (soft burst)
+
+There is one morph per 650 ms, driven by a spring (damping 0.6,
+stiffness 200). Plymouth refreshes at 50 Hz, so a morph is 32 frames
+(640 ms).
+
+Plymouth's script module can't draw vectors, so the morphs are pre-rendered
+as transparent PNG frames. The rotation is not baked in: aedwen.script turns
+each frame by the spring's 90 degrees per morph (the turn[] table written
+here, overshoot included), the quarter it has reached, and a steady
+360 degrees per 4666 ms. That keeps the loop to 7 morphs (224 frames).
+Like Compose, each frame is centred on its own bounds before rotating, and
+the sequence is scaled so no shape clips its square while it turns.
+
+It also rewrites the generated block of aedwen.script (num_frames,
+frames_per_morph, turn[]).
 
 Usage:
-    scripts/generate-plymouth-assets.py [--frames-per-shape 28] [--size 80]
+    scripts/generate-plymouth-assets.py [--seed violet | --hue 295] [--size 80]
+                                        [--out DIR] [--script FILE]
 
-Requires python-cairo (pacman: python-cairo).
+Requires python-cairo (pacman: python-cairo). The AedwenOS appearance tool
+runs this as root, with --hue, to recolour the boot screen.
 """
 
 import argparse
@@ -30,107 +39,17 @@ import math
 import os
 import re
 import sys
+import tempfile
 
 import cairo
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import m3_shapes as m  # noqa: E402
 from palette_lib import DEFAULT_SEED, SEEDS, palette  # noqa: E402
 
-SAMPLES = 360
-THETAS = [2 * math.pi * i / SAMPLES for i in range(SAMPLES)]
-
-
-def lobes(n, depth):
-    """Scalloped 'cookie'/'burst' outline with n rounded lobes."""
-    return lambda t: 1 + depth * math.cos(n * t)
-
-
-def polygon(n, corner_deg):
-    """Regular n-gon (vertex at the top) with rounded corners: the sharp
-    outline averaged over a corner_deg-wide window of angles."""
-    seg = 2 * math.pi / n
-    half = math.radians(corner_deg) / 2
-    taps = 15
-
-    def sharp(t):
-        local = (t - math.pi / 2) % seg - seg / 2
-        return math.cos(math.pi / n) / math.cos(local)
-
-    def r(t):
-        return sum(sharp(t - half + 2 * half * k / (taps - 1)) for k in range(taps)) / taps
-    return r
-
-
-def superellipse(a, b, exp):
-    """Pill/stadium-like outline: |x/a|^exp + |y/b|^exp = 1."""
-    def r(t):
-        c, s = abs(math.cos(t)), abs(math.sin(t))
-        return ((c / a) ** exp + (s / b) ** exp) ** (-1 / exp)
-    return r
-
-
-def sunny(n, depth):
-    """Pointier burst: lobes sharpened with a power curve."""
-    return lambda t: 1 + depth * (abs(math.cos(n * t / 2)) ** 3 * 2 - 1)
-
-
-SHAPES = [
-    lambda t: 1.0,                 # circle
-    lobes(8, 0.10),                # soft burst
-    lobes(9, 0.07),                # 9-lobe cookie
-    polygon(5, 30),                # rounded pentagon
-    superellipse(1.0, 0.62, 3.2),  # pill
-    sunny(8, 0.12),                # sunny
-    lobes(4, 0.11),                # 4-lobe cookie
-]
-
-
-def unit_area(radii):
-    """Scale sampled radii to the area of the unit circle."""
-    area = 0.5 * sum(r * r for r in radii) * (2 * math.pi / SAMPLES)
-    k = math.sqrt(math.pi / area)
-    return [r * k for r in radii]
-
-
-def normalised(shape):
-    return unit_area([shape(t) for t in THETAS])
-
-
-def cubic_bezier(x1, y1, x2, y2):
-    """CSS cubic-bezier timing function (y may overshoot past 1)."""
-    def bez(t, p1, p2):
-        u = 1 - t
-        return 3 * u * u * t * p1 + 3 * u * t * t * p2 + t ** 3
-
-    def ease(x):
-        lo, hi = 0.0, 1.0
-        for _ in range(40):  # bisection on x(t) -- monotonic for these params
-            mid = (lo + hi) / 2
-            if bez(mid, x1, x2) < x:
-                lo = mid
-            else:
-                hi = mid
-        return bez((lo + hi) / 2, y1, y2)
-    return ease
-
-
-SPRING = cubic_bezier(0.34, 1.45, 0.55, 1)
-HOLD = 0.30        # fraction of each step the shape rests before morphing
-SPIN_PER_STEP = 140  # degrees of rotation per shape step
-
-
-def sample(radii_sets, frame, frames_per_shape):
-    """Radii and rotation (deg) for one frame of the loop."""
-    n = len(radii_sets)
-    step, sub = divmod(frame, frames_per_shape)
-    p = sub / frames_per_shape
-    m = 0.0 if p < HOLD else (p - HOLD) / (1 - HOLD)
-    t = SPRING(m)
-    a, b = radii_sets[step], radii_sets[(step + 1) % n]
-    radii = unit_area([max(0.2, ra + (rb - ra) * t) for ra, rb in zip(a, b)])
-    # steady spin plus a spring-eased kick during the morph
-    rotation = SPIN_PER_STEP * (step + 0.4 * p + 0.6 * t)
-    return radii, rotation
+REFRESH_HZ = 50
+FRAMES_PER_MORPH = 32
+SAMPLES = 240
 
 
 def hex_to_rgb01(hex_color):
@@ -138,31 +57,67 @@ def hex_to_rgb01(hex_color):
     return tuple(int(hex_color[i : i + 2], 16) / 255 for i in (0, 2, 4))
 
 
-def draw_frame(path, size, color01, radii, rotation_deg, unit):
+def frames():
+    """(points in the unit box, centred on their bounds) per frame, and the
+    spring turn in radians per frame of a morph."""
+    shapes = []
+    prev = None
+    for n in m.LOADER_SEQUENCE:
+        cur = m.sample(m.SHAPES[n], SAMPLES)
+        if prev is not None:
+            cur = m.align(prev, cur)
+        shapes.append(cur)
+        prev = cur
+    closing = m.align(shapes[-1], shapes[0])
+
+    out = []
+    turn = []
+    for k in range(FRAMES_PER_MORPH):
+        turn.append(math.radians(90 * m.spring(k * 1000 / REFRESH_HZ)))
+    for i, a in enumerate(shapes):
+        b = closing if i == len(shapes) - 1 else shapes[i + 1]
+        for k in range(FRAMES_PER_MORPH):
+            p = max(0.0, min(1.0, m.spring(k * 1000 / REFRESH_HZ)))
+            pts = m.morph(a, b, p)
+            xs, ys = [q[0] for q in pts], [q[1] for q in pts]
+            cx, cy = (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2
+            out.append([(q[0] - cx, q[1] - cy) for q in pts])
+    return out, turn
+
+
+def draw_frame(path, size, color01, pts):
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, size, size)
     ctx = cairo.Context(surface)
+    # the shape fills the frame as far as it can without clipping while it
+    # turns (Compose's calculateScaleFactor); the KSplash MorphShape scales
+    # the same way, so boot -> login looks identical
+    scale = size * m.loader_scale() / m.ACTIVE_SCALE
     ctx.translate(size / 2, size / 2)
-    ctx.rotate(math.radians(rotation_deg))
-    ctx.scale(unit, unit)
-
-    for i, (t, r) in enumerate(zip(THETAS, radii)):
-        x, y = r * math.cos(t), r * math.sin(t)
-        (ctx.move_to if i == 0 else ctx.line_to)(x, y)
+    for i, (x, y) in enumerate(pts):
+        (ctx.move_to if i == 0 else ctx.line_to)(x * scale, y * scale)
     ctx.close_path()
-
     ctx.set_source_rgb(*color01)
     ctx.fill()
     surface.write_to_png(path)
 
 
-def update_script(script_path, total):
+def update_script(script_path, total, turn):
     with open(script_path) as f:
         src = f.read()
-    new, count = re.subn(r"loader\.num_frames = \d+;", f"loader.num_frames = {total};", src)
+    block = (
+        "//@generated-begin\n"
+        f"loader.num_frames = {total};\n"
+        f"loader.frames_per_morph = {FRAMES_PER_MORPH};\n"
+        + "".join(f"loader.turn[{k}] = {t:.5f};\n" for k, t in enumerate(turn))
+        + "//@generated-end"
+    )
+    new, count = re.subn(r"//@generated-begin.*?//@generated-end", block, src, flags=re.S)
     if count != 1:
-        sys.exit(f"could not find 'loader.num_frames = N;' in {script_path}")
-    with open(script_path, "w") as f:
+        sys.exit(f"could not find the //@generated-begin/end block in {script_path}")
+    tmp = script_path + ".tmp"
+    with open(tmp, "w") as f:
         f.write(new)
+    os.replace(tmp, script_path)
 
 
 def main():
@@ -170,32 +125,38 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=f"{theme}/loader")
     ap.add_argument("--script", default=f"{theme}/aedwen.script")
-    ap.add_argument("--frames-per-shape", type=int, default=28)
     ap.add_argument("--size", type=int, default=80)
-    ap.add_argument("--seed", default=DEFAULT_SEED)
+    g = ap.add_mutually_exclusive_group()
+    g.add_argument("--seed", choices=SEEDS.keys())
+    g.add_argument("--hue", type=int, help="custom accent hue, 0-359")
     args = ap.parse_args()
 
-    H = SEEDS[args.seed]
-    p = palette(H, dark=True, expressive=True)
-    color = hex_to_rgb01(p["primary"])
+    if args.hue is not None:
+        if not 0 <= args.hue <= 359:
+            sys.exit("--hue must be 0..359")
+        H = args.hue
+    else:
+        H = SEEDS[args.seed or DEFAULT_SEED]
+    color = hex_to_rgb01(palette(H, dark=True, expressive=True)["primary"])
 
-    radii_sets = [normalised(s) for s in SHAPES]
-    total = len(SHAPES) * args.frames_per_shape
-    frames = [sample(radii_sets, i, args.frames_per_shape) for i in range(total)]
-    # Fit the largest radius any frame reaches inside the frame, with a margin.
-    peak = max(max(radii) for radii, _ in frames)
-    unit = (args.size / 2 - 2) / peak
+    pts, turn = frames()
 
+    # render into a temp dir first, then swap: a failure leaves the old
+    # frames in place
+    parent = os.path.dirname(os.path.abspath(args.out))
+    os.makedirs(parent, exist_ok=True)
+    tmp = tempfile.mkdtemp(prefix=".loader-", dir=parent)
+    for i, p in enumerate(pts):
+        draw_frame(os.path.join(tmp, f"loader-{i}.png"), args.size, color, p)
     os.makedirs(args.out, exist_ok=True)
     for old in glob.glob(os.path.join(args.out, "loader-*.png")):
         os.remove(old)
+    for f in os.listdir(tmp):
+        os.replace(os.path.join(tmp, f), os.path.join(args.out, f))
+    os.rmdir(tmp)
 
-    for i, (radii, rot) in enumerate(frames):
-        draw_frame(os.path.join(args.out, f"loader-{i}.png"),
-                   args.size, color, radii, rot, unit)
-
-    update_script(args.script, total)
-    print(f"Wrote {total} loader frames ({args.size}x{args.size}) to {args.out}")
+    update_script(args.script, len(pts), turn)
+    print(f"Wrote {len(pts)} loader frames ({args.size}x{args.size}) to {args.out}")
 
 
 if __name__ == "__main__":

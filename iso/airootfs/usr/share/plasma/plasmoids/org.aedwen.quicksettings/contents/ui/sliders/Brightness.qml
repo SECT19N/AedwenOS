@@ -19,8 +19,8 @@ ColumnLayout {
             Layout.fillWidth: true
             spacing: 12
             Sym {
-                Layout.preferredWidth: 36
                 name: "light_mode"
+                size: 22
                 color: Theme.fgVariant
             }
             Slider {

@@ -22,7 +22,9 @@ CMDLINE="root=UUID=$ROOT_UUID rw rootfstype=btrfs rootflags=subvol=@ quiet splas
 # just means no resume= and hibernate stays unavailable.
 SWAP_UUID=$(awk '$3 == "swap" { sub(/^UUID=/, "", $1); print $1; exit }' /etc/fstab)
 [[ -n "$SWAP_UUID" ]] && CMDLINE+=" resume=UUID=$SWAP_UUID"
-# Fallback entry ("AedwenOS · fallback" in the design): same kernel and
+# Entry names follow the design's boot menu: "AedwenOS", "AedwenOS ·
+# fallback", then limine-snapper-sync's "[+] Snapshots" directory.
+# Fallback entry: same kernel and
 # initramfs (dracut builds a generic, non-host-only image anyway), but
 # boot messages instead of the splash and nomodeset, so a broken GPU
 # driver can't stop you reaching a console to fix it.
@@ -32,13 +34,13 @@ FALLBACK_CMDLINE="root=UUID=$ROOT_UUID rw rootfstype=btrfs rootflags=subvol=@ no
 cp /usr/share/limine/aedwen-limine.conf /boot/limine.conf
 cat >> /boot/limine.conf <<EOF
 
-/AedwenOS (linux-zen)
+/AedwenOS
     protocol: linux
     kernel_path: boot():/vmlinuz-linux-zen
     module_path: boot():/initramfs-linux-zen.img
     cmdline: $CMDLINE
 
-/AedwenOS (linux-zen, fallback)
+/AedwenOS · fallback
     comment: No boot splash and basic graphics, for when the desktop won't start
     protocol: linux
     kernel_path: boot():/vmlinuz-linux-zen

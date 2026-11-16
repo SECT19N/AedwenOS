@@ -270,6 +270,10 @@ firewalld
 ## works even when the grid appears empty with a stale/missing cache)
 appstream
 
+## Appearance: the boot-screen / bootloader recolouring helper (aedwen-tools)
+## regenerates the Plymouth loader frames and the Limine card with cairo
+python-cairo
+
 ## ------------------------------------------------------------------ LIVE ONLY
 ## Present on the ISO to run the installer; removed from the installed system.
 ## archiso builds the live initramfs with mkinitcpio + the archiso hooks:
@@ -289,6 +293,12 @@ aedwen-qstyle
 # -- the Aurorae themes could only round the top two. packages/aedwen-decoration,
 # built into [aedwen-local] by the same script.
 aedwen-decoration
+# aedwen-tools: the Alt+Space search overlay, the Appearance settings page
+# (System Settings > Colours & Themes), the org.aedwen.config QML plugin the
+# shell reads its Material 3 / Expressive variant from, and the helper that
+# recolours the boot splash and Limine menu. packages/aedwen-tools, built
+# into [aedwen-local] by the same script.
+aedwen-tools
 # os-prober: Calamares' partition module (via KPMcore) calls this itself to
 # detect other installed OSes and power the "Install alongside" option on the
 # partitioning screen -- no extra config needed, it's automatic upstream

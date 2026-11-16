@@ -1,5 +1,6 @@
 import QtQuick
 import org.kde.bluezqt as BluezQt
+import org.aedwen.shell
 import ".."
 
 Tile {
@@ -14,8 +15,12 @@ Tile {
     active: manager.bluetoothOperational && !manager.bluetoothBlocked
     icon: active ? (connected.length ? "bluetooth_connected" : "bluetooth") : "bluetooth_disabled"
     label: i18n("Bluetooth")
-    detail: !active ? i18n("Off") : connected.length ? connected.join(", ") : i18n("On")
+    hasDetails: true
+    detail: !active ? i18n("Off") : connected.length ? i18np("%1 device", "%1 devices", connected.length) : i18n("On")
     settingsModule: "kcm_bluetooth"
+    // set by QuickSettingsPopup: opens a details page
+    property var openPage: null
+    function configure() { if (openPage) openPage("BluetoothPage.qml"); else Shell.openSettings(settingsModule) }
     function toggle() {
         const block = !manager.bluetoothBlocked
         manager.bluetoothBlocked = block

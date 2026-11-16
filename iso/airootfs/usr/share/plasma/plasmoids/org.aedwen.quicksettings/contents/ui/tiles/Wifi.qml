@@ -24,7 +24,8 @@ Tile {
     active: wireless ? conns.wirelessEnabled : conns.networkingEnabled && connIcon.connectionIcon.indexOf("offline") === -1
     enabled: !PlasmaNM.Configuration.airplaneModeEnabled && (!wireless || conns.wirelessHwEnabled)
     icon: wireless ? (active ? "wifi" : "wifi_off") : (active ? "lan" : "signal_disconnected")
-    label: wireless ? i18n("Wi‑Fi") : i18n("Network")
+    label: i18n("Internet")
+    hasDetails: true
     // activeConnections is "<type>: <status>" per line, e.g.
     // "Wi-Fi: Connected to home-5g"; show the status of the first one.
     readonly property string firstStatus: {

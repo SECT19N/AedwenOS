@@ -1,0 +1,11 @@
+# Alt+Space / Alt+F2 open the AedwenOS search overlay (aedwen-search,
+# package aedwen-tools; Desktop design: SEARCH) instead of KRunner, whose
+# window cannot be styled (its QML is compiled into the binary). KRunner
+# stays installed: the overlay uses its runners, and Shell.openSearch falls
+# back to it if aedwen-search is missing. A per-user file (skel): kglobalaccel
+# does not read /etc/xdg for service shortcuts.
+[services][org.kde.krunner.desktop]
+_launch=none
+
+[services][org.aedwen.search.desktop]
+_launch=Alt+Space	Alt+F2

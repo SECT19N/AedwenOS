@@ -18,12 +18,21 @@ QtObject {
     function openLauncher() {
         call("org.kde.plasmashell", "/PlasmaShell", "org.kde.PlasmaShell", "activateLauncherMenu")
     }
-    // KRunner (Alt+Space); `query` pre-fills the search.
+    // The search overlay (aedwen-search, Alt+Space; D-Bus activated if it
+    // isn't running); `query` pre-fills it. Falls back to KRunner when the
+    // overlay isn't installed.
     function openSearch(query) {
-        if (query)
-            call("org.kde.krunner", "/App", "org.kde.krunner.App", "query", [new DBus.string(query)])
-        else
-            call("org.kde.krunner", "/App", "org.kde.krunner.App", "toggleDisplay")
+        const reply = query
+            ? call("org.aedwen.search", "/Search", "org.aedwen.Search", "query", [new DBus.string(query)])
+            : call("org.aedwen.search", "/Search", "org.aedwen.Search", "toggle")
+        reply.finished.connect(() => {
+            if (!reply.isError)
+                return
+            if (query)
+                call("org.kde.krunner", "/App", "org.kde.krunner.App", "query", [new DBus.string(query)])
+            else
+                call("org.kde.krunner", "/App", "org.kde.krunner.App", "toggleDisplay")
+        })
     }
     // A System Settings page by KCM id (e.g. "kcm_networkmanagement"), or
     // the Quick Settings overview page when empty.

@@ -1,7 +1,8 @@
-// Network page (opened from the network tile's chevron): every connection
-// plasma-nm offers -- wired, Wi-Fi, VPN -- with the active ones first. Click
-// connects or disconnects; a secured Wi-Fi network without a saved profile
-// asks for its password inline.
+// Internet details (Desktop design: QUICK SETTINGS detail view), opened by
+// holding the Internet tile: every connection plasma-nm offers -- wired,
+// Wi-Fi, VPN -- with the active ones first. Click connects or disconnects;
+// a secured Wi-Fi network without a saved profile asks for its password
+// inline.
 import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
@@ -9,10 +10,18 @@ import org.kde.plasma.networkmanagement as PlasmaNM
 import org.aedwen.ui
 import org.aedwen.shell
 
-ColumnLayout {
+DetailPage {
     id: page
-    property var back
-    spacing: 8
+    icon: "wifi"
+    title: i18n("Internet")
+    hasSwitch: devices.wirelessDeviceAvailable
+    switchOn: conns.wirelessEnabled
+    onSwitchToggled: on => handler.enableWireless(on)
+    section: devices.wirelessDeviceAvailable ? i18n("Wi‑Fi networks") : i18n("Connections")
+    empty: devices.wirelessDeviceAvailable && !conns.wirelessEnabled && list.count === 0
+    emptyText: i18n("Wi‑Fi is off")
+    more: i18n("Network settings")
+    onMoreClicked: Shell.openSettings("kcm_networkmanagement")
 
     PlasmaNM.Handler { id: handler }
     PlasmaNM.EnabledConnections { id: conns }
@@ -25,29 +34,17 @@ ColumnLayout {
 
     Component.onCompleted: if (devices.wirelessDeviceAvailable) handler.requestScan()
 
-    RowLayout {
-        Layout.fillWidth: true
-        spacing: 4
-        IconButton { icon: "arrow_back"; onClicked: page.back() }
-        Label { role: "title"; text: i18n("Network"); Layout.fillWidth: true }
-        Switch {
-            visible: devices.wirelessDeviceAvailable
-            checked: conns.wirelessEnabled
-            onToggled: on => handler.enableWireless(on)
-        }
-    }
-
     ListView {
         id: list
         Layout.fillWidth: true
-        Layout.fillHeight: true
+        Layout.preferredHeight: Math.min(contentHeight, 380)
         clip: true
-        spacing: 2
+        spacing: page.rowSpacing
         model: networks
         boundsBehavior: Flickable.StopAtBounds
         QQC2.ScrollBar.vertical: QQC2.ScrollBar {}
 
-        delegate: Column {
+        delegate: DetailRow {
             id: row
             required property var model
             required property int index
@@ -60,9 +57,22 @@ ColumnLayout {
                     || model.SecurityType === PlasmaNM.Enums.WpaPsk
                     || model.SecurityType === PlasmaNM.Enums.SAE)
             width: list.width
-            spacing: 4
+            position: index
+            count: list.count
+            on: connected
+            name: model.ItemUniqueName
+            sub: connected ? i18n("Connected")
+               : connecting ? i18n("Connecting…")
+               : secured ? i18n("Secured") : wifi ? i18n("Open network") : ""
+            icon: model.Type === PlasmaNM.Enums.Wired ? "lan"
+                : model.Type === PlasmaNM.Enums.Vpn ? "vpn_key"
+                : !wifi ? "public"
+                : model.Signal > 75 ? "wifi" : model.Signal > 50 ? "network_wifi_3_bar"
+                : model.Signal > 25 ? "network_wifi_2_bar" : "network_wifi_1_bar"
+            trail: connected ? "settings" : secured ? "lock" : ""
+            onTrailClicked: if (connected) Shell.openSettings("kcm_networkmanagement")
 
-            function activate() {
+            onClicked: {
                 if (connected || connecting) {
                     handler.deactivateConnection(model.ConnectionPath, model.DevicePath)
                 } else if (needsPassword) {
@@ -74,26 +84,6 @@ ColumnLayout {
                 }
             }
 
-            ListRow {
-                width: parent.width
-                title: row.model.ItemUniqueName
-                subtitle: row.connected ? i18n("Connected")
-                        : row.connecting ? i18n("Connecting…")
-                        : row.secured ? i18n("Secured") : ""
-                selected: row.connected
-                icon: row.model.Type === PlasmaNM.Enums.Wired ? "lan"
-                    : row.model.Type === PlasmaNM.Enums.Vpn ? "vpn_key"
-                    : !row.wifi ? "public"
-                    : row.model.Signal > 75 ? "wifi" : row.model.Signal > 50 ? "network_wifi_3_bar"
-                    : row.model.Signal > 25 ? "network_wifi_2_bar" : "network_wifi_1_bar"
-                trailing: Sym {
-                    visible: row.secured
-                    name: "lock"
-                    size: 16
-                    color: Theme.fgVariant
-                }
-                onClicked: row.activate()
-            }
             RowLayout {
                 visible: page.passwordFor === row.model.ItemUniqueName
                 width: parent.width
@@ -119,14 +109,5 @@ ColumnLayout {
                 }
             }
         }
-    }
-
-    PillButton {
-        Layout.alignment: Qt.AlignRight
-        kind: "text"
-        compact: true
-        text: i18n("Network settings")
-        icon: "settings"
-        onClicked: Shell.openSettings("kcm_networkmanagement")
     }
 }

@@ -1,0 +1,10 @@
+{
+    "KPlugin": {
+        "Description": "Style, accent colour, theme and contrast",
+        "Icon": "preferences-desktop-color",
+        "Name": "Appearance"
+    },
+    "X-KDE-Keywords": "accent,colour,color,seed,theme,dark,light,contrast,expressive,material,wallpaper,aedwen",
+    "X-KDE-System-Settings-Parent-Category": "themes",
+    "X-KDE-Weight": 1
+}

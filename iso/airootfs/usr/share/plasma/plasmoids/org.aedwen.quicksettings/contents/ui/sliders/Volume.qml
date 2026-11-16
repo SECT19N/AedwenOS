@@ -10,7 +10,7 @@ RowLayout {
     readonly property bool available: sink !== null && sink !== undefined
     readonly property int percent: available ? Math.round(sink.volume / PulseAudio.NormalVolume * 100) : 0
     readonly property string symbol: !available || sink.muted || percent === 0 ? "volume_off"
-                                   : percent < 40 ? "volume_down" : "volume_up"
+                                   : "volume_up"
     function step(delta) {
         if (!available) return
         const v = Math.max(0, Math.min(100, percent + delta))
@@ -18,10 +18,17 @@ RowLayout {
         sink.volume = Math.round(v / 100 * PulseAudio.NormalVolume)
     }
     spacing: 12
-    IconButton {
-        icon: row.symbol
-        size: 36
-        onClicked: if (row.available) row.sink.muted = !row.sink.muted
+    // design: a plain 22 px symbol; clicking it mutes / unmutes
+    Sym {
+        name: row.symbol
+        size: 22
+        color: Theme.fgVariant
+        MouseArea {
+            anchors.fill: parent
+            anchors.margins: -6
+            cursorShape: Qt.PointingHandCursor
+            onClicked: if (row.available) row.sink.muted = !row.sink.muted
+        }
     }
     Slider {
         Layout.fillWidth: true

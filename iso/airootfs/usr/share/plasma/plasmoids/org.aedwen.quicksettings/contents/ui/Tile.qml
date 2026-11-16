@@ -8,11 +8,15 @@ import org.aedwen.shell
 ToggleTile {
     id: tile
     property string settingsModule: ""
+    // has a details page in Quick Settings (Internet, Bluetooth,
+    // Performance in the design): shows the chevron
+    property bool hasDetails: false
 
     function toggle() {}
     function configure() { if (settingsModule) Shell.openSettings(settingsModule) }
 
     configurable: settingsModule !== ""
+    showChevron: hasDetails
     onToggled: toggle()
     onConfigureRequested: configure()
 }
