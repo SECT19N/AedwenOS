@@ -38,7 +38,7 @@ jobs:
     timeout-minutes: 300
     env:
       PUBLISH: ${{ inputs.publish }}
-      VERSION: ${{ inputs.version }}
+      VERSION_INPUT: ${{ inputs.version }}
       IA_ITEM_PREFIX: ${{ vars.IA_ITEM_PREFIX || 'aedwenos' }}
     steps:
       - name: Check inputs
@@ -48,7 +48,11 @@ jobs:
           IA_ACCESS_KEY: ${{ secrets.IA_ACCESS_KEY }}
           IA_SECRET_KEY: ${{ secrets.IA_SECRET_KEY }}
         run: |
-          [[ "$VERSION" =~ ^v[0-9A-Za-z._-]+$ ]] || { echo "::error::set version (e.g. v0.1.0) to publish"; exit 1; }
+          # Accept "0.1.0" as well as "v0.1.0"; the tag is always v-prefixed.
+          VERSION="${VERSION_INPUT// /}"
+          [[ -n "$VERSION" && "$VERSION" != v* ]] && VERSION="v$VERSION"
+          [[ "$VERSION" =~ ^v[0-9][0-9A-Za-z._-]*$ ]] || { echo "::error::set version (e.g. 0.1.0) to publish"; exit 1; }
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           [ -n "$IA_ACCESS_KEY" ] && [ -n "$IA_SECRET_KEY" ] || { echo "::error::set repo secrets IA_ACCESS_KEY and IA_SECRET_KEY"; exit 1; }
           if gh release view "$VERSION" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo "::error::release $VERSION already exists"; exit 1
