@@ -1,0 +1,35 @@
+name: Feature request
+description: Suggest an improvement or a missing piece of the design
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What would you like, and why?
+      description: Describe the problem or the missing behaviour first, then your idea. Links to the design (Material 3 Expressive) or screenshots are welcome.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Desktop shell
+        - Installer
+        - Theme, icons or wallpaper
+        - Apps and defaults
+        - Packages
+        - Build, CI or documentation
+        - Something else
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contributing
+      options:
+        - label: I would be willing to work on this myself

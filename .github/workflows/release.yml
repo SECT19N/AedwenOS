@@ -1,5 +1,8 @@
 # Build the AedwenOS ISO in a clean Arch container; optionally publish it.
 #
+# Releases below 1.0 (v0.x) and any version with a "-suffix" (-alpha, -beta,
+# -rc, -nightly, ...) are published as GitHub *pre-releases*, never as "Latest".
+#
 # Manual only: Actions tab -> "Build ISO" -> Run workflow.
 #   publish = false  build only; the ISO + .sha256 are kept as a workflow
 #                    artifact for 3 days (use this to test the pipeline)
@@ -21,7 +24,7 @@ on:
         type: boolean
         default: false
       version:
-        description: Release tag, e.g. v0.1.0 (required when publishing)
+        description: Release tag, e.g. v0.1.0, v0.2.0-beta.1, v0.2.0-rc.1 or v0.2.0-nightly.20261117 (required when publishing)
         type: string
         default: ""
 
@@ -137,7 +140,14 @@ jobs:
         run: |
           url="https://archive.org/download/$IA_ITEM/$ISO_NAME"
           sum=$(cat "$ISO.sha256")
+          # SemVer: a "-suffix" is a pre-release, and so is anything below 1.0.0
+          pre=false
+          if [[ "$VERSION" == v0.* || "$VERSION" == *-* ]]; then pre=true; fi
           {
+            if [ "$pre" = true ]; then
+              echo "> **Pre-release.** AedwenOS is experimental; expect rough edges and do not use it on a machine you cannot reinstall."
+              echo
+            fi
             echo "## Download"
             echo
             echo "- [$ISO_NAME]($url) (Internet Archive; too large for GitHub's 2 GiB limit)"
@@ -153,7 +163,10 @@ jobs:
             echo
             echo "Put the .sha256 next to the ISO and run \`sha256sum -c $ISO_NAME.sha256\`."
           } > notes.md
+          args=()
+          if [ "$pre" = true ]; then args+=(--prerelease); else args+=(--latest); fi
           gh release create "$VERSION" "$ISO.sha256" \
             --target "$GITHUB_SHA" \
             --title "AedwenOS $VERSION" \
-            --notes-file notes.md
+            --notes-file notes.md \
+            "${args[@]}"

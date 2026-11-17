@@ -1,10 +1,49 @@
 # Contributing
 
-Issues and pull requests are welcome. Useful contributions at this stage
-include test reports from real hardware and virtual machines, fixes to the
-Calamares configuration, and branding assets. Please describe the host system
-in any bug report. AedwenOS is UEFI-only for now; in VirtualBox, enable
-Settings → System → Enable EFI.
+Thank you for helping with AedwenOS. Issues and pull requests are welcome.
+Useful contributions at this stage include test reports from real hardware and
+virtual machines, fixes to the Calamares configuration, shell and theme work,
+and branding assets.
+
+By taking part you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
+Report security problems privately, as described in [SECURITY.md](SECURITY.md),
+not in a public issue.
+
+## Reporting bugs
+
+Use the **Bug report** issue form. Please include the ISO version (its file
+name), whether you booted it in a VM or on real hardware, and describe the host
+system. AedwenOS is UEFI-only for now; in VirtualBox, enable Settings → System →
+Enable EFI, and keep Secure Boot off.
+
+## Getting set up
+
+You need an x86-64 Arch-based host. The [README](README.md#building-the-iso)
+has the full build and test instructions; in short:
+
+```sh
+scripts/build-localrepo.sh      # once: builds calamares, the Aedwen packages and the UI font
+./build.sh                      # builds the ISO into out/ (asks for sudo itself)
+./test-vm.sh                    # boots the newest ISO in QEMU
+```
+
+Run `scripts/check-shell.sh` after changing a shell widget or after a Plasma
+update.
+
+## Making a change
+
+1. Fork the repository and branch from `master` (for example `feat/short-name`
+   or `fix/short-name`).
+2. Keep a pull request to one change, and say how you tested it. A change that
+   you could not boot-test should say so.
+3. Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/):
+   `feat(ui): add welcome app`, `fix(ci): support optional v-prefix`. The scope is
+   optional.
+4. Open the pull request; the template lists what to check.
+
+Package changes go in `iso/packages.x86_64` only: Calamares and
+`aedwen-install` both read it. Put every comment on its own line (the file
+explains why).
 
 ## Theme and shell changes
 
@@ -21,6 +60,14 @@ controls, motion) live in `SHAPES` in `scripts/palette_lib.py`. A generator
 that draws shapes should take the variant and read them from there, not
 hard-code radii; `generate-aurorae-theme.py` and `generate-gtk-theme.py
 --variant` already do.
+
+Other generators: `generate-icons.py` writes the app, folder, drive and
+symbolic icon theme (`Aedwen-Icons`); `generate-app-themes.py` the Konsole
+colour scheme and the Kate editor themes; `generate-desktop-wallpaper.py` the
+wallpaper. The accent-following ones are re-run on the user's machine by
+`aedwen-icons` and `aedwen-apps` (and `aedwen-cursors`), which `build.sh` copies
+into the image together with their generator, so those scripts must stay
+runnable from `/usr/lib/aedwen` with only what `build.sh` installs there.
 
 A few of those have more than one output:
 
@@ -58,3 +105,18 @@ The top bar and dock widgets (`iso/airootfs/usr/share/plasma/plasmoids/org.aedwe
 and their QML modules (`iso/airootfs/usr/lib/qt6/qml/org/aedwen/`) are plain
 QML. Before sending a change to them, run `scripts/check-shell.sh`, which loads
 each widget against your installed Plasma and fails on QML errors.
+
+## Installer and packages
+
+The Calamares configuration is `iso/airootfs/etc/calamares/`; its pages are QML in
+`branding/aedwenos/` (the "Extras" step is `packsq.qml`, with the packs listed in
+`etc/calamares/packs`). Changes to the Aedwen packages under `packages/`
+(`aedwen-tools`, `aedwen-qstyle`, `aedwen-decoration`, `ttf-roboto-flex`,
+`calamares`) are built by `scripts/build-localrepo.sh`; bump `pkgrel` when a
+rebuild must be picked up.
+
+## License
+
+No license has been chosen yet (see [LICENSE](LICENSE)). Until one is added,
+please don't submit code you can't license, and expect to be asked to confirm
+your contribution under the license the project picks.

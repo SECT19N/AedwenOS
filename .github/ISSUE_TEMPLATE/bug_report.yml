@@ -1,0 +1,71 @@
+name: Bug report
+description: Something doesn't work in the ISO, the installers or the desktop
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing AedwenOS. It is pre-alpha, so bug reports from real hardware and virtual machines are very useful.
+        For security problems, please don't use this form; see [SECURITY.md](https://github.com/SECT19N/AedwenOS/blob/master/SECURITY.md).
+  - type: dropdown
+    id: area
+    attributes:
+      label: Where does it happen?
+      options:
+        - Booting the live ISO
+        - Calamares installer
+        - aedwen-install (command line)
+        - Installed system, boot or login
+        - Desktop shell (top bar, dock, Quick Settings, launcher, search)
+        - Appearance settings or the Welcome app
+        - Theme, icons, fonts or wallpaper
+        - Build scripts or the release workflow
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: ISO version
+      description: The ISO file name, e.g. `aedwenos-2026.11.17-g2e9472d-x86_64.iso`, or the commit you built.
+    validations:
+      required: true
+  - type: dropdown
+    id: where
+    attributes:
+      label: Running on
+      options:
+        - QEMU / KVM
+        - VirtualBox
+        - VMware
+        - Other virtual machine
+        - Real hardware
+    validations:
+      required: true
+  - type: textarea
+    id: host
+    attributes:
+      label: Hardware or VM setup
+      description: CPU and GPU, RAM, and for VMs the firmware setting. AedwenOS is UEFI-only, so in VirtualBox "Enable EFI" must be on. Secure Boot must be off.
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you saw, and what you expected instead. Screenshots help.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Boot the ISO
+        2. ...
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Anything relevant, e.g. `journalctl -b -p warning`, the Calamares log (`session.log`, usually under `~/.cache/calamares/`), or the terminal output of the failing command.
+      render: shell

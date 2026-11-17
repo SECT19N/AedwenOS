@@ -1,18 +1,25 @@
 # AedwenOS
 
-AedwenOS is an Arch-based Linux distribution. This repository contains
-everything needed to build its installation medium (a live ISO) from source and
-to install the system to disk.
+AedwenOS is an Arch-based Linux distribution with a **Material 3 Expressive**
+desktop on KDE Plasma 6 (Wayland): a custom top bar, dock, Quick Settings and
+launcher, its own widget style, window decorations, icons, cursors, sounds,
+boot splash and installer, all drawn from one colour palette that follows the
+accent colour you pick. The root filesystem is Btrfs with snapshots you can boot
+from the Limine menu.
+
+This repository contains everything needed to build its installation medium (a
+live ISO) from source and to install the system to disk.
 
 > **Project status: experimental / pre-alpha.**
-> The ISO is not yet confirmed to boot on all hardware, and the graphical
-> installer is a work in progress. The command-line installer is functional.
-> See [Project status and roadmap](#project-status-and-roadmap).
+> The ISO is not yet confirmed to boot on all hardware. Both installers (the
+> graphical Calamares one and the command-line `aedwen-install`) work in testing,
+> but expect rough edges. See [Project status and roadmap](#project-status-and-roadmap).
 
 ---
 
 ## Table of contents
 
+- [Highlights](#highlights)
 - [What is in this repository](#what-is-in-this-repository)
 - [System composition](#system-composition)
 - [How the build works](#how-the-build-works)
@@ -39,38 +46,59 @@ to install the system to disk.
 
 ---
 
+## Highlights
+
+- **Material 3 Expressive desktop.** Top bar and dock widgets (launcher,
+  workspaces, app name and global menu, clock and calendar, search, Quick
+  Settings, notification centre), a widget style (`aedwen-qstyle`) and window
+  decoration (`aedwen-decoration`) in the same language, with light and dark
+  themes and a baseline (stock Material 3) variant.
+- **One accent, everywhere.** The Appearance settings and the Welcome app pick
+  a seed colour; the Plasma colour scheme, cursors, app icons, Konsole, Kate
+  and the wallpaper follow it.
+- **Own icon theme and font.** `Aedwen-Icons` (app, folder, drive and symbolic
+  icons, generated) and Roboto Flex as the UI font.
+- **Two installers.** Calamares with a custom set of pages (including an
+  "Extras" step for optional software packs) or the scripted `aedwen-install`.
+- **Btrfs, snapshots and Limine.** `snapper` timeline and pre/post-transaction
+  snapshots, with bootable rollback entries.
+- **Plain Arch underneath.** `pacman`, `paru` and the AUR work as usual.
+
 ## What is in this repository
 
-| Path            | Purpose                                                                                                                                                |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `iso/`          | The [archiso](https://gitlab.archlinux.org/archlinux/archiso) profile: the package list and configuration that `mkarchiso` compiles into the live ISO. |
-| `iso/airootfs/` | Files copied verbatim onto the live filesystem (system configuration, the installer script, the Calamares configuration, branding).                    |
-| `scripts/build-localrepo.sh` | Builds packages no longer (or never) published in the official repos or chaotic-aur from the AUR, and stages them in `iso/localrepo/` (the `[aedwen-local]` repo `mkarchiso` pulls from). Must be run before `build.sh` at least once. |
-| `scripts/generate-*.py` | Generate the theme files from one palette: KDE colour schemes, GTK, cursors, sounds, Plymouth, Limine wallpaper, Calamares branding, the Plasma theme, the shell's icon font and the app and symbolic icon theme (`generate-icons.py`), and the Konsole colour scheme and Kate editor themes (`generate-app-themes.py`) and the wallpaper (`generate-desktop-wallpaper.py`). Their output is committed, so they only need re-running after a design change. |
-| `scripts/check-shell.sh` | Loads every AedwenOS shell widget against the Plasma installed on the build machine and reports QML errors. Run it after a Plasma update, before building. |
-| `build.sh`      | Convenience wrapper around `mkarchiso`.                                                                                                                |
-| `test-vm.sh`    | Boots the most recently built ISO in QEMU.                                                                                                             |
+| Path                         | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `iso/`                       | The [archiso](https://gitlab.archlinux.org/archlinux/archiso) profile: the package list and configuration that `mkarchiso` compiles into the live ISO.                                                                                                                                                                                                                                                                                                      |
+| `iso/airootfs/`              | Files copied verbatim onto the live filesystem (system configuration, the installer script, the Calamares configuration, branding).                                                                                                                                                                                                                                                                                                                         |
+| `packages/`                  | PKGBUILDs for the packages AedwenOS builds itself: `aedwen-tools` (search overlay, Welcome app, Appearance settings), `aedwen-qstyle`, `aedwen-decoration`, `ttf-roboto-flex` and `calamares`. Built by `scripts/build-localrepo.sh`.                                                                                                                                                                                                                       |
+| `scripts/build-localrepo.sh` | Builds packages no longer (or never) published in the official repos or chaotic-aur from the AUR, and stages them in `iso/localrepo/` (the `[aedwen-local]` repo `mkarchiso` pulls from). Must be run before `build.sh` at least once.                                                                                                                                                                                                                      |
+| `scripts/generate-*.py`      | Generate the theme files from one palette: KDE colour schemes, GTK, cursors, sounds, Plymouth, Limine wallpaper, Calamares branding, the Plasma theme, the shell's icon font and the app and symbolic icon theme (`generate-icons.py`), and the Konsole colour scheme and Kate editor themes (`generate-app-themes.py`) and the wallpaper (`generate-desktop-wallpaper.py`). Their output is committed, so they only need re-running after a design change. |
+| `scripts/check-shell.sh`     | Loads every AedwenOS shell widget against the Plasma installed on the build machine and reports QML errors. Run it after a Plasma update, before building.                                                                                                                                                                                                                                                                                                  |
+| `build.sh`                   | Convenience wrapper around `mkarchiso`.                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `test-vm.sh`                 | Boots the most recently built ISO in QEMU.                                                                                                                                                                                                                                                                                                                                                                                                                  |
 
 The distribution's identity — kernel, filesystem, bootloader, desktop — is
 defined entirely by the files under `iso/`.
 
 ## System composition
 
-| Layer           | Choice                                                                                                                                    |
-| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| Base            | Arch Linux, installed with `pacstrap`                                                                                                     |
-| Kernel          | `linux-zen` (Arch official repository)                                                                                                    |
-| Initramfs       | [dracut](https://wiki.archlinux.org/title/Dracut) on the installed system (the live ISO uses mkinitcpio, which archiso requires)          |
-| Bootloader      | [Limine](https://wiki.archlinux.org/title/Limine), installed on the target system                                                         |
-| Root filesystem | Btrfs (subvolume layout, zstd compression)                                                                                                |
-| Desktop         | KDE Plasma on Wayland, with the SDDM display manager                                                                                      |
-| Shell           | fish for the user account; bash (from `base`) for root and as fallback                                                                    |
-| Package tools   | `pacman`, plus `paru` for the AUR (chaotic-aur repository enabled), and `octopi` (Qt GUI front end) |
-| Editors         | `kate`, `nano` (install `zed`/`code`/etc. from the AUR via `paru` or Octopi as needed)                                                    |
-| Developer tooling | Python (`uv`), Node.js/npm, `git`, `github-cli`, `gdb`, `strace`, `fastfetch`, `ncdu`                                                  |
-| Snapshots       | `snapper` (timeline + `snap-pac` pre/post-transaction pairs), with bootable rollback entries in the Limine menu via `limine-snapper-sync` |
-| Firewall        | `firewalld`, enabled with SSH allowed in the default zone                                                                                 |
-| Installer       | Calamares (graphical, in development) or `aedwen-install` (command-line)                                                                  |
+| Layer             | Choice                                                                                                                                                                                                                             |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Base              | Arch Linux, installed with `pacstrap`                                                                                                                                                                                              |
+| Kernel            | `linux-zen` (Arch official repository)                                                                                                                                                                                             |
+| Initramfs         | [dracut](https://wiki.archlinux.org/title/Dracut) on the installed system (the live ISO uses mkinitcpio, which archiso requires)                                                                                                   |
+| Bootloader        | [Limine](https://wiki.archlinux.org/title/Limine), installed on the target system                                                                                                                                                  |
+| Root filesystem   | Btrfs (subvolume layout, zstd compression)                                                                                                                                                                                         |
+| Desktop           | KDE Plasma on Wayland, with the SDDM display manager                                                                                                                                                                               |
+| Look and feel     | Material 3 Expressive: shell widgets (`org.aedwen.*`), `aedwen-qstyle` widget style, `aedwen-decoration` title bars, `Aedwen-Icons`, Roboto Flex, generated colour schemes, cursors, sounds, wallpaper, Plymouth and Limine themes |
+| First run         | The Welcome app (accent colour, appearance, keyboard shortcuts, the software store) and the Appearance settings page                                                                                                               |
+| Shell             | fish for the user account; bash (from `base`) for root and as fallback                                                                                                                                                             |
+| Package tools     | `pacman`, plus `paru` for the AUR (chaotic-aur repository enabled), and `octopi` (Qt GUI front end)                                                                                                                                |
+| Editors           | `kate`, `nano` (install `zed`/`code`/etc. from the AUR via `paru` or Octopi as needed)                                                                                                                                             |
+| Developer tooling | Python (`uv`), Node.js/npm, `git`, `github-cli`, `gdb`, `strace`, `fastfetch`, `ncdu` (the developer tools are an optional pack in the Calamares installer)                                                                        |
+| Snapshots         | `snapper` (timeline + `snap-pac` pre/post-transaction pairs), with bootable rollback entries in the Limine menu via `limine-snapper-sync`                                                                                          |
+| Firewall          | `firewalld`, enabled with SSH allowed in the default zone                                                                                                                                                                          |
+| Installer         | Calamares (graphical) or `aedwen-install` (command-line)                                                                                                                                                                           |
 
 The installed system is an ordinary rolling-release Arch system. Software is
 managed with `pacman` and `paru` in the usual way, with no restrictions imposed
@@ -116,16 +144,17 @@ repository instead (`paru`, `zen-browser-bin`, `octopi`, `limine-snapper-sync`);
 the build host must therefore have the chaotic-aur keyring and mirrorlist
 installed (see `iso/pacman.conf` for the one-time setup commands).
 
-Two more are no longer published anywhere prebuilt — `calamares` and
-`ckbcomp` were dropped from the official repos. These are built from
-the AUR by `scripts/build-localrepo.sh` into `iso/localrepo/`, which
-`mkarchiso` reads as the `[aedwen-local]` repo. **Run this script at least
+Some packages are no longer published anywhere prebuilt (`calamares` and
+`ckbcomp` were dropped from the official repos) or are AedwenOS's own
+(`aedwen-tools`, `aedwen-qstyle`, `aedwen-decoration`, `ttf-roboto-flex`, from
+`packages/`). These are built by `scripts/build-localrepo.sh` into
+`iso/localrepo/`, which `mkarchiso` reads as the `[aedwen-local]` repo. **Run this script at least
 once before `build.sh`** (see [Building the ISO](#building-the-iso)); rerun it
 with `--force` to pick up newer AUR versions. `build.sh` checks for the staged
 packages and the chaotic-aur host setup before starting and stops with a
 clear message if anything is missing.
 
-On an installed system these three packages have no repository behind them
+On an installed system these packages have no repository behind them
 (`[aedwen-local]` exists only at build time), so plain `pacman -Syu` will
 never update them. `paru -Syu` — or Octopi's AUR mode, which uses paru — treats
 them as AUR packages and updates them normally.
@@ -398,6 +427,12 @@ marked `LIVE ONLY` in that file (via `iso/airootfs/etc/calamares/modules/package
 `aedwen-install` installs the same non-`LIVE ONLY` set directly with `pacstrap`.
 Changing the package list in one place therefore updates both installers.
 
+Calamares also has an **Extras** page: optional packs (developer tools,
+printing, Bluetooth, more KDE apps), none selected by default. They are all part
+of the image, and after the copy the installer removes the packs that were left
+off. The packs are listed in `iso/airootfs/etc/calamares/packs`. `aedwen-install`
+installs the full set.
+
 ## Updating and maintenance
 
 An installed system is a standard rolling-release Arch system and is kept up to
@@ -458,10 +493,14 @@ wholesale is not.
 AedwenOS/
 ├── build.sh                      Build wrapper (calls mkarchiso)
 ├── test-vm.sh                    Boot the built ISO in QEMU
+├── CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md
+├── .github/                      Release workflow, issue forms, pull request template
+├── packages/                     PKGBUILDs: aedwen-tools, aedwen-qstyle, aedwen-decoration,
+│                                 ttf-roboto-flex, calamares
 ├── scripts/
-│   ├── build-localrepo.sh        Builds AUR-only packages into iso/localrepo/
-│   ├── generate-*.py             Theme generators (colours, GTK, cursors, Plymouth,
-│   │                             Calamares, Plasma theme, shell assets)
+│   ├── build-localrepo.sh        Builds the packages above and AUR-only ones into iso/localrepo/
+│   ├── generate-*.py             Theme generators (colours, GTK, cursors, icons, Konsole
+│   │                             and Kate, wallpaper, Plymouth, Calamares, Plasma theme)
 │   └── check-shell.sh            Loads every shell widget against the installed Plasma
 ├── iso/
 │   ├── profiledef.sh             ISO metadata, boot modes, file permissions
@@ -481,6 +520,8 @@ AedwenOS/
 │       ├── usr/share/plasma/look-and-feel/          AedwenOS (dark) and AedwenOS Light
 │       └── usr/local/bin/
 │           ├── aedwen-install        Command-line installer
+│           ├── aedwen-cursors / -icons / -apps   Rebuild the accent-coloured cursors, icons,
+│           │                         Konsole/Kate themes and wallpaper
 │           ├── aedwen-dracut.sh      Initramfs regeneration helper (pacman hooks)
 │           └── aedwen-live-setup     First-boot live-user setup
 └── out/                          Build output (created by build.sh, git-ignored)
@@ -504,9 +545,18 @@ AedwenOS/
   installed app rather than a fixed list. Quick-settings tiles are separate
   files loaded by name, so a tile whose KDE API changes hides itself instead
   of breaking the panel. A few of those APIs are KDE-internal, so after a
-  Plasma update run `scripts/check-shell.sh` before building. Apps keep the
-  Breeze widget style for now, recoloured; their own Material 3 Expressive
-  styling needs a Qt style and comes later.
+  Plasma update run `scripts/check-shell.sh` before building. Apps use
+  `aedwen-qstyle` (Breeze with Material 3 Expressive progress bars and context
+  menus) and `aedwen-decoration` (rounded title bars), recoloured from the
+  active scheme.
+
+- **One accent drives everything.** The Appearance settings and the Welcome app
+  write the seed to `kdeglobals` and apply the matching colour scheme; a
+  systemd user path unit then runs `aedwen-cursors`, `aedwen-icons` and
+  `aedwen-apps`, which rebuild the cursors, icons, Konsole/Kate themes and
+  wallpaper for that accent on the user's machine, using the same generators
+  that make the ISO's violet defaults. The boot splash and Limine only change
+  when the system is (re)installed or updated, not live.
 
 - **Btrfs is the root filesystem.** It is mature, widely deployed, readable
   directly by Limine, and supports the subvolume/snapshot layout the installers
@@ -535,11 +585,11 @@ AedwenOS/
 - **Calamares installs by cloning, not by re-downloading.** The `unpackfs`
   module copies the live filesystem to disk and the `packages` module prunes
   the live-only packages. This keeps installation fast and possible offline, at
-  the cost of coupling the ISO contents to the installed system. A future
-  move to package selection at install time (graphics drivers, optional
-  components) would add a `packagechooser` module on top of this; a full
-  download-based installer (`netinstall`) is only needed for multiple editions
-  from one ISO.
+  the cost of coupling the ISO contents to the installed system. Optional
+  software is handled the same way: the Extras page keeps every pack on the
+  image and removes the unselected ones after the copy, so the install stays
+  offline. A full download-based installer (`netinstall`) is only needed for
+  multiple editions from one ISO.
 
 - **Secure Boot is not supported.** It must be disabled in firmware before
   booting the ISO or an installed system.
@@ -562,39 +612,47 @@ AedwenOS/
 
 Functional:
 
-- ISO builds from the profile in `iso/`.
-- `aedwen-install` performs a complete Btrfs installation with Limine.
+- ISO builds from the profile in `iso/`, locally and in CI (`release.yml`).
+- The desktop shell, widget style, window decoration, icon theme, font,
+  Welcome app and Appearance settings.
+- `aedwen-install` performs a complete Btrfs installation with Limine; the
+  Calamares installer has its own pages, including the Extras step.
 - Snapshots (`snapper` timeline + `snap-pac`) with Limine boot-menu rollback,
   and `firewalld` with SSH pre-allowed, on both install paths.
 - `pacman` works on the live medium (keyring pre-populated at build time), and
   the installed system gets its own per-machine keyring from either installer.
-- Baseline tooling ships preinstalled (Octopi, OpenJDK 25, Python,
-  Node.js, Kotlin, fastfetch, ncdu).
+- Baseline tooling ships preinstalled (Octopi, Python, fastfetch); developer
+  tools (Node.js, Git, build tools and so on) are an optional pack in the
+  Calamares Extras step.
 
 Planned:
 
 - `aedwen-update`: a thin update wrapper (mirror refresh, keyring-first
   upgrade via paru, reboot-needed hint), later fronted by a toolbox GUI.
-- Material 3 Expressive styling inside apps (a Qt widget style), title bars
-  and context menus; the shell (panel, dock, popups) is done.
+- Window snap layouts, multi-display top bar behaviour and top-bar window
+  controls for full-screen apps.
+- Accent-following Plymouth and Limine themes at run time.
+- GTK apps following the accent.
 
 - Confirm a clean UEFI boot to KDE Plasma across common virtual
   machines and hardware.
 - Legacy BIOS support (Limine BIOS stage plus a FAT `/boot` partition, since
   Limine cannot read btrfs). The ISO is UEFI-only until then.
 - Verify `aedwen-install` output boots reliably.
-- Finish and test the Calamares configuration.
+- Test the Calamares configuration on more hardware.
 - Branding: `os-release` and a real product logo.
-- Add a `packagechooser` screen for graphics drivers and optional components.
+- A GitHub Pages site.
 - Add a "keep existing /home" option to `aedwen-install`.
 - Optionally offer additional kernels (for example `linux-xanmod`).
 - Investigate shipping Limine on the ISO itself.
 - Revisit bcachefs support once it stabilises.
-- Continuous integration to build the ISO automatically.
+- Pick a license.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md). Please follow the
+[Code of Conduct](CODE_OF_CONDUCT.md), and report security problems privately as
+described in [SECURITY.md](SECURITY.md).
 
 ## License
 
