@@ -7,7 +7,7 @@
 pkgname=aedwen-tools
 pkgver=0.1.0
 pkgrel=1
-pkgdesc="AedwenOS search overlay, Appearance settings and theme helpers"
+pkgdesc="AedwenOS search overlay, Welcome app, Appearance settings and theme helpers"
 arch=('x86_64')
 url="https://github.com/SECT19N/AedwenOS"
 license=('GPL-3.0-or-later')

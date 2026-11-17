@@ -293,7 +293,7 @@ aedwen-qstyle
 # -- the Aurorae themes could only round the top two. packages/aedwen-decoration,
 # built into [aedwen-local] by the same script.
 aedwen-decoration
-# aedwen-tools: the Alt+Space search overlay, the Appearance settings page
+# aedwen-tools: the Alt+Space search overlay, the first-run Welcome app, the Appearance settings page
 # (System Settings > Colours & Themes), the org.aedwen.config QML plugin the
 # shell reads its Material 3 / Expressive variant from, and the helper that
 # recolours the boot splash and Limine menu. packages/aedwen-tools, built

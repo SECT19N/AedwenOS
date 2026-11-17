@@ -476,13 +476,22 @@ KCMUtils.SimpleKCM {
                         }
                     }
                     GroupRow {
-                        last: true
                         title: i18n("Contrast")
                         subtitle: i18n("High swaps in the high-contrast palette")
                         Segmented {
                             options: [["standard", i18n("Standard")], ["medium", i18n("Medium")], ["high", i18n("High")]]
                             current: kcm.contrast
                             onPicked: v => kcm.setContrast(v)
+                        }
+                    }
+                    GroupRow {
+                        last: true
+                        title: i18n("App icons")
+                        subtitle: i18n("Themed tints every app to the colour; full colour keeps each app's own hue")
+                        Segmented {
+                            options: [["themed", i18n("Themed")], ["colour", i18n("Full colour")]]
+                            current: kcm.iconMode
+                            onPicked: v => kcm.setIconMode(v)
                         }
                     }
                 }

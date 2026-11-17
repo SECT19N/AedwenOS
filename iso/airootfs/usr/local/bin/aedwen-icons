@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+"""
+Tint the AedwenOS app icons (System Surfaces design, "Icons") to the seed
+colour.
+
+The ISO ships /usr/share/icons/Aedwen-Icons (violet, dark, Themed). Any
+other seed, theme or icon mode is drawn here, into
+~/.local/share/icons/Aedwen-Icons-User, by the same generator the ISO build
+uses (/usr/lib/aedwen/generate-icons.py), from the current KDE accent colour
+and the [AedwenOS] Variant / Theme / IconMode keys in kdeglobals.
+
+    aedwen-icons --mode colour   # Themed (default) or Full colour; picks the theme too
+    aedwen-icons --refresh       # rebuild if the accent / theme / mode changed
+                                 # (run by aedwen-cursor-accent.path and the
+                                 # Appearance settings); does nothing unless an
+                                 # Aedwen-Icons theme is the current icon theme
+
+The Appearance settings and the systemd user path unit call this; it's also
+fine to run by hand.
+"""
+
+import argparse
+import os
+import subprocess
+import sys
+
+LIB = "/usr/lib/aedwen"
+sys.path.insert(0, LIB)
+
+STATIC = "Aedwen-Icons"
+USER = "Aedwen-Icons-User"
+MODES = ("themed", "colour")
+
+DATA = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
+CACHE = os.path.join(os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache")), "aedwen")
+STAMP = os.path.join(CACHE, "icon-accent")
+
+
+def kread(file, group, key):
+    r = subprocess.run(["kreadconfig6", "--file", file, "--group", group, "--key", key],
+                       capture_output=True, text=True)
+    return r.stdout.strip()
+
+
+def accent_seed():
+    """Seed colour for the current KDE accent (AccentColor is "r,g,b")."""
+    from palette_lib import DEFAULT_SEED, SEED_HEX, seed_hex_for
+
+    rgb = kread("kdeglobals", "General", "AccentColor")
+    try:
+        r, g, b = (int(v) for v in rgb.split(",")[:3])
+    except ValueError:
+        return SEED_HEX[DEFAULT_SEED]
+    return seed_hex_for(f"#{r:02x}{g:02x}{b:02x}")
+
+
+def is_dark():
+    theme = kread("kdeglobals", "AedwenOS", "Theme")
+    if theme in ("dark", "light"):
+        return theme == "dark"
+    # auto: whichever colour scheme is active
+    return "light" not in kread("kdeglobals", "General", "ColorScheme").lower()
+
+
+def settings():
+    mode = kread("kdeglobals", "AedwenOS", "IconMode")
+    variant = kread("kdeglobals", "AedwenOS", "Variant")
+    return (accent_seed(),
+            mode if mode in MODES else "themed",
+            variant if variant in ("baseline", "expressive") else "expressive",
+            is_dark())
+
+
+def build(seed, mode, variant, dark):
+    out = os.path.join(DATA, "icons", USER)
+    cmd = [sys.executable, os.path.join(LIB, "generate-icons.py"),
+           "--accent", seed, "--mode", mode, "--variant", variant,
+           "--name", USER, "--out", out]
+    if not dark:
+        cmd.append("--light")
+    subprocess.run(cmd, check=True)
+    os.makedirs(CACHE, exist_ok=True)
+    with open(STAMP, "w") as f:
+        f.write("|".join(map(str, (seed, mode, variant, dark))) + "\n")
+    # let icon caches (and the file manager, the shell) notice new files
+    subprocess.run(["touch", os.path.join(DATA, "icons")], check=False)
+
+
+def apply(name):
+    for cmd in (["/usr/lib/plasma-changeicons", name], ["plasma-changeicons", name]):
+        try:
+            subprocess.run(cmd, check=True)
+            return
+        except (OSError, subprocess.CalledProcessError):
+            pass
+    subprocess.run(["kwriteconfig6", "--file", "kdeglobals", "--group", "Icons",
+                    "--key", "Theme", name], check=False)
+    # KGlobalSettings::NotifyChange(IconChanged = 4, group 0)
+    subprocess.run(["dbus-send", "--session", "--type=signal", "/KGlobalSettings",
+                    "org.kde.KGlobalSettings.notifyChange", "int32:4", "int32:0"], check=False)
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    ap.add_argument("--mode", choices=MODES)
+    ap.add_argument("--refresh", action="store_true")
+    args = ap.parse_args()
+
+    if args.mode:
+        subprocess.run(["kwriteconfig6", "--file", "kdeglobals", "--group", "AedwenOS",
+                        "--key", "IconMode", args.mode], check=True)
+    elif not args.refresh:
+        ap.error("--mode or --refresh is required")
+
+    current = kread("kdeglobals", "Icons", "Theme")
+    if not args.mode and current not in (STATIC, USER):
+        return
+
+    want = settings()
+    try:
+        with open(STAMP) as f:
+            stamp = f.read().strip()
+    except OSError:
+        stamp = ""
+    if args.mode is None and stamp == "|".join(map(str, want)) and current == USER:
+        return
+    build(*want)
+    apply(USER)
+
+
+if __name__ == "__main__":
+    main()

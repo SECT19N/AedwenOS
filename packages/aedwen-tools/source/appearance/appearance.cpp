@@ -143,6 +143,7 @@ void AppearanceKcm::load()
     // telling this page
     m_theme = automatic ? QStringLiteral("auto") : scheme.contains(QLatin1String("Light")) ? QStringLiteral("light") : QStringLiteral("dark");
     m_contrast = a.readEntry("Contrast", QStringLiteral("standard"));
+    m_iconMode = a.readEntry("IconMode", QStringLiteral("themed"));
     m_bootHue = a.readEntry("BootHue", 295);
     m_adjusted = false;
     Q_EMIT stateChanged();
@@ -192,7 +193,7 @@ QVariantList AppearanceKcm::details() const
 {
     KConfig input(QStringLiteral("kcminputrc"));
     QString cursor = input.group(QStringLiteral("Mouse")).readEntry("cursorTheme", QStringLiteral("Aedwen"));
-    const QString icons = m_globals->group(QStringLiteral("Icons")).readEntry("Theme", QStringLiteral("breeze"));
+    const QString icons = m_globals->group(QStringLiteral("Icons")).readEntry("Theme", QStringLiteral("Aedwen-Icons"));
     const QStringList font = m_globals->group(QStringLiteral("General")).readEntry("font", QStringLiteral("Roboto,10")).split(QLatin1Char(','));
     const QStringList fixed = m_globals->group(QStringLiteral("General")).readEntry("fixed", QStringLiteral("Roboto Mono,10")).split(QLatin1Char(','));
     const QString sounds = m_globals->group(QStringLiteral("Sounds")).readEntry("Theme", QStringLiteral("ocean"));
@@ -342,6 +343,9 @@ void AppearanceKcm::apply()
     QProcess::startDetached(QStringLiteral("plasma-apply-colorscheme"), {isDark() ? dark : light});
     if (QFileInfo::exists(QStringLiteral("/usr/local/bin/aedwen-cursors")))
         QProcess::startDetached(QStringLiteral("/usr/local/bin/aedwen-cursors"), {QStringLiteral("--refresh")});
+    // the app icons follow the seed too (a no-op unless an Aedwen icon theme is in use)
+    if (QFileInfo::exists(QStringLiteral("/usr/local/bin/aedwen-icons")))
+        QProcess::startDetached(QStringLiteral("/usr/local/bin/aedwen-icons"), {QStringLiteral("--refresh")});
 
     // the boot splash / Limine colours: only on an installed system (the
     // live ISO has no /boot/limine.conf), one helper at a time
@@ -458,6 +462,19 @@ void AppearanceKcm::setContrast(const QString &contrast)
         return;
     m_contrast = contrast;
     apply();
+}
+
+void AppearanceKcm::setIconMode(const QString &mode)
+{
+    if (mode == m_iconMode || (mode != QLatin1String("themed") && mode != QLatin1String("colour")))
+        return;
+    m_iconMode = mode;
+    m_globals->group(QStringLiteral("AedwenOS")).writeEntry("IconMode", mode, KConfig::Notify);
+    m_globals->sync();
+    // --mode also switches to the Aedwen icon theme if another one is in use
+    if (QFileInfo::exists(QStringLiteral("/usr/local/bin/aedwen-icons")))
+        QProcess::startDetached(QStringLiteral("/usr/local/bin/aedwen-icons"), {QStringLiteral("--mode"), mode});
+    Q_EMIT stateChanged();
 }
 
 void AppearanceKcm::openModule(const QString &module)

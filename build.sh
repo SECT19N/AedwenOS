@@ -100,12 +100,13 @@ export GIT_DIRTY=""
 # set (up to the LIVE ONLY marker). Owned by the invoking user, not root.
 install -Dm644 -o "${SUDO_UID:-0}" -g "${SUDO_GID:-0}" "$profile/packages.x86_64" \
     "$profile/airootfs/usr/share/aedwenos/packages.x86_64"
-# aedwen-cursors builds the accent/tonal cursor themes on the user's machine
+# aedwen-cursors and aedwen-icons build the accent/tonal cursor and icon themes on the user's machine
 # with the same generator the static themes come from. The Appearance
 # settings (aedwen-tools) run the colour scheme, Plymouth and Limine
 # generators from here too, for a custom accent or contrast.
 install -Dm644 -o "${SUDO_UID:-0}" -g "${SUDO_GID:-0}" -t "$profile/airootfs/usr/lib/aedwen" \
-    "$here/scripts/generate-cursors.py" "$here/scripts/palette_lib.py" \
+    "$here/scripts/generate-cursors.py" "$here/scripts/generate-icons.py" \
+    "$here/scripts/icon_glyphs.json" "$here/scripts/palette_lib.py" \
     "$here/scripts/generate-colorscheme.py" "$here/scripts/generate-plymouth-assets.py" \
     "$here/scripts/generate-limine-wallpaper.py" "$here/scripts/m3_shapes.py"
 

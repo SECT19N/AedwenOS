@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Welcome
+GenericName=Welcome to AedwenOS
+Comment=A few things to make AedwenOS yours
+Icon=aedwenos
+Exec=aedwen-welcome --force
+Categories=Settings;
+StartupNotify=true
+X-DBUS-StartupType=Unique
+X-DBUS-ServiceName=org.aedwen.welcome

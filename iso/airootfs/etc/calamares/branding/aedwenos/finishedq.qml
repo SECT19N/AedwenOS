@@ -46,7 +46,7 @@ Rectangle {
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignHCenter
             text: config.failed ? config.failureMessage
-                : qsTr("Remove the USB drive, then restart. Your new system starts with everything you chose here.")
+                : qsTr("Remove the USB drive, then restart. After you sign in for the first time, the Welcome app will help you set up the rest.")
             wrapMode: Text.WordWrap
             lineHeight: 1.15
             color: Theme.fgVariant

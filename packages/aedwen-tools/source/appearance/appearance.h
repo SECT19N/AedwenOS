@@ -35,6 +35,7 @@ class AppearanceKcm : public KQuickConfigModule
     Q_PROPERTY(int hue READ hue NOTIFY stateChanged)
     Q_PROPERTY(QString theme READ theme NOTIFY stateChanged)
     Q_PROPERTY(QString contrast READ contrast NOTIFY stateChanged)
+    Q_PROPERTY(QString iconMode READ iconMode NOTIFY stateChanged)
     Q_PROPERTY(bool adjusted READ adjusted NOTIFY stateChanged)
     Q_PROPERTY(QVariantList presets READ presets CONSTANT)
     Q_PROPERTY(QVariantList wallpaperSeeds READ wallpaperSeeds NOTIFY wallpaperSeedsChanged)
@@ -50,6 +51,7 @@ public:
     int hue() const { return m_hue; }
     QString theme() const { return m_theme; }
     QString contrast() const { return m_contrast; }
+    QString iconMode() const { return m_iconMode; }
     bool adjusted() const { return m_adjusted; }
     QVariantList presets() const;
     QVariantList wallpaperSeeds() const { return m_wallpaperSeeds; }
@@ -64,6 +66,8 @@ public:
     Q_INVOKABLE bool setHex(const QString &hex);
     Q_INVOKABLE void setTheme(const QString &theme);
     Q_INVOKABLE void setContrast(const QString &contrast);
+    // "themed" (tinted to the seed) or "colour" (each app keeps its own hue)
+    Q_INVOKABLE void setIconMode(const QString &mode);
     Q_INVOKABLE void openModule(const QString &module);
 
     // Role colours for an accent hue in the current theme and variant:
@@ -96,6 +100,7 @@ private:
     int m_hue = 295;
     QString m_theme = QStringLiteral("dark");
     QString m_contrast = QStringLiteral("standard");
+    QString m_iconMode = QStringLiteral("themed");
     bool m_adjusted = false;
     QVariantList m_wallpaperSeeds;
     QString m_bootStatus;

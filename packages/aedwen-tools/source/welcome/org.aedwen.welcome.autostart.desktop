@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Welcome
+Comment=Opens once after the first login
+Exec=aedwen-welcome
+Icon=aedwenos
+NoDisplay=true
+OnlyShowIn=KDE;
+X-KDE-autostart-phase=2

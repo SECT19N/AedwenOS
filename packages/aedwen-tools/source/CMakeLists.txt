@@ -15,5 +15,6 @@ find_package(Qt6 ${QT_MIN_VERSION} REQUIRED COMPONENTS Core Gui DBus Qml Quick)
 find_package(KF6 ${KF_MIN_VERSION} REQUIRED COMPONENTS Config CoreAddons DBusAddons I18n KIO Service KCMUtils)
 
 add_subdirectory(search)
+add_subdirectory(welcome)
 add_subdirectory(config)
 add_subdirectory(appearance)
