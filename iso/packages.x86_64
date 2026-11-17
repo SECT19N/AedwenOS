@@ -184,6 +184,10 @@ power-profiles-daemon
 bluedevil
 bluez
 bluez-utils
+# bluez-qt: listed on its own because the Quick Settings Bluetooth tile
+# imports org.kde.bluezqt. The installer's optional Bluetooth pack removes
+# bluedevil/bluez/bluez-utils with -Rns; being explicit keeps this one.
+bluez-qt
 
 ## shell + package tools
 # fish: default user shell (bash from `base` is the fallback)
