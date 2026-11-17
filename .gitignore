@@ -14,6 +14,7 @@ __pycache__/
 /iso/airootfs/usr/lib/aedwen/generate-cursors.py
 /iso/airootfs/usr/lib/aedwen/generate-icons.py
 /iso/airootfs/usr/lib/aedwen/icon_glyphs.json
+/iso/airootfs/usr/lib/aedwen/icon_symbolic_glyphs.json
 /iso/airootfs/usr/lib/aedwen/palette_lib.py
 /iso/airootfs/usr/lib/aedwen/generate-colorscheme.py
 /iso/airootfs/usr/lib/aedwen/generate-plymouth-assets.py

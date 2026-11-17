@@ -16,24 +16,34 @@ Material Symbol (filled) at 55% of the tile in the middle.
 Places are the design's folder: a darker tab behind a primary-container
 body with the place's symbol in it, in both modes.
 
-Only the apps and places are drawn here. The theme `Inherits=breeze-dark,
-breeze`, so every other icon falls through to Breeze.
+Symbolic icons (the panel, toolbar, menu and status glyphs) are Material
+Symbols Rounded: 16px at FILL 0 / opsz 20 and 22px at FILL 0 / opsz 24, as
+recolourable KDE symbolic SVGs (fill currentColor, ColorScheme-Text class).
+SYMBOLIC below maps KDE icon names to Material Symbols; the outlines are in
+scripts/icon_symbolic_glyphs.json.
+
+Everything else the theme doesn't draw falls through to Breeze
+(`Inherits=breeze-dark,breeze`).
 
 The glyph outlines live in scripts/icon_glyphs.json so this script needs
 nothing beyond the Python standard library (it also runs on the user's
 machine, installed as /usr/lib/aedwen/generate-icons.py by build.sh, from
 aedwen-icons). To refresh that file after adding an icon to GLYPHS below,
-run it once with --extract-glyphs against the module's font; that needs
-fonttools:
+run it once with --extract-glyphs against the module's font (apps, places);
+for the symbolics use --extract-symbolic with the full variable font
+(MaterialSymbolsRounded[FILL,GRAD,opsz,wght].ttf, which has the opsz axis).
+Both need fonttools:
 
     scripts/generate-icons.py --extract-glyphs \\
         iso/airootfs/usr/lib/qt6/qml/org/aedwen/ui/fonts/MaterialSymbolsRounded.ttf
+    scripts/generate-icons.py --extract-symbolic 'MaterialSymbolsRounded[FILL,GRAD,opsz,wght].ttf'
 
 Usage:
     scripts/generate-icons.py --all-static          # the themes the ISO ships
     scripts/generate-icons.py [--seed violet | --accent '#rrggbb']
                               [--mode themed|colour] [--variant expressive|baseline]
                               [--light] [--name Aedwen-Icons] [--out DIR]
+                              [--no-symbolic]   # inherit Aedwen-Icons' symbolics instead
 """
 
 import argparse
@@ -51,7 +61,9 @@ from palette_lib import (  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 GLYPH_FILE = os.path.join(HERE, "icon_glyphs.json")
+SYMBOLIC_FILE = os.path.join(HERE, "icon_symbolic_glyphs.json")
 ICONS = "iso/airootfs/usr/share/icons"
+STATIC_NAME = "Aedwen-Icons"
 
 TILE = 56  # design: 56px tile
 SYMBOL = 30  # design: 30px glyph in it (~55%)
@@ -102,6 +114,83 @@ PLACES = [
 
 GLYPHS = sorted({a[1] for a in APPS} | {p[0] for p in PLACES if p[0]})
 
+# KDE / freedesktop icon name (without -symbolic) -> Material Symbol, by
+# context. Names Breeze ships; anything not listed falls through to Breeze.
+SYMBOLIC = {
+    "actions": {
+        "edit-copy": "content_copy", "edit-cut": "content_cut", "edit-paste": "content_paste",
+        "edit-delete": "delete", "edit-undo": "undo", "edit-redo": "redo",
+        "edit-find": "search", "edit-clear": "backspace", "edit-select-all": "select_all",
+        "edit-rename": "drive_file_rename_outline", "document-new": "note_add",
+        "document-open": "folder_open", "document-save": "save", "document-save-as": "save_as",
+        "document-print": "print", "document-edit": "edit", "document-properties": "info",
+        "go-previous": "arrow_back", "go-next": "arrow_forward", "go-up": "arrow_upward",
+        "go-down": "arrow_downward", "go-home": "home",
+        "list-add": "add", "list-remove": "remove",
+        "window-close": "close", "window-minimize": "minimize", "window-maximize": "crop_square",
+        "window-restore": "filter_none", "window-new": "open_in_new",
+        "view-refresh": "refresh", "view-fullscreen": "fullscreen", "view-restore": "fullscreen_exit",
+        "view-list-details": "view_list", "view-list-icons": "grid_view", "view-sort": "sort",
+        "view-filter": "filter_list", "view-visible": "visibility", "view-hidden": "visibility_off",
+        "zoom-in": "zoom_in", "zoom-out": "zoom_out", "zoom-fit-best": "fit_screen",
+        "application-exit": "exit_to_app", "application-menu": "menu", "open-menu": "menu",
+        "overflow-menu": "more_vert", "folder-new": "create_new_folder",
+        "bookmark-new": "bookmark_add", "bookmarks": "bookmarks", "starred": "star",
+        "media-playback-start": "play_arrow", "media-playback-pause": "pause",
+        "media-playback-stop": "stop", "media-skip-forward": "skip_next",
+        "media-skip-backward": "skip_previous", "media-seek-forward": "fast_forward",
+        "media-seek-backward": "fast_rewind", "media-record": "fiber_manual_record",
+        "media-eject": "eject", "media-playlist-repeat": "repeat",
+        "media-playlist-shuffle": "shuffle", "mail-send": "send", "mail-reply-sender": "reply",
+        "mail-forward": "forward", "mail-attachment": "attach_file", "configure": "settings",
+        "dialog-ok": "check", "dialog-cancel": "cancel", "dialog-close": "close",
+        "help-about": "info", "help-contents": "help",
+        "system-lock-screen": "lock", "system-log-out": "logout", "system-reboot": "restart_alt",
+        "system-shutdown": "power_settings_new", "system-suspend": "bedtime",
+        "system-search": "search", "archive-extract": "unarchive", "download": "download",
+        "emblem-favorite": "favorite", "object-locked": "lock", "object-unlocked": "lock_open",
+        "sync-synchronizing": "sync",
+    },
+    "status": {
+        "audio-volume-high": "volume_up", "audio-volume-medium": "volume_down",
+        "audio-volume-low": "volume_mute", "audio-volume-muted": "volume_off",
+        "microphone-sensitivity-high": "mic", "microphone-sensitivity-muted": "mic_off",
+        "network-wireless": "wifi", "network-wireless-offline": "wifi_off",
+        "network-wired": "lan", "bluetooth": "bluetooth", "bluetooth-active": "bluetooth_connected",
+        "bluetooth-disabled": "bluetooth_disabled", "battery": "battery_5_bar",
+        "battery-full": "battery_full", "battery-caution": "battery_alert",
+        "battery-low": "battery_alert", "battery-charging": "battery_charging_full",
+        "notification-active": "notifications_active", "notification-inactive": "notifications_off",
+        "notifications": "notifications", "notifications-disabled": "notifications_off",
+        "dialog-information": "info", "dialog-warning": "warning", "dialog-error": "error",
+        "dialog-question": "help", "dialog-password": "lock",
+        "user-available": "check_circle", "user-away": "schedule", "user-busy": "do_not_disturb_on",
+        "weather-clear": "light_mode", "weather-clear-night": "dark_mode",
+        "weather-few-clouds": "partly_cloudy_day", "weather-overcast": "cloud",
+        "weather-showers": "rainy", "weather-snow": "weather_snowy", "weather-storm": "thunderstorm",
+        "display-brightness": "brightness_medium", "night-light": "nightlight",
+    },
+    "devices": {
+        "computer": "computer", "computer-laptop": "laptop", "phone": "smartphone",
+        "drive-harddisk": "hard_drive", "drive-removable-media": "usb",
+        "drive-optical": "album", "camera-photo": "photo_camera", "camera-video": "videocam",
+        "input-keyboard": "keyboard", "input-mouse": "mouse", "input-gaming": "sports_esports",
+        "printer": "print", "scanner": "scanner", "audio-headphones": "headphones",
+        "audio-headset": "headset_mic", "audio-speakers": "speaker", "video-display": "monitor",
+        "media-flash-sd-mmc": "sd_card",
+    },
+    "places": {
+        "folder": "folder", "folder-open": "folder_open", "user-home": "home",
+        "user-desktop": "desktop_windows", "user-trash": "delete", "user-trash-full": "delete_forever",
+        "folder-documents": "description", "folder-download": "download",
+        "folder-music": "music_note", "folder-pictures": "image", "folder-videos": "movie",
+        "folder-cloud": "cloud", "folder-favorites": "folder_special", "folder-recent": "history",
+        "folder-network": "lan", "network-server": "dns",
+    },
+}
+SYMBOLIC_SIZES = {16: 20, 22: 24}  # px -> opsz
+SYMBOLIC_GLYPHS = sorted({g for ctx in SYMBOLIC.values() for g in ctx.values()})
+
 
 # --- glyph extraction (needs fonttools) ----------------------------------
 
@@ -142,6 +231,50 @@ def extract_glyphs(font_path):
         json.dump(out, f, indent=0, sort_keys=True)
         f.write("\n")
     print(f"Wrote {len(out)} glyphs to {GLYPH_FILE} (order {len(order)} glyphs in font)")
+
+
+def extract_symbolic(font_path):
+    from fontTools.pens.svgPathPen import SVGPathPen
+    from fontTools.pens.transformPen import TransformPen
+    from fontTools.ttLib import TTFont
+    from fontTools.varLib.instancer import instantiateVariableFont
+
+    out = {}
+    for px, opsz in SYMBOLIC_SIZES.items():
+        font = instantiateVariableFont(TTFont(font_path), {"FILL": 0, "GRAD": 0, "opsz": opsz, "wght": 400})
+        cmap = font.getBestCmap()
+        ligas = {}
+        for lookup in font["GSUB"].table.LookupList.Lookup:
+            for st in lookup.SubTable:
+                st = getattr(st, "ExtSubTable", st)
+                for first, ligs in getattr(st, "ligatures", {}).items():
+                    for lig in ligs:
+                        ligas.setdefault(first, []).append((lig.Component, lig.LigGlyph))
+        gs = font.getGlyphSet()
+        for name in SYMBOLIC_GLYPHS:
+            chars = [cmap[ord(c)] for c in name]
+            glyph = next((r for comps, r in ligas.get(chars[0], []) if list(comps) == chars[1:]), None)
+            if glyph is None:
+                sys.exit(f"no ligature for {name!r} in the font")
+            pen = SVGPathPen(gs, ntos=lambda v: ("%.1f" % v).rstrip("0").rstrip("."))
+            gs[glyph].draw(TransformPen(pen, (1, 0, 0, -1, 0, UPM)))
+            out.setdefault(name, {})[str(px)] = pen.getCommands()
+    with open(SYMBOLIC_FILE, "w") as f:
+        json.dump(out, f, indent=0, sort_keys=True)
+        f.write("\n")
+    print(f"Wrote {len(out)} symbolic glyphs x {len(SYMBOLIC_SIZES)} sizes to {SYMBOLIC_FILE}")
+
+
+def load_symbolic():
+    try:
+        with open(SYMBOLIC_FILE) as f:
+            glyphs = json.load(f)
+    except OSError:
+        sys.exit(f"{SYMBOLIC_FILE} missing; run --extract-symbolic first")
+    missing = [g for g in SYMBOLIC_GLYPHS if g not in glyphs]
+    if missing:
+        sys.exit(f"icon_symbolic_glyphs.json lacks {', '.join(missing)}; rerun --extract-symbolic")
+    return glyphs
 
 
 def load_glyphs():
@@ -242,13 +375,40 @@ def place_icon(glyph, glyphs, pal):
     return svg(60, 60, body)
 
 
+def symbolic_svg(px, path):
+    """A KDE symbolic icon: recoloured at runtime from the ColorScheme-Text class."""
+    s = px / UPM
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{px}" height="{px}" viewBox="0 0 {px} {px}">'
+        '<defs><style type="text/css" id="current-color-scheme">'
+        ".ColorScheme-Text{color:#232629}</style></defs>"
+        f'<path class="ColorScheme-Text" fill="currentColor" transform="scale({s:.6f})" d="{path}"/></svg>\n'
+    )
+
+
+def write_symbolic(out):
+    glyphs = load_symbolic()
+    count = 0
+    for context, names in SYMBOLIC.items():
+        for px in SYMBOLIC_SIZES:
+            d = os.path.join(out, context, str(px))
+            os.makedirs(d, exist_ok=True)
+            for old in os.listdir(d):
+                os.remove(os.path.join(d, old))
+            for name, glyph in names.items():
+                with open(os.path.join(d, name + "-symbolic.svg"), "w") as fh:
+                    fh.write(symbolic_svg(px, glyphs[glyph][str(px)]))
+                count += 1
+    return count // len(SYMBOLIC_SIZES)
+
+
 def link(target, name):
     if os.path.lexists(name):
         os.remove(name)
     os.symlink(target, name)
 
 
-def build_theme(out, name, seed_hex, mode, variant, dark):
+def build_theme(out, name, seed_hex, mode, variant, dark, symbolic=True):
     glyphs = load_glyphs()
     hue = srgb_hex_to_oklch(seed_hex)[2]
     expressive = variant == "expressive"
@@ -276,12 +436,25 @@ def build_theme(out, name, seed_hex, mode, variant, dark):
             link(file, os.path.join(places_dir, alias + ".svg"))
 
     inherits = "breeze-dark,breeze" if dark else "breeze,breeze-dark"
+    dirs = ["scalable/apps", "scalable/places"]
+    sections = ""
+    nsym = 0
+    if symbolic:
+        nsym = write_symbolic(out)
+        for context in SYMBOLIC:
+            for px in SYMBOLIC_SIZES:
+                dirs.append(f"{context}/{px}")
+                sections += (f"\n[{context}/{px}]\nSize={px}\nContext={context.capitalize()}\n"
+                             "Type=Fixed\n")
+    else:
+        # the symbolics are colourless: a seed-tinted copy shares the shipped ones
+        inherits = f"{STATIC_NAME}," + inherits
     with open(os.path.join(out, "index.theme"), "w") as fh:
         fh.write(f"""[Icon Theme]
 Name={name}
 Comment=AedwenOS app icons · {'Themed' if mode == 'themed' else 'Full colour'}, {variant}, {'dark' if dark else 'light'} (generated by generate-icons.py)
 Inherits={inherits}
-Directories=scalable/apps,scalable/places
+Directories={",".join(dirs)}
 
 [scalable/apps]
 Size=64
@@ -296,8 +469,8 @@ MinSize=16
 MaxSize=512
 Context=Places
 Type=Scalable
-""")
-    print(f"Wrote {name}: {len(APPS)} apps + {len(PLACES)} places to {out}")
+{sections}""")
+    print(f"Wrote {name}: {len(APPS)} apps + {len(PLACES)} places + {nsym} symbolic to {out}")
 
 
 def main():
@@ -306,6 +479,10 @@ def main():
                     help=f"build the themes the ISO ships into {ICONS}")
     ap.add_argument("--extract-glyphs", metavar="FONT",
                     help="rebuild icon_glyphs.json from Material Symbols Rounded (needs fonttools)")
+    ap.add_argument("--extract-symbolic", metavar="FONT",
+                    help="rebuild icon_symbolic_glyphs.json from the full Material Symbols Rounded variable font")
+    ap.add_argument("--no-symbolic", action="store_true",
+                    help="don't write symbolic icons; inherit the shipped Aedwen-Icons' instead")
     ap.add_argument("--out", default=os.path.join(ICONS, "Aedwen-Icons"))
     ap.add_argument("--name", default="Aedwen-Icons", help="theme name (index.theme Name=)")
     ap.add_argument("--seed", default="violet", choices=SEED_HEX.keys())
@@ -319,12 +496,17 @@ def main():
         extract_glyphs(args.extract_glyphs)
         return
 
+    if args.extract_symbolic:
+        extract_symbolic(args.extract_symbolic)
+        return
+
     seed_hex = args.accent or SEED_HEX[args.seed]
     if args.all_static:
         build_theme(os.path.join(ICONS, "Aedwen-Icons"), "Aedwen-Icons",
                     seed_hex, "themed", "expressive", True)
     else:
-        build_theme(args.out, args.name, seed_hex, args.mode, args.variant, not args.light)
+        build_theme(args.out, args.name, seed_hex, args.mode, args.variant, not args.light,
+                    symbolic=not args.no_symbolic)
 
 
 if __name__ == "__main__":

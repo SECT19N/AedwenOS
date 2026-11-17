@@ -106,7 +106,7 @@ install -Dm644 -o "${SUDO_UID:-0}" -g "${SUDO_GID:-0}" "$profile/packages.x86_64
 # generators from here too, for a custom accent or contrast.
 install -Dm644 -o "${SUDO_UID:-0}" -g "${SUDO_GID:-0}" -t "$profile/airootfs/usr/lib/aedwen" \
     "$here/scripts/generate-cursors.py" "$here/scripts/generate-icons.py" \
-    "$here/scripts/icon_glyphs.json" "$here/scripts/palette_lib.py" \
+    "$here/scripts/icon_glyphs.json" "$here/scripts/icon_symbolic_glyphs.json" "$here/scripts/palette_lib.py" \
     "$here/scripts/generate-colorscheme.py" "$here/scripts/generate-plymouth-assets.py" \
     "$here/scripts/generate-limine-wallpaper.py" "$here/scripts/m3_shapes.py"
 

@@ -3,7 +3,7 @@
  * System Surfaces design: 36px pill buttons, outlined fields, 8% state layer. */
 
 QWidget {
-    font-family: "Roboto";
+    font-family: "Roboto Flex";
 }
 
 QPushButton {

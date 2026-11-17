@@ -127,7 +127,7 @@ QtObject {{
     readonly property var ease: [{e[0]}, {e[1]}, {e[2]}, {e[3]}, 1, 1]
     readonly property int dur: {shape["dur"]}
 
-    readonly property string font: "Roboto"
+    readonly property string font: "Roboto Flex"
     readonly property string mono: "Roboto Mono"
     property FontLoader symbolsLoader: FontLoader {{ source: "fonts/MaterialSymbolsRounded-subset.ttf" }}
     readonly property string symbols: symbolsLoader.name
@@ -147,7 +147,7 @@ def stylesheet(p, shape):
  * System Surfaces design: 36px pill buttons, outlined fields, 8% state layer. */
 
 QWidget {{
-    font-family: "Roboto";
+    font-family: "Roboto Flex";
 }}
 
 QPushButton {{

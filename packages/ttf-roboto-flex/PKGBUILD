@@ -1,0 +1,21 @@
+# Roboto Flex, the variable UI font the AedwenOS design is drawn in
+# (not in the official repos). Built by scripts/build-localrepo.sh into
+# [aedwen-local]; pinned to a google/fonts commit so the checksums hold.
+pkgname=ttf-roboto-flex
+pkgver=3.200
+pkgrel=1
+pkgdesc="Roboto Flex variable font (the AedwenOS UI font)"
+arch=('any')
+url="https://github.com/googlefonts/roboto-flex"
+license=('OFL-1.1')
+_commit=7af0d90b4d532ffa4b041937b560c6df4e7b1e95
+_file='RobotoFlex%5BGRAD%2CXOPQ%2CXTRA%2CYOPQ%2CYTAS%2CYTDE%2CYTFI%2CYTLC%2CYTUC%2Copsz%2Cslnt%2Cwdth%2Cwght%5D.ttf'
+source=("RobotoFlex-VF.ttf::https://github.com/google/fonts/raw/${_commit}/ofl/robotoflex/${_file}"
+        "OFL.txt::https://github.com/google/fonts/raw/${_commit}/ofl/robotoflex/OFL.txt")
+sha256sums=('9b523f7d82593df0107173849ebb8c817471a1df4b4fb2c3cbf40cfd810c8281'
+            '9cbaed04b20c853f99840efe5dc96956f6f6120ed83a0ade35f9281a2b63e5d0')
+
+package() {
+    install -Dm644 RobotoFlex-VF.ttf "$pkgdir/usr/share/fonts/TTF/RobotoFlex-VF.ttf"
+    install -Dm644 OFL.txt "$pkgdir/usr/share/licenses/$pkgname/OFL.txt"
+}

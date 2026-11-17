@@ -75,7 +75,7 @@ def build(seed, mode, variant, dark):
     out = os.path.join(DATA, "icons", USER)
     cmd = [sys.executable, os.path.join(LIB, "generate-icons.py"),
            "--accent", seed, "--mode", mode, "--variant", variant,
-           "--name", USER, "--out", out]
+           "--name", USER, "--out", out, "--no-symbolic"]
     if not dark:
         cmd.append("--light")
     subprocess.run(cmd, check=True)
