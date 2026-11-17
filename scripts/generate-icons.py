@@ -86,7 +86,7 @@ BASELINE_SHAPE = (R16, R16, R16, R16)
 # first name is the file; the rest are symlinks to it.
 APPS = [
     ("Files", "folder", 250, ["system-file-manager", "org.kde.dolphin", "dolphin", "file-manager"]),
-    ("Browser", "public", 30, ["internet-web-browser", "web-browser", "firefox", "org.mozilla.firefox", "chromium"]),
+    ("Browser", "public", 30, ["internet-web-browser", "web-browser", "firefox", "org.mozilla.firefox", "chromium", "zen-browser", "zen"]),
     ("Terminal", "terminal", 150, ["utilities-terminal", "org.kde.konsole", "konsole"]),
     ("Settings", "settings", 250, ["preferences-system", "systemsettings", "org.kde.systemsettings"]),
     ("Mail", "mail", 210, ["internet-mail", "mail-client", "org.kde.kmail2", "kmail"]),
@@ -97,6 +97,26 @@ APPS = [
     ("Store", "storefront", 185, ["system-software-install", "org.kde.discover", "plasmadiscover", "octopi"]),
     ("Calculator", "calculate", 60, ["accessories-calculator", "org.kde.kcalc", "kcalc"]),
     ("Clock", "schedule", 265, ["clock", "org.kde.kclock", "preferences-system-time"]),
+    # the rest of what the ISO ships (appended: the order drives the shape / tone cycle)
+    ("Archives", "folder_zip", 40, ["ark", "org.kde.ark"]),
+    ("Screenshots", "screenshot_region", 200, ["spectacle", "org.kde.spectacle"]),
+    ("Documents", "menu_book", 20, ["okular", "org.kde.okular"]),
+    ("Find files", "manage_search", 230, ["kfind", "org.kde.kfind"]),
+    ("Disk usage", "donut_large", 100, ["filelight", "org.kde.filelight"]),
+    ("System info", "info", 240, ["kinfocenter", "org.kde.kinfocenter", "hwinfo"]),
+    ("System monitor", "monitoring", 160, ["plasma-systemmonitor", "org.kde.plasma-systemmonitor",
+                                           "utilities-system-monitor", "ksysguard"]),
+    ("Partitions", "hard_drive", 55, ["partitionmanager", "org.kde.partitionmanager"]),
+    ("Wallet", "account_balance_wallet", 125, ["kwalletmanager", "kwalletmanager5",
+                                               "org.kde.kwalletmanager5", "org.kde.kwalletmanager"]),
+    ("Printers", "print", 280, ["printer", "org.kde.PrintQueue", "preferences-devices-printer"]),
+    ("Bluetooth", "bluetooth", 255, ["bluedevil", "preferences-system-bluetooth"]),
+    ("Phone", "smartphone", 170, ["kdeconnect", "org.kde.kdeconnect.app", "org.kde.kdeconnect.sms"]),
+    ("Text", "draft", 300, ["kwrite", "org.kde.kwrite"]),
+    ("Appearance", "palette", 330, ["preferences-desktop-color", "preferences-desktop-theme",
+                                    "preferences-desktop-theme-global"]),
+    ("Search", "search", 220, ["search", "system-search", "org.aedwen.search"]),
+    ("Welcome", "waving_hand", 75, ["aedwenos", "org.aedwen.welcome", "start-here", "distributor-logo"]),
 ]
 
 # (symbol, icon names); the first is the file. "folder" has no symbol.
@@ -109,10 +129,32 @@ PLACES = [
     ("movie", ["folder-videos"]),
     ("desktop_windows", ["user-desktop", "folder-desktop"]),
     ("cloud", ["folder-cloud", "folder-remote"]),
+    ("delete", ["user-trash", "folder-trash", "trash-empty"]),
+    ("delete_sweep", ["user-trash-full", "trash-full"]),
+    ("history", ["folder-recent", "folder-open-recent"]),
+    ("lan", ["folder-network", "network-workgroup", "network-server", "folder-samba"]),
+    ("lock", ["folder-locked", "folder-encrypted"]),
     (None, ["folder", "inode-directory"]),
 ]
 
-GLYPHS = sorted({a[1] for a in APPS} | {p[0] for p in PLACES if p[0]})
+# drives and media in the Dolphin sidebar: the design's device icons, as tiles
+# (symbol, icon names)
+DEVICES = [
+    ("hard_drive", ["drive-harddisk", "drive-harddisk-root", "drive-harddisk-solidstate",
+                    "drive-multidisk", "drive-partition", "drive-multipartition"]),
+    ("lock", ["drive-harddisk-encrypted", "drive-partition-encrypted"]),
+    ("usb", ["drive-removable-media-usb", "drive-removable-media-usb-pendrive",
+             "drive-harddisk-usb", "media-flash-memory-stick"]),
+    ("sd_card", ["media-flash-sd-mmc", "media-flash", "media-flash-smart-media",
+                 "drive-removable-media"]),
+    ("album", ["drive-optical", "media-optical", "media-optical-dvd", "media-optical-cd-audio",
+               "media-optical-data", "media-optical-blu-ray", "media-optical-recordable"]),
+    ("computer", ["computer", "computer-laptop"]),
+    ("smartphone", ["smartphone", "phone"]),
+    ("lan", ["network-server-database"]),
+]
+
+GLYPHS = sorted({a[1] for a in APPS} | {p[0] for p in PLACES if p[0]} | {d[0] for d in DEVICES})
 
 # KDE / freedesktop icon name (without -symbolic) -> Material Symbol, by
 # context. Names Breeze ships; anything not listed falls through to Breeze.
@@ -416,7 +458,8 @@ def build_theme(out, name, seed_hex, mode, variant, dark, symbolic=True):
 
     apps_dir = os.path.join(out, "scalable", "apps")
     places_dir = os.path.join(out, "scalable", "places")
-    for d in (apps_dir, places_dir):
+    devices_dir = os.path.join(out, "scalable", "devices")
+    for d in (apps_dir, places_dir, devices_dir):
         os.makedirs(d, exist_ok=True)
         for old in os.listdir(d):
             os.remove(os.path.join(d, old))
@@ -435,8 +478,15 @@ def build_theme(out, name, seed_hex, mode, variant, dark, symbolic=True):
         for alias in names[1:]:
             link(file, os.path.join(places_dir, alias + ".svg"))
 
+    for i, (glyph, names) in enumerate(DEVICES):
+        file = names[0] + ".svg"
+        with open(os.path.join(devices_dir, file), "w") as fh:
+            fh.write(app_icon(i, glyph, 250, glyphs, pal, "themed", dark, expressive))
+        for alias in names[1:]:
+            link(file, os.path.join(devices_dir, alias + ".svg"))
+
     inherits = "breeze-dark,breeze" if dark else "breeze,breeze-dark"
-    dirs = ["scalable/apps", "scalable/places"]
+    dirs = ["scalable/apps", "scalable/places", "scalable/devices"]
     sections = ""
     nsym = 0
     if symbolic:
@@ -469,8 +519,15 @@ MinSize=16
 MaxSize=512
 Context=Places
 Type=Scalable
+
+[scalable/devices]
+Size=64
+MinSize=16
+MaxSize=512
+Context=Devices
+Type=Scalable
 {sections}""")
-    print(f"Wrote {name}: {len(APPS)} apps + {len(PLACES)} places + {nsym} symbolic to {out}")
+    print(f"Wrote {name}: {len(APPS)} apps + {len(PLACES)} places + {len(DEVICES)} devices + {nsym} symbolic to {out}")
 
 
 def main():
