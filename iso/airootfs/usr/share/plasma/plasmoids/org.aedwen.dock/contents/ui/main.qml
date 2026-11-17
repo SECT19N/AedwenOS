@@ -11,6 +11,7 @@ import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.extras as PlasmaExtras
 import org.kde.taskmanager as TaskManager
 import org.kde.plasma.private.kicker as Kicker
+import org.kde.plasma.plasma5support as P5Support
 import org.aedwen.ui
 import org.aedwen.shell
 
@@ -71,6 +72,17 @@ PlasmoidItem {
     }
     TaskActions { id: actions; model: tasksModel }
 
+    // Opens the trash in Dolphin directly. Qt.openUrlExternally("trash:/")
+    // goes through the scheme-handler lookup, which only accepts apps that
+    // declare x-scheme-handler/trash (Dolphin doesn't), so it asked "which
+    // app?" instead.
+    P5Support.DataSource {
+        id: runner
+        engine: "executable"
+        connectedSources: []
+        onNewData: (source, data) => disconnectSource(source)
+    }
+
     fullRepresentation: Item {
         id: area
         // One square cell per entry, as thick as the panel lets it be (52 px
@@ -125,7 +137,7 @@ PlasmoidItem {
                 cell: area.cell
                 symbol: "delete"
                 label: i18n("Trash")
-                onActivated: Qt.openUrlExternally("trash:/")
+                onActivated: runner.connectSource("dolphin trash:/")
             }
         }
 

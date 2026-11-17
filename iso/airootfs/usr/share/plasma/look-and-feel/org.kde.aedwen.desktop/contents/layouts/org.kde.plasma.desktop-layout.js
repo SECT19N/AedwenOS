@@ -71,8 +71,12 @@ dockApps.currentConfigGroup = ["General"];
 dockApps.writeConfig("launchers", [
     "applications:org.kde.dolphin.desktop",
     "applications:zen.desktop",
+    "applications:zen-browser.desktop",
     "applications:org.kde.konsole.desktop",
     "applications:org.kde.kate.desktop",
+    "applications:org.kde.gwenview.desktop",
+    "applications:org.kde.spectacle.desktop",
+    "applications:org.kde.kcalc.desktop",
     "applications:octopi.desktop",
     "applications:systemsettings.desktop",
 ]);

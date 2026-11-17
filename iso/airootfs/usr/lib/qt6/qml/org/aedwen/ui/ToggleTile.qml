@@ -4,7 +4,7 @@
 // tiles morph to a full pill when on (20 px corners when off); baseline
 // tiles keep 20 px.
 //
-// Click toggles. Holding the tile for 480 ms (or right-click) asks for its
+// Click toggles; clicking the chevron opens the details. Holding the tile for 480 ms (or right-click) asks for its
 // details when `configurable`; the press shrinks it to 95 % meanwhile.
 // A tile whose service or hardware is missing stays in place, greyed out,
 // with `unavailableText` as its detail line.
@@ -130,5 +130,19 @@ Rectangle {
                 root.toggled()
             }
         }
+    }
+
+    // the chevron is its own target: it opens the details instead of toggling
+    MouseArea {
+        id: chevronArea
+        visible: chevron.visible
+        enabled: root.usable
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
+        width: 48
+        hoverEnabled: true
+        cursorShape: Qt.PointingHandCursor
+        onClicked: root.configureRequested()
     }
 }
