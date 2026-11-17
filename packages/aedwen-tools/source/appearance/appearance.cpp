@@ -346,6 +346,9 @@ void AppearanceKcm::apply()
     // the app icons follow the seed too (a no-op unless an Aedwen icon theme is in use)
     if (QFileInfo::exists(QStringLiteral("/usr/local/bin/aedwen-icons")))
         QProcess::startDetached(QStringLiteral("/usr/local/bin/aedwen-icons"), {QStringLiteral("--refresh")});
+    // and the colours Konsole and Kate keep for themselves
+    if (QFileInfo::exists(QStringLiteral("/usr/local/bin/aedwen-apps")))
+        QProcess::startDetached(QStringLiteral("/usr/local/bin/aedwen-apps"), {QStringLiteral("--refresh")});
 
     // the boot splash / Limine colours: only on an installed system (the
     // live ISO has no /boot/limine.conf), one helper at a time

@@ -13,6 +13,9 @@ __pycache__/
 # copied from scripts/ by build.sh (used by aedwen-cursors)
 /iso/airootfs/usr/lib/aedwen/generate-cursors.py
 /iso/airootfs/usr/lib/aedwen/generate-icons.py
+/iso/airootfs/usr/lib/aedwen/generate-app-themes.py
+/iso/airootfs/usr/lib/aedwen/generate-desktop-wallpaper.py
+/iso/airootfs/usr/lib/aedwen/eagle.png
 /iso/airootfs/usr/lib/aedwen/icon_glyphs.json
 /iso/airootfs/usr/lib/aedwen/icon_symbolic_glyphs.json
 /iso/airootfs/usr/lib/aedwen/palette_lib.py

@@ -1,0 +1,172 @@
+{
+    "metadata": {
+        "name": "AedwenOS Dark",
+        "revision": 1
+    },
+    "editor-colors": {
+        "BackgroundColor": "#0d0b13",
+        "BracketMatching": "#40cfacff",
+        "CodeFolding": "#30cfacff",
+        "CurrentLine": "#12101a",
+        "CurrentLineNumber": "#e5e3ec",
+        "IconBorder": "#0d0b13",
+        "IndentationLine": "#3e3b47",
+        "LineNumbers": "#878491",
+        "MarkBookmark": "#cfacff",
+        "MarkBreakpointActive": "#ff9b93",
+        "MarkBreakpointDisabled": "#878491",
+        "MarkBreakpointReached": "#71c575",
+        "MarkError": "#ff9b93",
+        "MarkExecution": "#bfbbcc",
+        "MarkWarning": "#e69c3a",
+        "ModifiedLines": "#e69c3a",
+        "ReplaceHighlight": "#6671c575",
+        "SavedLines": "#71c575",
+        "SearchHighlight": "#66cfacff",
+        "Separator": "#3e3b47",
+        "SpellChecking": "#ff9b93",
+        "TabMarker": "#3e3b47",
+        "TemplateBackground": "#1f1c29",
+        "TemplateFocusedPlaceholder": "#4c2887",
+        "TemplatePlaceholder": "#38304d",
+        "TemplateReadOnlyPlaceholder": "#7f2021",
+        "TextSelection": "#4c2887",
+        "WordWrapMarker": "#3e3b47"
+    },
+    "text-styles": {
+        "Normal": {
+            "text-color": "#e5e3ec",
+            "selected-text-color": "#e5e3ec"
+        },
+        "Keyword": {
+            "text-color": "#c5adff",
+            "selected-text-color": "#c5adff",
+            "bold": true
+        },
+        "ControlFlow": {
+            "text-color": "#c5adff",
+            "selected-text-color": "#c5adff",
+            "bold": true
+        },
+        "Operator": {
+            "text-color": "#bfbbcc",
+            "selected-text-color": "#bfbbcc"
+        },
+        "Function": {
+            "text-color": "#fb9cc0",
+            "selected-text-color": "#fb9cc0"
+        },
+        "Import": {
+            "text-color": "#69c9ff",
+            "selected-text-color": "#69c9ff"
+        },
+        "Preprocessor": {
+            "text-color": "#69c9ff",
+            "selected-text-color": "#69c9ff"
+        },
+        "BuiltIn": {
+            "text-color": "#fb9cc0",
+            "selected-text-color": "#fb9cc0",
+            "bold": true
+        },
+        "DataType": {
+            "text-color": "#f9a96f",
+            "selected-text-color": "#f9a96f"
+        },
+        "Variable": {
+            "text-color": "#e5e3ec",
+            "selected-text-color": "#e5e3ec"
+        },
+        "Attribute": {
+            "text-color": "#f9a96f",
+            "selected-text-color": "#f9a96f"
+        },
+        "Extension": {
+            "text-color": "#fb9cc0",
+            "selected-text-color": "#fb9cc0",
+            "bold": true
+        },
+        "Constant": {
+            "text-color": "#57d7bb",
+            "selected-text-color": "#57d7bb"
+        },
+        "String": {
+            "text-color": "#e0b85c",
+            "selected-text-color": "#e0b85c"
+        },
+        "VerbatimString": {
+            "text-color": "#e0b85c",
+            "selected-text-color": "#e0b85c"
+        },
+        "SpecialString": {
+            "text-color": "#b9c86a",
+            "selected-text-color": "#b9c86a"
+        },
+        "Char": {
+            "text-color": "#e0b85c",
+            "selected-text-color": "#e0b85c"
+        },
+        "SpecialChar": {
+            "text-color": "#b9c86a",
+            "selected-text-color": "#b9c86a"
+        },
+        "DecVal": {
+            "text-color": "#89d38f",
+            "selected-text-color": "#89d38f"
+        },
+        "BaseN": {
+            "text-color": "#89d38f",
+            "selected-text-color": "#89d38f"
+        },
+        "Float": {
+            "text-color": "#89d38f",
+            "selected-text-color": "#89d38f"
+        },
+        "Comment": {
+            "text-color": "#878491",
+            "selected-text-color": "#878491",
+            "italic": true
+        },
+        "CommentVar": {
+            "text-color": "#878491",
+            "selected-text-color": "#878491",
+            "italic": true
+        },
+        "Documentation": {
+            "text-color": "#bfbbcc",
+            "selected-text-color": "#bfbbcc",
+            "italic": true
+        },
+        "Annotation": {
+            "text-color": "#45d3e4",
+            "selected-text-color": "#45d3e4"
+        },
+        "Information": {
+            "text-color": "#ffa187",
+            "selected-text-color": "#ffa187"
+        },
+        "Warning": {
+            "text-color": "#e69c3a",
+            "selected-text-color": "#e69c3a"
+        },
+        "Alert": {
+            "text-color": "#ff9b93",
+            "selected-text-color": "#ff9b93",
+            "bold": true
+        },
+        "Error": {
+            "text-color": "#ff9b93",
+            "selected-text-color": "#ff9b93",
+            "underline": true
+        },
+        "Others": {
+            "text-color": "#e5e3ec",
+            "selected-text-color": "#e5e3ec"
+        },
+        "RegionMarker": {
+            "text-color": "#eae2ff",
+            "selected-text-color": "#eae2ff",
+            "background-color": "#4c2887"
+        }
+    }
+}

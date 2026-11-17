@@ -3,101 +3,109 @@
 Generate the AedwenOS default desktop wallpaper: a giant eagle watermark
 on the --wall backdrop, matching the "Desktop - Material 3" design
 (oklch(0.2 0.03 H) backdrop, oklch(0.38 0.1 H) eagle, shifted up-left of
-centre, "AedwenOS" wordmark bottom-right).
+centre, "AedwenOS" wordmark bottom-right), plus a light variant.
 
-Packages it as a real Plasma "Image" wallpaper plugin
-(/usr/share/wallpapers/AedwenOS/contents/images/1920x1080.png), referenced
-by the org.kde.aedwen.desktop look-and-feel package's `defaults` file
-(`[Wallpaper] Image=AedwenOS`).
+Writes a Plasma "Image" wallpaper package: contents/images_dark/ (the dark
+backdrop, used with a dark colour scheme) and contents/images/ (light), each
+at 1920x1080, 2560x1440 and 3840x2160, so Plasma picks the sharpest size and
+the right variant by itself. The ISO ships the violet one as
+/usr/share/wallpapers/AedwenOS (the look-and-feel package's `defaults` file
+sets `[Wallpaper] Image=AedwenOS`); aedwen-apps builds the accent-coloured
+copy, AedwenOS-User, into ~/.local/share/wallpapers.
 
 Usage:
-    scripts/generate-desktop-wallpaper.py [--seed violet]
+    scripts/generate-desktop-wallpaper.py [--seed violet | --accent '#rrggbb']
+                                          [--out DIR] [--id AedwenOS]
 
-Requires python-cairo and rsvg-convert (to rasterize the eagle mask).
+Requires python-cairo only (the eagle is tinted with a cairo mask).
 """
 import argparse
 import os
-import subprocess
 import sys
-import tempfile
 
 import cairo
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from palette_lib import SEEDS, DEFAULT_SEED, o  # noqa: E402
+from palette_lib import DEFAULT_SEED, SEED_HEX, o, srgb_hex_to_oklch  # noqa: E402
 
-W, H_PX = 1920, 1080
-EAGLE_SRC = "iso/airootfs/etc/calamares/branding/aedwenos/logo.png"
+SIZES = ((1920, 1080), (2560, 1440), (3840, 2160))
+HERE = os.path.dirname(os.path.abspath(__file__))
+# the eagle mark: in the repo, or where build.sh puts it for aedwen-apps
+EAGLE_SRCS = (
+    os.path.join(HERE, "..", "iso", "airootfs", "etc", "calamares", "branding", "aedwenos", "logo.png"),
+    os.path.join(HERE, "eagle.png"),
+)
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--seed", default=DEFAULT_SEED, choices=SEEDS.keys())
-    ap.add_argument("--out", default="iso/airootfs/usr/share/wallpapers/AedwenOS")
-    args = ap.parse_args()
+def rgb(hexc):
+    return tuple(int(hexc[i:i + 2], 16) / 255 for i in (1, 3, 5))
 
-    hue = SEEDS[args.seed]
-    wall_hex = o(0.2, 0.03, hue)
-    eagle_hex = o(0.38, 0.1, hue)
 
-    images_dir = os.path.join(args.out, "contents", "images")
-    os.makedirs(images_dir, exist_ok=True)
-    out_png = os.path.join(images_dir, "1920x1080.png")
+def render(path, w, h, hue, dark, eagle_img):
+    s = h / 1080  # the design is drawn at 1080p
+    if dark:
+        wall, eagle, word = o(0.2, 0.03, hue), o(0.38, 0.1, hue), o(0.8, 0.025, hue)
+    else:
+        wall, eagle, word = o(0.93, 0.025, hue), o(0.84, 0.06, hue), o(0.42, 0.025, hue)
 
-    # Recolor the eagle mark to the eagle tone (same alpha-mask technique
-    # used for the Plymouth logo -- see generate-plymouth-assets.py).
-    with tempfile.TemporaryDirectory() as td:
-        eagle_tinted = os.path.join(td, "eagle.png")
-        subprocess.run(
-            ["magick", EAGLE_SRC, "-fill", eagle_hex, "-colorize", "100", eagle_tinted],
-            check=True,
-        )
-        eagle_img = cairo.ImageSurface.create_from_png(eagle_tinted)
-
-    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H_PX)
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
     ctx = cairo.Context(surface)
-
-    r, g, b = (int(wall_hex[i:i + 2], 16) / 255 for i in (1, 3, 5))
-    ctx.set_source_rgb(r, g, b)
+    ctx.set_source_rgb(*rgb(wall))
     ctx.paint()
 
-    # Giant eagle watermark: ~46% of the shorter dimension, shifted up-left
-    # of centre (matches translate(-30%,-54%) on a centred min(46vh,520px) box).
-    size = min(int(H_PX * 0.46), 520)
-    ex = W / 2 - size * 0.8
-    ey = H_PX / 2 - size * 1.04
+    # Giant eagle watermark: min(46vh, 520px), shifted up-left of centre
+    # (translate(-30%,-54%) on a centred box).
+    size = min(h * 0.46, 520 * s)
     ctx.save()
-    ctx.translate(ex, ey)
-    scale = size / eagle_img.get_width()
-    ctx.scale(scale, scale)
-    ctx.set_source_surface(eagle_img, 0, 0)
-    ctx.paint_with_alpha(1.0)
+    ctx.translate(w / 2 - size * 0.8, h / 2 - size * 1.04)
+    k = size / eagle_img.get_width()
+    ctx.scale(k, k)
+    ctx.set_source_rgb(*rgb(eagle))
+    ctx.mask_surface(eagle_img, 0, 0)  # the logo's alpha, in the eagle tone
     ctx.restore()
 
     # "AedwenOS" wordmark, bottom-right.
     ctx.select_font_face("sans-serif", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
-    ctx.set_font_size(22)
-    on_sv_hex = o(0.8, 0.025, hue)
-    r2, g2, b2 = (int(on_sv_hex[i:i + 2], 16) / 255 for i in (1, 3, 5))
-    ctx.set_source_rgba(r2, g2, b2, 0.85)
+    ctx.set_font_size(22 * s)
+    ctx.set_source_rgba(*rgb(word), 0.85)
     text = "A E D W E N O S"
-    extents = ctx.text_extents(text)
-    ctx.move_to(W - extents.width - 48, H_PX - 96)
+    ext = ctx.text_extents(text)
+    ctx.move_to(w - ext.width - 48 * s, h - 96 * s)
     ctx.show_text(text)
 
-    surface.write_to_png(out_png)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    surface.write_to_png(path)
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--seed", default=DEFAULT_SEED, choices=SEED_HEX.keys())
+    ap.add_argument("--accent", help="seed colour as #rrggbb (overrides --seed)")
+    ap.add_argument("--id", default="AedwenOS", help="wallpaper package id / name")
+    ap.add_argument("--out", default="iso/airootfs/usr/share/wallpapers/AedwenOS")
+    args = ap.parse_args()
+
+    hexc = args.accent or SEED_HEX[args.seed]
+    hue = srgb_hex_to_oklch(hexc)[2]
+
+    src = next((p for p in EAGLE_SRCS if os.path.exists(p)), None)
+    if src is None:
+        sys.exit("no eagle logo found (calamares branding logo.png or eagle.png)")
+    eagle_img = cairo.ImageSurface.create_from_png(src)
+
+    for dark, sub in ((True, "images_dark"), (False, "images")):
+        for w, h in SIZES:
+            render(os.path.join(args.out, "contents", sub, f"{w}x{h}.png"), w, h, hue, dark, eagle_img)
 
     with open(os.path.join(args.out, "metadata.json"), "w") as f:
-        f.write("""{
-    "KPlugin": {
-        "Id": "AedwenOS",
+        f.write(f"""{{
+    "KPlugin": {{
+        "Id": "{args.id}",
         "Name": "AedwenOS"
-    }
-}
+    }}
+}}
 """)
-
-    print(f"Wrote {out_png} ({W}x{H_PX}, seed={args.seed})")
-    print(f"wall backdrop: {wall_hex}, eagle: {eagle_hex}")
+    print(f"Wrote {args.out} (accent {hexc}; {len(SIZES)} sizes, dark + light)")
 
 
 if __name__ == "__main__":

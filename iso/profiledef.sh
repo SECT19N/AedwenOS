@@ -53,5 +53,6 @@ file_permissions=(
   ["/usr/local/bin/aedwen-calamares"]="0:0:755"
   ["/usr/local/bin/aedwen-cursors"]="0:0:755"
   ["/usr/local/bin/aedwen-icons"]="0:0:755"
+  ["/usr/local/bin/aedwen-apps"]="0:0:755"
   ["/root/customize_airootfs.sh"]="0:0:755"
 )

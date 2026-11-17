@@ -119,7 +119,8 @@ void Controller::setSeed(const QString &seed)
     auto *apply = new QProcess(this);
     connect(apply, &QProcess::finished, this, [this, apply] {
         apply->deleteLater();
-        for (const char *helper : {"/usr/local/bin/aedwen-cursors", "/usr/local/bin/aedwen-icons"})
+        for (const char *helper : {"/usr/local/bin/aedwen-cursors", "/usr/local/bin/aedwen-icons",
+                                   "/usr/local/bin/aedwen-apps"})
             if (QFileInfo::exists(QString::fromLatin1(helper)))
                 QProcess::startDetached(QString::fromLatin1(helper), {QStringLiteral("--refresh")});
     });
