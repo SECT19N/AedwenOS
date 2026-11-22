@@ -12,6 +12,10 @@ import QtQuick
 
 Rectangle {
     id: root
+    activeFocusOnTab: true
+    Keys.onReturnPressed: if (usable) root.toggled()
+    Keys.onEnterPressed: if (usable) root.toggled()
+    Keys.onSpacePressed: if (usable) root.toggled()
     property string icon
     property string label
     property string detail
@@ -114,7 +118,7 @@ Rectangle {
         acceptedButtons: Qt.LeftButton | Qt.RightButton
         cursorShape: Qt.PointingHandCursor
         pressAndHoldInterval: 480
-        onPressed: mouse => longFired = false
+        onPressed: mouse => { longFired = false; root.focus = false }
         onPressAndHold: mouse => {
             if (mouse.button === Qt.LeftButton && root.configurable) {
                 longFired = true
@@ -145,4 +149,5 @@ Rectangle {
         cursorShape: Qt.PointingHandCursor
         onClicked: root.configureRequested()
     }
+    FocusRing {}
 }

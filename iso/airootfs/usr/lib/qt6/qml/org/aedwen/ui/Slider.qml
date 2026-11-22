@@ -8,6 +8,15 @@ import QtQuick
 
 Item {
     id: root
+    activeFocusOnTab: true
+    Keys.onLeftPressed: step(-1)
+    Keys.onDownPressed: step(-1)
+    Keys.onRightPressed: step(1)
+    Keys.onUpPressed: step(1)
+    function step(dir) {
+        const v = Math.max(from, Math.min(to, value + dir * (stepSize > 0 ? stepSize : (to - from) / 20)))
+        if (v !== value) { value = v; moved(v) }
+    }
     property real from: 0
     property real to: 100
     property real value: 0
@@ -82,11 +91,12 @@ Item {
             if (root.stepSize > 0) v = Math.round(v / root.stepSize) * root.stepSize
             if (v !== root.value) { root.value = v; root.moved(v) }
         }
-        onPressed: mouse => update(mouse.x)
+        onPressed: mouse => { root.focus = false; update(mouse.x) }
         onPositionChanged: mouse => { if (pressed) update(mouse.x) }
         onWheel: wheel => {
             const step = (root.to - root.from) / 20
             update(((root.value + (wheel.angleDelta.y > 0 ? step : -step) - root.from) / (root.to - root.from)) * root.width)
         }
     }
+    FocusRing { radius: root.th / 2 + 5 }
 }

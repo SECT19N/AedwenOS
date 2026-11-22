@@ -140,6 +140,7 @@ void Decoration::readConfig()
     // Expressive ones end in "Expressive"; any other scheme gets Expressive.
     const QString scheme = config->group(QStringLiteral("General")).readEntry("ColorScheme", QString());
     m_expressive = !(scheme.startsWith(QLatin1String("AedwenOS")) && !scheme.endsWith(QLatin1String("Expressive")));
+    m_highContrast = config->group(QStringLiteral("AedwenOS")).readEntry("Contrast", QString()) == QLatin1String("high");
     m_animationFactor = std::max(0.0, config->group(QStringLiteral("KDE")).readEntry("AnimationDurationFactor", 1.0));
 }
 
@@ -208,8 +209,11 @@ void Decoration::updateShadow()
     }
     const bool active = window()->isActive();
     const QPalette pal = window()->palette();
-    const QColor ring = active ? withAlpha(pal.color(QPalette::Active, QPalette::Highlight), 0.65)
-                               : withAlpha(pal.color(QPalette::Active, QPalette::WindowText), 0.16);
+    // High contrast: opaque ring (highlight when active, text colour when not)
+    const QColor ring = m_highContrast
+        ? (active ? pal.color(QPalette::Active, QPalette::Highlight) : pal.color(QPalette::Active, QPalette::WindowText))
+        : active ? withAlpha(pal.color(QPalette::Active, QPalette::Highlight), 0.65)
+                 : withAlpha(pal.color(QPalette::Active, QPalette::WindowText), 0.16);
     setShadow(shadowFor(radiusFor(m_expressive), active, ring));
 }
 

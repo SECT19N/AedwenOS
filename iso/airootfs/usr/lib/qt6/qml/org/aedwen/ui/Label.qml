@@ -8,7 +8,7 @@ Text {
 
     font.family: Theme.font
     font.pixelSize: _sizes[role] || 14
-    font.weight: role === "title" || role === "display" || role === "headline" ? Font.DemiBold : Font.Normal
+    font.weight: Theme.weight(role === "title" || role === "display" || role === "headline" ? Font.DemiBold : Font.Normal)
     font.features: role === "display" ? { "tnum": 1 } : {}
     color: role === "caption" ? Theme.fgVariant : Theme.fg
     elide: Text.ElideRight

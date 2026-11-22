@@ -10,6 +10,10 @@ import QtQuick
 
 Rectangle {
     id: root
+    activeFocusOnTab: true
+    Keys.onReturnPressed: root.clicked({ button: Qt.LeftButton })
+    Keys.onEnterPressed: root.clicked({ button: Qt.LeftButton })
+    Keys.onSpacePressed: root.clicked({ button: Qt.LeftButton })
     property bool active: false
     property int size: parent ? Math.max(20, Math.min(64, parent.height)) : 32
     property int padding: Math.round(size * 0.31)
@@ -36,6 +40,8 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
+        onPressed: root.focus = false
         onClicked: mouse => root.clicked(mouse)
     }
+    FocusRing {}
 }

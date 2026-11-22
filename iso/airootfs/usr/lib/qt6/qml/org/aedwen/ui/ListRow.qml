@@ -5,6 +5,10 @@ import QtQuick
 
 Rectangle {
     id: root
+    activeFocusOnTab: true
+    Keys.onReturnPressed: root.clicked()
+    Keys.onEnterPressed: root.clicked()
+    Keys.onSpacePressed: root.clicked()
     property string title
     property string subtitle
     property string icon            // Material Symbol name
@@ -73,7 +77,9 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
+        onPressed: root.focus = false
         onClicked: root.clicked()
         z: -1
     }
+    FocusRing {}
 }

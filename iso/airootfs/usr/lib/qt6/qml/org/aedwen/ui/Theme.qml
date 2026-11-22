@@ -80,15 +80,22 @@ QtObject {
     readonly property color terCFg: mix(fg, terC, 0.15)
     readonly property color errC: mix(surface, err, dark ? 0.35 : 0.25)
     readonly property color errCFg: mix(fg, err, 0.25)
-    readonly property color outline: mix(fg, surface, 0.45)
-    readonly property color outlineV: mix(fg, surface, 0.78)
+    // High contrast (Appearance > Contrast = High): full-strength outlines,
+    // 2px borders, solid hover/press fills, no translucency, heavier text.
+    readonly property bool highContrast: _config && _config.contrast === "high"
+    readonly property int outlineW: highContrast ? 2 : 1
+    readonly property color outline: highContrast ? fg : mix(fg, surface, 0.45)
+    readonly property color outlineV: highContrast ? fg : mix(fg, surface, 0.78)
     // 8% on-surface state layer (hover) and 12% (pressed)
     readonly property color state: alpha(fg, 0.08)
     readonly property color statePressed: alpha(fg, 0.12)
+    // StateLayer opacities; high contrast uses solid fills instead
+    readonly property real hoverOpacity: highContrast ? 0.24 : 0.08
+    readonly property real pressOpacity: highContrast ? 0.4 : 0.12
 
     // Panel / popup fill for the "light acrylic" look: the Plasma theme
     // blurs what's behind, this keeps it mostly opaque.
-    readonly property real acrylic: 0.86
+    readonly property real acrylic: highContrast ? 1.0 : 0.86
 
     // --- variant -------------------------------------------------------------
     // "expressive" (shipped default) or "baseline" (plain Material 3), from
@@ -153,6 +160,8 @@ QtObject {
 
     // --- type ----------------------------------------------------------------
     readonly property string font: Kirigami.Theme.defaultFont.family
+    // +100 weight in high contrast (Font.Normal -> Medium, Medium -> DemiBold ...)
+    function weight(w) { return highContrast ? Math.min(900, w + 100) : w }
     readonly property string mono: "Roboto Mono"
     property FontLoader _symbols: FontLoader { source: Qt.resolvedUrl("fonts/MaterialSymbolsRounded.ttf") }
     readonly property string symbols: _symbols.name

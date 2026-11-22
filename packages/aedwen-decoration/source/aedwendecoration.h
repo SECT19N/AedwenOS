@@ -61,6 +61,7 @@ private:
     KDecoration3::DecorationButtonGroup *m_left = nullptr;
     KDecoration3::DecorationButtonGroup *m_right = nullptr;
     bool m_expressive = true;
+    bool m_highContrast = false; // kdeglobals [AedwenOS] Contrast=high
     qreal m_animationFactor = 1.0;
 };
 

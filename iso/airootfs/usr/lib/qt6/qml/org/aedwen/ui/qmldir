@@ -20,3 +20,4 @@ ResizeGrip 1.0 ResizeGrip.qml
 MaterialShape 1.0 MaterialShape.qml
 PanelButton 1.0 PanelButton.qml
 Label 1.0 Label.qml
+FocusRing 1.0 FocusRing.qml

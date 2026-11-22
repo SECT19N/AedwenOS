@@ -4,6 +4,10 @@ import QtQuick
 
 Rectangle {
     id: root
+    activeFocusOnTab: true
+    Keys.onReturnPressed: if (enabled) root.clicked()
+    Keys.onEnterPressed: if (enabled) root.clicked()
+    Keys.onSpacePressed: if (enabled) root.clicked()
     property string icon
     property real fill: 0
     property string kind: "standard"    // standard | tonal | filled
@@ -41,6 +45,8 @@ Rectangle {
         hoverEnabled: true
         enabled: root.enabled
         cursorShape: Qt.PointingHandCursor
+        onPressed: root.focus = false
         onClicked: root.clicked()
     }
+    FocusRing {}
 }

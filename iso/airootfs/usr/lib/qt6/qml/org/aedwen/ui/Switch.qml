@@ -4,6 +4,10 @@ import QtQuick
 
 Rectangle {
     id: root
+    activeFocusOnTab: true
+    Keys.onReturnPressed: { root.checked = !root.checked; root.toggled(root.checked) }
+    Keys.onEnterPressed: { root.checked = !root.checked; root.toggled(root.checked) }
+    Keys.onSpacePressed: { root.checked = !root.checked; root.toggled(root.checked) }
     property bool checked: false
     property bool compact: false
     signal toggled(bool checked)
@@ -12,7 +16,7 @@ Rectangle {
     implicitHeight: compact ? 26 : 32
     radius: height / 2
     color: checked ? Theme.primary : Theme.scHighest
-    border.width: checked ? 0 : 2
+    border.width: checked ? 0 : Math.max(2, Theme.outlineW)
     border.color: Theme.outline
     opacity: enabled ? 1 : 0.45
     Behavior on color { ColorAnimation { duration: Theme.durShort } }
@@ -33,6 +37,8 @@ Rectangle {
         anchors.fill: parent
         enabled: root.enabled
         cursorShape: Qt.PointingHandCursor
+        onPressed: root.focus = false
         onClicked: { root.checked = !root.checked; root.toggled(root.checked) }
     }
+    FocusRing {}
 }

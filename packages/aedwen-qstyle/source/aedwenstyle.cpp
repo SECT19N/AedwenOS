@@ -9,6 +9,7 @@
 #include <QMenu>
 #include <QPainter>
 #include <QPainterPath>
+#include <QPen>
 #include <QStyleFactory>
 #include <QStyleOptionMenuItem>
 #include <QStyleOptionProgressBar>
@@ -238,6 +239,18 @@ void AedwenStyle::unpolish(QWidget *widget)
 
 void AedwenStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option, QPainter *painter, const QWidget *widget) const
 {
+    // Keyboard focus ring: 3px highlight ring, 2px outside the control, only
+    // when focus arrived by keyboard (not on a mouse click).
+    if (element == PE_FrameFocusRect && (option->state & State_KeyboardFocusChange)) {
+        painter->save();
+        painter->setRenderHint(QPainter::Antialiasing);
+        painter->setPen(QPen(option->palette.color(QPalette::Highlight), 3));
+        painter->setBrush(Qt::NoBrush);
+        const QRectF r = QRectF(option->rect).adjusted(-0.5, -0.5, 0.5, 0.5);
+        painter->drawRoundedRect(r, 10, 10);
+        painter->restore();
+        return;
+    }
     const QMenu *menu = qobject_cast<const QMenu *>(widget);
     if (menu && element == PE_FrameMenu)
         return;

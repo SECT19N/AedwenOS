@@ -3,7 +3,7 @@
 # directory (makepkg owns src/ and pkg/; the C++ lives in source/).
 pkgname=aedwen-decoration
 pkgver=0.1.0
-pkgrel=1
+pkgrel=2
 pkgdesc="AedwenOS window decoration: Material 3 Expressive title bars with all four corners rounded"
 arch=('x86_64')
 url="https://github.com/SECT19N/AedwenOS"
