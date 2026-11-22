@@ -1,0 +1,9 @@
+# Keeps the GitHub Actions used by the release workflow up to date. The ISO's
+# packages come from the Arch repos at build time, so there is nothing else
+# for Dependabot to track here.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
