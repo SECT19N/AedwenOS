@@ -17,6 +17,14 @@ Why the system is built the way it is, and where things live. Back to the [READM
   through `pkexec` has no desktop environment set, so Qt does not load the KDE
   platform theme for it; prefer the KDE-aware launchers.
 
+- **Memory pressure is handled by zram and earlyoom.** Swap is a compressed
+  RAM device as large as the RAM (`zram-generator.conf`), swappiness is 100
+  (change it with your own drop-in in `/etc/sysctl.d/`), and `earlyoom` kills
+  the biggest app when RAM and swap run low, so one runaway program is lost
+  instead of the desktop freezing. The disk swap partition exists for
+  hibernation; on a slow disk (a USB drive) heavy swapping to it is still
+  slow, which is what earlyoom is there to prevent.
+
 - **Disk encryption is not supported yet.** The bootloader entry and the
   initramfs can't unlock a LUKS root, so the installer hides the "Encrypt
   system" option in its automated modes. Calamares' manual-partitioning dialog

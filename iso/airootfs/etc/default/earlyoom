@@ -1,0 +1,5 @@
+# earlyoom (https://github.com/rfjakob/earlyoom): when free RAM and free swap
+# both drop below 10%, kill the process using the most memory, so one runaway
+# app is lost instead of the whole desktop freezing in swap.
+# -r 3600: log memory status once an hour. --avoid: never pick these.
+EARLYOOM_ARGS="-r 3600 --avoid ^(systemd|sddm|kwin_wayland|plasmashell|Xorg)$"

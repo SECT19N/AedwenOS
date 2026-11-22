@@ -36,6 +36,10 @@ e2fsprogs
 exfatprogs
 ntfs-3g
 
+## disk health (SMART for SATA/USB-SATA, NVMe log pages)
+smartmontools
+nvme-cli
+
 ## bootloader
 limine
 efibootmgr
@@ -281,6 +285,10 @@ appstream
 ## Appearance: the boot-screen / bootloader recolouring helper (aedwen-tools)
 ## regenerates the Plymouth loader frames and the Limine card with cairo
 python-cairo
+
+## memory: kills the biggest app before a full RAM + swap freezes the desktop
+## (enabled in services-systemd.conf and aedwen-install)
+earlyoom
 
 ## ------------------------------------------------------------------ LIVE ONLY
 ## Present on the ISO to run the installer; removed from the installed system.
