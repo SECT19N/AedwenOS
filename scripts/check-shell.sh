@@ -9,11 +9,20 @@
 #
 # Nothing is installed: widgets are loaded from the repo through
 # XDG_DATA_DIRS / QML_IMPORT_PATH, offscreen, with a throwaway config and
-# data dir, so your own desktop and settings are untouched.
+# data dir, and on a private D-Bus session (re-exec below), so your own
+# desktop and settings are untouched. The private bus matters: the launcher
+# seeds its pinned apps through kactivitymanagerd, which lives on the session
+# bus and would otherwise write them into your real start menu.
 #
 # Usage: scripts/check-shell.sh            (needs plasmawindowed: plasma-sdk
 #                                           or plasma-workspace's own copy)
 set -uo pipefail
+
+# Re-run on a private session bus so nothing reaches the real desktop's daemons.
+if [[ -z ${AEDWEN_CHECK_ISOLATED:-} ]]; then
+    command -v dbus-run-session >/dev/null || { echo "dbus-run-session not found (needed so the check cannot touch your desktop)" >&2; exit 2; }
+    AEDWEN_CHECK_ISOLATED=1 exec dbus-run-session -- "$0" "$@"
+fi
 
 root=$(cd "$(dirname "$0")/.." && pwd)
 air=$root/iso/airootfs
