@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=AedwenOS theme refresh
+Comment=Redraw the cursors, icons, app themes and wallpaper if the accent or an update changed them
+# Runs once the desktop is up (phase 2), because applying the wallpaper needs
+# plasmashell. The path unit only reacts to kdeglobals changes, so without
+# this an update (GENERATOR_VERSION) or the first login would wait for one.
+Exec=systemctl --user start aedwen-cursor-accent.service
+OnlyShowIn=KDE;
+X-KDE-autostart-phase=2
+NoDisplay=true

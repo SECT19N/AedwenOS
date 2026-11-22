@@ -14,9 +14,11 @@ stylesheet). Okular, Gwenview and the rest
 of Kate follow the Plasma colour scheme, so they need nothing here.
 
 The wallpaper (generate-desktop-wallpaper.py -> ~/.local/share/wallpapers/
-AedwenOS-User, dark and light images; Plasma picks by colour scheme) is only
-built and applied while the desktop still shows an AedwenOS wallpaper, so a
-wallpaper you chose yourself is never replaced.
+AedwenOS-User-<hash>, dark and light images; Plasma picks by colour scheme)
+is only built and applied while the desktop still shows an AedwenOS
+wallpaper, so a wallpaper you chose yourself is never replaced. Every accent
+gets a package of its own name: re-applying the same name is a no-op in
+Plasma, which keeps showing its cached pixmaps of the old colours.
 
     aedwen-apps --refresh    # rebuild if the accent / variant changed (run by
                              # aedwen-cursor-accent.path and the Appearance
@@ -36,7 +38,7 @@ sys.path.insert(0, LIB)
 DATA = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
 CACHE = os.path.join(os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache")), "aedwen")
 STAMP = os.path.join(CACHE, "apps-accent")
-WALLPAPER = "AedwenOS-User"
+WALLPAPER = "AedwenOS-User"   # wallpaper package name prefix
 
 
 def kread(file, group, key):
@@ -94,17 +96,30 @@ def wallpaper_is_ours():
             images = [l.split("=", 1)[1].strip() for l in f if l.startswith("Image=")]
     except OSError:
         return True
-    return all(i.rstrip("/").rsplit("/", 1)[-1] in ("AedwenOS", "AedwenOS-User") for i in images)
+    return all(i.rstrip("/").rsplit("/", 1)[-1].startswith("AedwenOS") for i in images)
 
 
-def build_wallpaper(seed):
-    out = os.path.join(DATA, "wallpapers", WALLPAPER)
+def build_wallpaper(seed, version=0):
+    """Draw the wallpaper for this accent into a package named after it and
+    apply it. True when Plasma took it (otherwise the old package is kept)."""
+    import hashlib
+    import shutil
+
+    name = f"{WALLPAPER}-{hashlib.sha1(f'{seed}|{version}'.encode()).hexdigest()[:8]}"
+    root = os.path.join(DATA, "wallpapers")
+    out = os.path.join(root, name)
     subprocess.run([sys.executable, os.path.join(LIB, "generate-desktop-wallpaper.py"),
-                    "--accent", seed, "--id", WALLPAPER, "--out", out],
+                    "--accent", seed, "--id", name, "--out", out],
                    check=True, stdout=subprocess.DEVNULL)
-    # Plasma re-reads the images when the package is applied again
-    subprocess.run(["plasma-apply-wallpaperimage", WALLPAPER],
-                   check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    # a new package name, so Plasma loads the new files instead of its cache
+    done = subprocess.run(["plasma-apply-wallpaperimage", name],
+                          check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if done.returncode != 0:
+        return False
+    for old in os.listdir(root):
+        if old.startswith(WALLPAPER) and old != name:
+            shutil.rmtree(os.path.join(root, old), ignore_errors=True)
+    return True
 
 
 GTK4_CSS = os.path.join(os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config")), "gtk-4.0", "gtk.css")
@@ -177,11 +192,13 @@ def build(seed, variant, dark, contrast, version=0):
            "--konsole", os.path.join(DATA, "konsole"),
            "--kate", os.path.join(DATA, "org.kde.syntax-highlighting", "themes")]
     subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL)
-    if wallpaper_is_ours():
-        build_wallpaper(seed)
-    os.makedirs(CACHE, exist_ok=True)
-    with open(STAMP, "w") as f:
-        f.write("|".join(map(str, (seed, variant, dark, contrast, version))) + "\n")
+    # False when Plasma isn't up (or refused the wallpaper): the stamp is then
+    # not written, so the next refresh draws and applies it again
+    applied = not wallpaper_is_ours() or build_wallpaper(seed, version)
+    if applied:
+        os.makedirs(CACHE, exist_ok=True)
+        with open(STAMP, "w") as f:
+            f.write("|".join(map(str, (seed, variant, dark, contrast, version))) + "\n")
     # Kate picks its editor theme by name: follow light/dark, unless the user
     # chose some other theme themselves
     for rc in ("katerc", "kwriterc"):
