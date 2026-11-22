@@ -18,7 +18,7 @@ Enable EFI, and keep Secure Boot off.
 
 ## Getting set up
 
-You need an x86-64 Arch-based host. The [README](README.md#building-the-iso)
+You need an x86-64 Arch-based host. The [build guide](docs/building.md)
 has the full build and test instructions; in short:
 
 ```sh
@@ -53,6 +53,15 @@ frames, the Limine wallpaper, the Calamares `Theme.qml`/stylesheet, the Plasma
 theme (`desktoptheme/aedwen`) and the shell's icon font and eagle. Change the
 matching `scripts/generate-*.py` and re-run it rather than editing its output,
 or the next run will overwrite your edit.
+
+Before you push, run `python3 -I scripts/check-theme.py`. It re-runs the
+generators on a copy of your tree and fails if a committed theme file is out
+of date or a palette's text/outline contrast falls below the WCAG limits
+(`scripts/check-contrast.py`, run by the same command). The `Theme check`
+workflow runs it on every push and pull request. When a change alters what a
+generator writes, also bump `GENERATOR_VERSION` in `scripts/palette_lib.py`, so
+the helpers that redraw per-user files (`aedwen-apps`, `-icons`, `-cursors`) do
+it after an update.
 
 AedwenOS has two design variants: Material 3 Expressive (what ships) and stock
 Material 3 ("baseline"). Shape values (corner radii, the hover shape of round

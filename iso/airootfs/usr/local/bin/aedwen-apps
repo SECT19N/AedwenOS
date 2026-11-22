@@ -64,13 +64,24 @@ def is_dark():
     return "light" not in kread("kdeglobals", "General", "ColorScheme").lower()
 
 
+def generator_version():
+    """palette_lib.GENERATOR_VERSION: changes when an update changes the
+    generators, so the files are redrawn even if the accent did not change."""
+    try:
+        from palette_lib import GENERATOR_VERSION
+        return GENERATOR_VERSION
+    except ImportError:
+        return 0
+
+
 def settings():
     variant = kread("kdeglobals", "AedwenOS", "Variant")
     contrast = kread("kdeglobals", "AedwenOS", "Contrast")
     return (accent_seed(),
             variant if variant in ("baseline", "expressive") else "expressive",
             is_dark(),
-            "high" if contrast == "high" else "standard")
+            "high" if contrast == "high" else "standard",
+            generator_version())
 
 
 def wallpaper_is_ours():
@@ -116,7 +127,7 @@ def build_gtk(seed, variant, contrast):
                    check=False, stdout=subprocess.DEVNULL)
 
 
-def build(seed, variant, dark, contrast):
+def build(seed, variant, dark, contrast, version=0):
     build_gtk(seed, variant, contrast)
     cmd = [sys.executable, os.path.join(LIB, "generate-app-themes.py"),
            "--accent", seed, "--variant", variant, "--contrast", contrast,
@@ -127,7 +138,7 @@ def build(seed, variant, dark, contrast):
         build_wallpaper(seed)
     os.makedirs(CACHE, exist_ok=True)
     with open(STAMP, "w") as f:
-        f.write("|".join(map(str, (seed, variant, dark, contrast))) + "\n")
+        f.write("|".join(map(str, (seed, variant, dark, contrast, version))) + "\n")
     # Kate picks its editor theme by name: follow light/dark, unless the user
     # chose some other theme themselves
     for rc in ("katerc", "kwriterc"):

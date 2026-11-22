@@ -37,6 +37,16 @@ CACHE = os.path.join(os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cac
 STAMP = os.path.join(CACHE, "cursor-accent")
 
 
+def stamp_for(seed):
+    """The accent plus palette_lib.GENERATOR_VERSION, so the cursors are redrawn
+    after an update that changes the generator, not only when the accent does."""
+    try:
+        from palette_lib import GENERATOR_VERSION
+    except ImportError:
+        GENERATOR_VERSION = 0
+    return f"{seed}|{GENERATOR_VERSION}"
+
+
 def kread(file, group, key):
     r = subprocess.run(["kreadconfig6", "--file", file, "--group", group, "--key", key],
                        capture_output=True, text=True)
@@ -77,7 +87,7 @@ def build(family, style, seed):
                     "--name", name, "--out", out], check=True)
     os.makedirs(CACHE, exist_ok=True)
     with open(STAMP, "w") as f:
-        f.write(seed + "\n")
+        f.write(stamp_for(seed) + "\n")
     return name
 
 
@@ -111,7 +121,7 @@ def main():
         seed = accent_seed()
         try:
             with open(STAMP) as f:
-                if f.read().strip() == seed:
+                if f.read().strip() == stamp_for(seed):
                     return
         except OSError:
             pass

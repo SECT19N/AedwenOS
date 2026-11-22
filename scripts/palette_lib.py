@@ -9,6 +9,11 @@ seed/colour logic from.
 
 import math
 
+# Bump when any generator's output changes. The per-user rebuild helpers
+# (aedwen-apps, -icons, -cursors) put it in their stamp, so after an update they
+# redraw the files they keep in ~/.local/share and ~/.config.
+GENERATOR_VERSION = 2
+
 SEEDS = {"blue": 250, "violet": 295, "teal": 185, "green": 145, "amber": 70, "rose": 10}
 SEED_HEX = {
     "blue": "#4d7fdc",

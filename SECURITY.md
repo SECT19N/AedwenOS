@@ -45,7 +45,7 @@ Known limitations, not vulnerabilities:
   automatic login. That is by design for a live medium; the installers remove
   it from installed systems.
 - **Secure Boot** and **disk encryption** (LUKS) are not supported yet. See the
-  design notes in the [README](README.md#design-notes-and-limitations).
+  [design notes](docs/design-notes.md).
 - Vulnerabilities in upstream software (Arch Linux, KDE Plasma, Calamares,
   Limine and the like) belong with those projects. Tell us if AedwenOS
   configures one in a way that makes it worse.

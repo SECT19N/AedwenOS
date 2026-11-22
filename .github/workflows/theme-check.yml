@@ -1,0 +1,44 @@
+# Keeps the theme consistent: every push and pull request re-runs the theme
+# generators and fails if a committed theme file no longer matches its
+# generator, or if a palette drops below the WCAG contrast limits.
+#
+# Same check locally:  python3 -I scripts/check-theme.py
+name: Theme check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  theme:
+    runs-on: ubuntu-24.04
+    container: archlinux:latest
+    steps:
+      - name: Install tools
+        # Pillow draws the wallpapers and boot assets, xcursorgen builds the
+        # cursors; without them check-theme.py skips those generators.
+        run: pacman -Syu --noconfirm --needed git python python-pillow python-fonttools librsvg xorg-xcursorgen rsync
+
+      - uses: actions/checkout@v4
+
+      - name: Theme files match their generators, palettes meet WCAG
+        run: python3 -I scripts/check-theme.py -v
+
+  shell:
+    # Loads every shell widget against the newest Plasma in Arch. It is a
+    # warning only: a Plasma release can break a KDE-internal API before the
+    # next ISO build, and this job is how you hear about it early.
+    runs-on: ubuntu-24.04
+    container: archlinux:latest
+    continue-on-error: true
+    steps:
+      - name: Install Plasma
+        run: pacman -Syu --noconfirm --needed git plasma-workspace plasma-desktop plasma-sdk qt6-declarative
+
+      - uses: actions/checkout@v4
+
+      - name: Load the shell widgets
+        run: bash scripts/check-shell.sh

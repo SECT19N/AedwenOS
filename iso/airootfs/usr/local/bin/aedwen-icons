@@ -62,16 +62,27 @@ def is_dark():
     return "light" not in kread("kdeglobals", "General", "ColorScheme").lower()
 
 
+def generator_version():
+    """palette_lib.GENERATOR_VERSION: changes when an update changes the
+    generators, so the icons are redrawn even if the accent did not change."""
+    try:
+        from palette_lib import GENERATOR_VERSION
+        return GENERATOR_VERSION
+    except ImportError:
+        return 0
+
+
 def settings():
     mode = kread("kdeglobals", "AedwenOS", "IconMode")
     variant = kread("kdeglobals", "AedwenOS", "Variant")
     return (accent_seed(),
             mode if mode in MODES else "themed",
             variant if variant in ("baseline", "expressive") else "expressive",
-            is_dark())
+            is_dark(),
+            generator_version())
 
 
-def build(seed, mode, variant, dark):
+def build(seed, mode, variant, dark, version=0):
     out = os.path.join(DATA, "icons", USER)
     cmd = [sys.executable, os.path.join(LIB, "generate-icons.py"),
            "--accent", seed, "--mode", mode, "--variant", variant,
@@ -81,7 +92,7 @@ def build(seed, mode, variant, dark):
     subprocess.run(cmd, check=True)
     os.makedirs(CACHE, exist_ok=True)
     with open(STAMP, "w") as f:
-        f.write("|".join(map(str, (seed, mode, variant, dark))) + "\n")
+        f.write("|".join(map(str, (seed, mode, variant, dark, version))) + "\n")
     # let icon caches (and the file manager, the shell) notice new files
     subprocess.run(["touch", os.path.join(DATA, "icons")], check=False)
 
