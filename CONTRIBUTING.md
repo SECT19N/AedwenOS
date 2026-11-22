@@ -117,6 +117,6 @@ rebuild must be picked up.
 
 ## License
 
-No license has been chosen yet (see [LICENSE](LICENSE)). Until one is added,
-please don't submit code you can't license, and expect to be asked to confirm
-your contribution under the license the project picks.
+Code is GPL-3.0-or-later (see [LICENSE](LICENSE)) and artwork is CC BY-SA 4.0
+(see [LICENSE-ARTWORK](LICENSE-ARTWORK)). By submitting a contribution you agree
+to license it under the same terms as the part of the project it touches.

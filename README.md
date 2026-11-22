@@ -646,7 +646,6 @@ Planned:
 - Optionally offer additional kernels (for example `linux-xanmod`).
 - Investigate shipping Limine on the ISO itself.
 - Revisit bcachefs support once it stabilises.
-- Pick a license.
 
 ## Contributing
 
@@ -656,4 +655,11 @@ described in [SECURITY.md](SECURITY.md).
 
 ## License
 
-See [LICENSE](LICENSE).
+- Code (scripts, installer, QML, configuration, packaging) is licensed under
+  **GPL-3.0-or-later**: see [LICENSE](LICENSE).
+- Artwork (wallpapers, icons, logos and theme images) is licensed under
+  **CC BY-SA 4.0**: see [LICENSE-ARTWORK](LICENSE-ARTWORK).
+- Third-party components, such as the bundled fonts, Calamares and the Arch and
+  KDE packages on the ISO, keep their own licenses.
+- The name "AedwenOS" and the logo are not covered by these licenses. Forks
+  should use a different name and logo.
