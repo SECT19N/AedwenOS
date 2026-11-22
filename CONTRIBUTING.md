@@ -109,7 +109,7 @@ each widget against your installed Plasma and fails on QML errors.
 ## Installer and packages
 
 The Calamares configuration is `iso/airootfs/etc/calamares/`; its pages are QML in
-`branding/aedwenos/` (the "Extras" step is `packsq.qml`, with the packs listed in
+`branding/aedwenos/` (the "Extras" step is `notesqml.qml`, with the packs listed in
 `etc/calamares/packs`). Changes to the Aedwen packages under `packages/`
 (`aedwen-tools`, `aedwen-qstyle`, `aedwen-decoration`, `ttf-roboto-flex`,
 `calamares`) are built by `scripts/build-localrepo.sh`; bump `pkgrel` when a

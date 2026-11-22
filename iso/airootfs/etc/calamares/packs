@@ -1,7 +1,7 @@
 # Optional software packs offered in the installer's "Extras" step. They are
 # part of the image; the installer removes the ones the user left off
 # (shellprocess-postinstall). Format: id|packages (space separated). The ids
-# match branding/aedwenos/packsq.qml.
+# match branding/aedwenos/notesqml.qml.
 dev|base-devel git github-cli nodejs npm uv gdb strace ripgrep fd tmux
 print|cups print-manager
 bluetooth|bluez bluez-utils bluedevil
