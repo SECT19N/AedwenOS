@@ -8,13 +8,17 @@ import QtQuick
 
 Rectangle {
     readonly property Item target: parent
+    // Controls that don't hold focus themselves (list/grid delegates whose
+    // view has it) bind `shown`; `offset` = gap + ring width from the edge.
+    property bool shown: target.activeFocus
+    property int offset: 5         // 2px gap + 3px ring
     z: 100
     anchors.fill: parent
-    anchors.margins: -5            // 2px offset + 3px ring
+    anchors.margins: -offset
     color: "transparent"
     border.width: 3
     border.color: Theme.primary
-    radius: (target.radius !== undefined ? target.radius : height / 2) + 5
-    visible: target.activeFocus
+    radius: (target.radius !== undefined ? target.radius : height / 2) + offset
+    visible: shown
     enabled: false
 }

@@ -8,7 +8,9 @@ The ISO ships the violet versions (/usr/share/konsole, and
 /usr/share/org.kde.syntax-highlighting/themes). Any other accent is drawn
 here, into ~/.local/share, by the same generator the ISO build uses
 (/usr/lib/aedwen/generate-app-themes.py), from the current KDE accent colour
-and the [AedwenOS] Variant key in kdeglobals. Okular, Gwenview and the rest
+and the [AedwenOS] Variant and Contrast keys in kdeglobals (High contrast
+gives black terminal/editor themes and a high-contrast libadwaita
+stylesheet). Okular, Gwenview and the rest
 of Kate follow the Plasma colour scheme, so they need nothing here.
 
 The wallpaper (generate-desktop-wallpaper.py -> ~/.local/share/wallpapers/
@@ -64,9 +66,11 @@ def is_dark():
 
 def settings():
     variant = kread("kdeglobals", "AedwenOS", "Variant")
+    contrast = kread("kdeglobals", "AedwenOS", "Contrast")
     return (accent_seed(),
             variant if variant in ("baseline", "expressive") else "expressive",
-            is_dark())
+            is_dark(),
+            "high" if contrast == "high" else "standard")
 
 
 def wallpaper_is_ours():
@@ -91,9 +95,31 @@ def build_wallpaper(seed):
                    check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
-def build(seed, variant, dark):
+GTK4_CSS = os.path.join(os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config")), "gtk-4.0", "gtk.css")
+GTK_MARK = "AedwenOS libadwaita overrides"
+
+
+def build_gtk(seed, variant, contrast):
+    """libadwaita apps take their colours from ~/.config/gtk-4.0/gtk.css: write
+    the one for this accent and contrast. Only if it is empty or one we wrote:
+    a stylesheet the user made themselves is left alone."""
+    script = os.path.join(LIB, "generate-gtk-theme.py")
+    try:
+        with open(GTK4_CSS) as f:
+            head = f.read(200)
+    except OSError:
+        head = GTK_MARK
+    if not os.path.exists(script) or (head.strip() and GTK_MARK not in head):
+        return
+    subprocess.run([sys.executable, script, "--accent", seed, "--variant", variant,
+                    "--contrast", contrast, "--libadwaita-out", GTK4_CSS],
+                   check=False, stdout=subprocess.DEVNULL)
+
+
+def build(seed, variant, dark, contrast):
+    build_gtk(seed, variant, contrast)
     cmd = [sys.executable, os.path.join(LIB, "generate-app-themes.py"),
-           "--accent", seed, "--variant", variant,
+           "--accent", seed, "--variant", variant, "--contrast", contrast,
            "--konsole", os.path.join(DATA, "konsole"),
            "--kate", os.path.join(DATA, "org.kde.syntax-highlighting", "themes")]
     subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL)
@@ -101,7 +127,7 @@ def build(seed, variant, dark):
         build_wallpaper(seed)
     os.makedirs(CACHE, exist_ok=True)
     with open(STAMP, "w") as f:
-        f.write("|".join(map(str, (seed, variant, dark))) + "\n")
+        f.write("|".join(map(str, (seed, variant, dark, contrast))) + "\n")
     # Kate picks its editor theme by name: follow light/dark, unless the user
     # chose some other theme themselves
     for rc in ("katerc", "kwriterc"):

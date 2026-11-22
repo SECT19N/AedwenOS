@@ -25,7 +25,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from palette_lib import SEED_HEX, o, palette, srgb_hex_to_oklch  # noqa: E402
+from palette_lib import SEED_HEX, o, palette, palette_contrast, srgb_hex_to_oklch  # noqa: E402
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "iso", "airootfs", "usr", "share")
 KONSOLE_DIR = os.path.normpath(os.path.join(ROOT, "konsole"))
@@ -54,16 +54,18 @@ def contrast(a, b):
     return (la + 0.05) / (lb + 0.05)
 
 
-def konsole_scheme(hue):
-    bg = o(0.15, 0.012, hue)
-    bg_faint = o(0.13, 0.012, hue)
-    bg_int = o(0.17, 0.014, hue)
+def konsole_scheme(hue, high=False):
+    # high contrast: pure black background, white text
+    fg, fg_dim = ("#ffffff", "#e0e0e0") if high else (FG, FG_DIM)
+    bg = "#000000" if high else o(0.15, 0.012, hue)
+    bg_faint = "#000000" if high else o(0.13, 0.012, hue)
+    bg_int = "#000000" if high else o(0.17, 0.014, hue)
     colors = {}
     # slots: 0 black, 1..6 colours, 7 white; normal and Intense (bright)
     colors[0] = (o(0.28, 0.015, hue), o(0.45, 0.02, hue))
     for i, h in enumerate(ANSI_HUES, 1):
-        colors[i] = (o(0.72, 0.13, h), o(0.82, 0.12, h))
-    colors[7] = ("#c8ccd8", FG_BRIGHT)
+        colors[i] = (o(0.80, 0.13, h), o(0.88, 0.12, h)) if high else (o(0.72, 0.13, h), o(0.82, 0.12, h))
+    colors[7] = ("#ffffff", "#ffffff") if high else ("#c8ccd8", FG_BRIGHT)
     out = []
 
     def sect(name, color):
@@ -76,14 +78,14 @@ def konsole_scheme(hue):
         sect(f"Color{i}", colors[i][0])
         sect(f"Color{i}Faint", o(0.22, 0.015, hue) if i == 0 else colors[i][0])
         sect(f"Color{i}Intense", colors[i][1])
-    sect("Foreground", FG)
-    sect("ForegroundFaint", FG_DIM)
+    sect("Foreground", fg)
+    sect("ForegroundFaint", fg_dim)
     sect("ForegroundIntense", FG_BRIGHT)
     out.append("[General]\nAnchor=0.5,0.5\nBlur=false\nColorRandomization=false\n"
                "Description=AedwenOS\nFillStyle=Tile\nOpacity=0.96\nWallpaper=\n"
                "WallpaperFlipType=NoFlip\nWallpaperOpacity=1\n")
     problems = [f"Color{i}" for i in range(8)
-                if contrast(colors[i][0], bg) < 3 and i != 0]
+                if contrast(colors[i][0], bg) < (7 if high else 3) and i != 0]
     return "\n".join(out), bg, problems
 
 
@@ -112,13 +114,14 @@ TrimTrailingSpacesInSelectedText=true
 """
 
 
-def kate_theme(name, hue, dark, expressive):
-    p = palette(hue, dark, expressive)
+def kate_theme(name, hue, dark, expressive, contrast="standard"):
+    p = palette_contrast(hue, dark, expressive, contrast)
+    hi = contrast == "high"
     k = 1.5 if expressive else 1.0
-    if dark:
-        sat = lambda h: o(0.8, 0.12, h)
-    else:
-        sat = lambda h: o(0.42, 0.14, h)
+    # lightness of the syntax colours / marks: stronger at high contrast
+    syn_l = (0.88 if hi else 0.8) if dark else (0.33 if hi else 0.42)
+    mark_l = (0.85 if hi else 0.75) if dark else (0.4 if hi else 0.5)
+    sat = lambda h: o(syn_l, 0.12 if dark else 0.14, h)
     fg = p["on-s"]
     plain = lambda c, **kw: {"text-color": c, "selected-text-color": c, **kw}
 
@@ -149,7 +152,7 @@ def kate_theme(name, hue, dark, expressive):
         "Documentation": plain(p["on-sv"], italic=True),
         "Annotation": plain(sat(hue + 270)),
         "Information": plain(sat(hue + 100)),
-        "Warning": plain(o(0.75 if dark else 0.5, 0.14, 70)),
+        "Warning": plain(o(mark_l, 0.14, 70)),
         "Alert": plain(p["err"], bold=True),
         "Error": plain(p["err"], underline=True),
         "Others": plain(fg),
@@ -168,13 +171,13 @@ def kate_theme(name, hue, dark, expressive):
         "MarkBookmark": p["primary"],
         "MarkBreakpointActive": p["err"],
         "MarkBreakpointDisabled": p["outline"],
-        "MarkBreakpointReached": o(0.75 if dark else 0.5, 0.14, 145),
+        "MarkBreakpointReached": o(mark_l, 0.14, 145),
         "MarkError": p["err"],
         "MarkExecution": p["on-sv"],
-        "MarkWarning": o(0.75 if dark else 0.5, 0.14, 70),
-        "ModifiedLines": o(0.75 if dark else 0.5, 0.14, 70),
-        "ReplaceHighlight": alpha(o(0.75 if dark else 0.5, 0.14, 145), "66"),
-        "SavedLines": o(0.75 if dark else 0.5, 0.14, 145),
+        "MarkWarning": o(mark_l, 0.14, 70),
+        "ModifiedLines": o(mark_l, 0.14, 70),
+        "ReplaceHighlight": alpha(o(mark_l, 0.14, 145), "66"),
+        "SavedLines": o(mark_l, 0.14, 145),
         "SearchHighlight": alpha(p["primary"], "66"),
         "Separator": p["outline-v"],
         "SpellChecking": p["err"],
@@ -195,18 +198,20 @@ def write(path, text):
         fh.write(text)
 
 
-def build(hue, expressive, konsole_dir, kate_dir):
-    scheme, bg, problems = konsole_scheme(hue)
+def build(hue, expressive, konsole_dir, kate_dir, contrast="standard"):
+    contrast_ratio = globals()["contrast"]  # the module-level WCAG helper (shadowed by the parameter)
+    high = contrast == "high"
+    scheme, bg, problems = konsole_scheme(hue, high)
     write(os.path.join(konsole_dir, "AedwenOS.colorscheme"), scheme)
     write(os.path.join(konsole_dir, "Aedwen.profile"), konsole_profile(hue, expressive))
     bad = [f"konsole {n}" for n in problems]
     for dark, nm in ((True, "AedwenOS Dark"), (False, "AedwenOS Light")):
-        theme, ts, p = kate_theme(nm, hue, dark, expressive)
+        theme, ts, p = kate_theme(nm, hue, dark, expressive, contrast)
         write(os.path.join(kate_dir, nm + ".theme"), json.dumps(theme, indent=4) + "\n")
         bg_ = p["surface"]
         bad += [f"{nm} {s}" for s, v in ts.items()
                 if s not in ("Comment", "CommentVar", "RegionMarker", "Documentation")
-                and contrast(v["text-color"], bg_) < 4.5]
+                and contrast_ratio(v["text-color"], bg_) < (7 if high else 4.5)]
     return bad
 
 
@@ -216,12 +221,13 @@ def main():
     ap.add_argument("--seed", default="violet", choices=SEED_HEX.keys())
     ap.add_argument("--accent")
     ap.add_argument("--variant", default="expressive", choices=["expressive", "baseline"])
+    ap.add_argument("--contrast", default="standard", choices=["standard", "high"])
     ap.add_argument("--konsole", default=KONSOLE_DIR)
     ap.add_argument("--kate", default=KATE_DIR)
     args = ap.parse_args()
     hexc = args.accent or SEED_HEX[args.seed]
     hue = srgb_hex_to_oklch(hexc)[2]
-    bad = build(hue, args.variant == "expressive", args.konsole, args.kate)
+    bad = build(hue, args.variant == "expressive", args.konsole, args.kate, args.contrast)
     print(f"Wrote Konsole + Kate themes for {hexc} to {args.konsole} / {args.kate}")
     if bad:
         print("low contrast: " + ", ".join(bad), file=sys.stderr)

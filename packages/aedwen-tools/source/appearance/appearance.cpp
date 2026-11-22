@@ -341,6 +341,11 @@ void AppearanceKcm::apply()
     m_globals->sync();
 
     QProcess::startDetached(QStringLiteral("plasma-apply-colorscheme"), {isDark() ? dark : light});
+    // High contrast also swaps the shell's panel/popup frames for the opaque,
+    // outlined aedwen-hc theme (no blur); any other level uses the normal one.
+    if (QFileInfo::exists(QStringLiteral("/usr/share/plasma/desktoptheme/aedwen-hc")))
+        QProcess::startDetached(QStringLiteral("plasma-apply-desktoptheme"),
+                                {m_contrast == QLatin1String("high") ? QStringLiteral("aedwen-hc") : QStringLiteral("aedwen")});
     if (QFileInfo::exists(QStringLiteral("/usr/local/bin/aedwen-cursors")))
         QProcess::startDetached(QStringLiteral("/usr/local/bin/aedwen-cursors"), {QStringLiteral("--refresh")});
     // the app icons follow the seed too (a no-op unless an Aedwen icon theme is in use)

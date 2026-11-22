@@ -165,8 +165,19 @@ def palette_contrast(H, dark, expressive, contrast="standard"):
     if contrast == "standard":
         return p
     hc = _hc(H, dark)
-    t = 1.0 if contrast == "high" else 0.5
-    return {k: (_mix(v, hc[k], t) if k in hc else v) for k, v in p.items()}
+    if contrast == "high":
+        return {k: hc.get(k, v) for k, v in p.items()}
+    # medium: halfway between the two. The high-contrast containers flip
+    # polarity (a dark container becomes a light one), so mixing a fill and
+    # its on-colour independently would make them cross over and meet. Keep
+    # the standard container fills and move only their text halfway to
+    # the extreme (white on dark, black on light).
+    keep_fill = {"pc", "sec-c"}
+    extreme = hc["on-s"]
+    mixed = {k: (_mix(v, hc[k], 0.5) if k in hc and k not in keep_fill else v) for k, v in p.items()}
+    mixed["on-pc"] = _mix(p["on-pc"], extreme, 0.5)
+    mixed["on-sec-c"] = _mix(p["on-sec-c"], extreme, 0.5)
+    return mixed
 
 
 def hex_to_rgb_csv(hex_color):
@@ -202,3 +213,17 @@ def shapes(variant):
 DEFAULT_SEED = "violet"
 DEFAULT_DARK = True
 DEFAULT_EXPRESSIVE = True
+
+
+def luminance(hex_color):
+    """WCAG relative luminance of a "#rrggbb" colour."""
+    h = hex_color.lstrip("#")
+    c = [int(h[i:i + 2], 16) / 255 for i in (0, 2, 4)]
+    c = [v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4 for v in c]
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+
+
+def contrast_ratio(a, b):
+    """WCAG contrast ratio between two "#rrggbb" colours (1..21)."""
+    la, lb = sorted((luminance(a), luminance(b)), reverse=True)
+    return (la + 0.05) / (lb + 0.05)

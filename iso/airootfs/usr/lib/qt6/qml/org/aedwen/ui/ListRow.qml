@@ -6,6 +6,8 @@ import QtQuick
 Rectangle {
     id: root
     activeFocusOnTab: true
+    // a list that owns focus itself (launcher) binds this to its current row
+    property bool showRing: activeFocus
     Keys.onReturnPressed: root.clicked()
     Keys.onEnterPressed: root.clicked()
     Keys.onSpacePressed: root.clicked()
@@ -81,5 +83,5 @@ Rectangle {
         onClicked: root.clicked()
         z: -1
     }
-    FocusRing {}
+    FocusRing { shown: root.showRing }
 }

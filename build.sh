@@ -109,7 +109,8 @@ install -Dm644 -o "${SUDO_UID:-0}" -g "${SUDO_GID:-0}" -t "$profile/airootfs/usr
     "$here/scripts/generate-app-themes.py" "$here/scripts/generate-desktop-wallpaper.py" \
     "$here/scripts/icon_glyphs.json" "$here/scripts/icon_symbolic_glyphs.json" "$here/scripts/palette_lib.py" \
     "$here/scripts/generate-colorscheme.py" "$here/scripts/generate-plymouth-assets.py" \
-    "$here/scripts/generate-limine-wallpaper.py" "$here/scripts/m3_shapes.py"
+    "$here/scripts/generate-limine-wallpaper.py" "$here/scripts/m3_shapes.py" \
+    "$here/scripts/generate-gtk-theme.py"
 # the eagle mark the wallpaper generator draws (aedwen-apps)
 install -Dm644 -o "${SUDO_UID:-0}" -g "${SUDO_GID:-0}" \
     "$profile/airootfs/etc/calamares/branding/aedwenos/logo.png" "$profile/airootfs/usr/lib/aedwen/eagle.png"

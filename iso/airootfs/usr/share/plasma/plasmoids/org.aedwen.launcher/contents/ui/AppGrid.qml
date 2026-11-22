@@ -30,6 +30,7 @@ GridView {
             radius: Theme.rCard - 4
             color: grid.currentIndex === cellItem.index && grid.activeFocus ? Theme.secC : "transparent"
             StateLayer { area: mouse }
+            FocusRing { offset: 0; shown: grid.currentIndex === cellItem.index && grid.activeFocus }
         }
         Column {
             anchors.centerIn: parent

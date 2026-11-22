@@ -44,6 +44,8 @@ ListView {
         subtitle: list.showSubtitle ? (model.description || "") : ""
         appIcon: model.decoration
         selected: list.currentIndex === index && (list.activeFocus || list.showSubtitle)
+        activeFocusOnTab: false          // the list is the tab stop
+        showRing: list.currentIndex === index && list.activeFocus
         onClicked: { list.currentIndex = index; list.launchCurrent() }
 
         MouseArea {

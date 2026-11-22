@@ -5,6 +5,7 @@
 #include <KSharedConfig>
 
 #include <QAction>
+#include <QElapsedTimer>
 #include <QFontDatabase>
 #include <QMenu>
 #include <QPainter>
@@ -48,6 +49,21 @@ QColor mix(const QColor &a, const QColor &b, qreal t)
                             a.blueF() + (b.blueF() - a.blueF()) * t);
 }
 
+// kdeglobals [AedwenOS] Contrast == "high" (Appearance settings). Re-read at
+// most every 2 s: the style paints often and the setting rarely changes.
+bool highContrast()
+{
+    static QElapsedTimer age;
+    static bool high = false;
+    if (!age.isValid() || age.elapsed() > 2000) {
+        auto config = KSharedConfig::openConfig(QStringLiteral("kdeglobals"));
+        config->reparseConfiguration();
+        high = config->group(QStringLiteral("AedwenOS")).readEntry("Contrast", QString()) == QLatin1String("high");
+        age.start();
+    }
+    return high;
+}
+
 struct MenuColors {
     QColor container; // surface-container-high
     QColor fg; // on-surface
@@ -62,7 +78,7 @@ MenuColors menuColors(const QPalette &palette)
     MenuColors c;
     c.container = palette.color(group, QPalette::Button);
     c.fg = palette.color(group, QPalette::Text);
-    c.fgMuted = alpha(c.fg, 0.62);
+    c.fgMuted = highContrast() ? c.fg : alpha(c.fg, 0.62);
     // AedwenOS colour schemes carry the tertiary container in ForegroundNeutral
     // (scripts/generate-colorscheme.py); Theme.qml reads it the same way.
     c.checked = KColorScheme(group, KColorScheme::View).foreground(KColorScheme::NeutralText).color();
@@ -153,6 +169,7 @@ bool sameHue(const QColor &a, const QColor &b)
 struct ProgressColors {
     QColor active; // primary
     QColor track; // secondary container
+    QColor outline; // high contrast only: the track's 2px outline
 };
 
 ProgressColors progressColors(const QPalette &palette)
@@ -164,6 +181,10 @@ ProgressColors progressColors(const QPalette &palette)
     // the same way). Any other scheme: derive it from the primary.
     const QColor visited = KColorScheme(QPalette::Active, KColorScheme::View).foreground(KColorScheme::VisitedText).color();
     c.track = sameHue(visited, c.active) ? visited : mix(c.active, palette.color(QPalette::Window), 0.72);
+    if (highContrast()) {
+        c.outline = palette.color(QPalette::Active, QPalette::Text);
+        c.track = palette.color(QPalette::Active, QPalette::Window);
+    }
     if (palette.currentColorGroup() == QPalette::Disabled) {
         c.active = alpha(c.active, DisabledOpacity);
         c.track = alpha(c.track, DisabledOpacity);
@@ -200,10 +221,12 @@ void drawProgress(QPainter *p, const QRectF &r, qreal fraction, const ProgressCo
     // track + stop dot
     const qreal trackLeft = fraction > 0 ? valueX + half + ProgressGap : r.left();
     if (fraction < 1 && trackLeft < r.right()) {
-        p->setPen(Qt::NoPen);
+        // high contrast: outline the track so it reads without the tint
+        p->setPen(colors.outline.isValid() ? QPen(colors.outline, 2) : QPen(Qt::NoPen));
         p->setBrush(colors.track);
         const QRectF track(trackLeft, cy - half, r.right() - trackLeft, ProgressStroke);
-        p->drawRoundedRect(track, half, half);
+        p->drawRoundedRect(colors.outline.isValid() ? track.adjusted(1, 1, -1, -1) : track, half, half);
+        p->setPen(Qt::NoPen);
         p->setBrush(colors.active);
         p->drawEllipse(QRectF(r.right() - ProgressStroke, cy - half, ProgressStroke, ProgressStroke));
     }
@@ -297,6 +320,17 @@ void AedwenStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *op
         const QRectF r(0, groups[i].top, menu->width(), groups[i].bottom - groups[i].top);
         painter->drawPath(roundedRect(r, std::min(t, r.height() / 2), std::min(b, r.height() / 2)));
     }
+    if (highContrast()) {
+        // 2px outline around every group
+        painter->setPen(QPen(colors.fg, 2));
+        painter->setBrush(Qt::NoBrush);
+        for (int i = 0; i < groups.size(); ++i) {
+            const qreal t = i == 0 ? OuterRadius : InnerRadius;
+            const qreal b = i == groups.size() - 1 ? OuterRadius : InnerRadius;
+            const QRectF r(1, groups[i].top + 1, menu->width() - 2, groups[i].bottom - groups[i].top - 2);
+            painter->drawPath(roundedRect(r, std::min(t, r.height() / 2), std::min(b, r.height() / 2)));
+        }
+    }
     painter->restore();
 }
 
@@ -324,7 +358,7 @@ void AedwenStyle::drawControl(ControlElement element, const QStyleOption *option
             };
             const auto drawLabel = [&](const QRect &rect, Qt::Alignment align) {
                 painter->save();
-                painter->setPen(alpha(option->palette.color(QPalette::Text), 0.72));
+                painter->setPen(highContrast() ? option->palette.color(QPalette::Text) : alpha(option->palette.color(QPalette::Text), 0.72));
                 painter->drawText(rect, Qt::AlignVCenter | align | Qt::TextSingleLine, bar->text);
                 painter->restore();
             };
@@ -401,7 +435,7 @@ void AedwenStyle::drawControl(ControlElement element, const QStyleOption *option
         painter->setOpacity(DisabledOpacity);
 
     if (checked || selected) {
-        QColor fill = checked ? colors.checked : alpha(colors.fg, StateLayer);
+        QColor fill = checked ? colors.checked : alpha(colors.fg, highContrast() ? 0.24 : StateLayer);
         if (checked && selected)
             fill = mix(colors.checked, colors.fg, StateLayer);
         painter->setPen(Qt::NoPen);

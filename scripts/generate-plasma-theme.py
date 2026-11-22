@@ -26,7 +26,7 @@ Every frame has mask-* elements (so the blur follows the rounded corners)
 and shadow-* elements.
 
 Usage:
-    scripts/generate-plasma-theme.py [--out DIR] [--acrylic 0.86]
+    scripts/generate-plasma-theme.py [--out DIR] [--acrylic 0.86] [--contrast high]
 """
 
 import argparse
@@ -51,7 +51,7 @@ FRAMES = {
 CENTER = 64
 
 
-def frame_elements(prefix, ox, oy, r, cls, opacity, hairline):
+def frame_elements(prefix, ox, oy, r, cls, opacity, hairline, lw=1, la=0.08):
     """The 9 cells of a rounded frame with corner radius r, laid out at
     (ox, oy). `prefix` is "" or "mask-"."""
     c = CENTER
@@ -59,7 +59,8 @@ def frame_elements(prefix, ox, oy, r, cls, opacity, hairline):
     # The hairline is a filled 1px shape, not a stroke: a stroke's bounds
     # spill half a pixel outside the cell, so Plasma would shrink the cell's
     # fill to make room and leave a see-through gap at every join.
-    line = 'class="ColorScheme-Text" fill="currentColor" fill-opacity="0.08"'
+    # (high contrast: lw = 2 px at full strength, la = 1)
+    line = f'class="ColorScheme-Text" fill="currentColor" fill-opacity="{la}"'
     out = []
 
     def g(name, body):
@@ -76,7 +77,7 @@ def frame_elements(prefix, ox, oy, r, cls, opacity, hairline):
     def ring(cx, cy, sx, sy):
         sweep = 1 if sx == sy else 0
         return (f"M{cx - sx * r},{cy} A{r},{r} 0 0 {sweep} {cx},{cy - sy * r} "
-                f"L{cx},{cy - sy * (r - 1)} A{r - 1},{r - 1} 0 0 {1 - sweep} {cx - sx * (r - 1)},{cy} Z")
+                f"L{cx},{cy - sy * (r - lw)} A{r - lw},{r - lw} 0 0 {1 - sweep} {cx - sx * (r - lw)},{cy} Z")
 
     # (cell origin, centre of the rounding, direction of the outer corner)
     cells = {
@@ -95,10 +96,10 @@ def frame_elements(prefix, ox, oy, r, cls, opacity, hairline):
         g(name, body)
 
     edges = {
-        "top": (ox + r, oy, c, r, (ox + r, oy, c, 1)),
-        "bottom": (ox + r, oy + r + c, c, r, (ox + r, oy + 2 * r + c - 1, c, 1)),
-        "left": (ox, oy + r, r, c, (ox, oy + r, 1, c)),
-        "right": (ox + r + c, oy + r, r, c, (ox + 2 * r + c - 1, oy + r, 1, c)),
+        "top": (ox + r, oy, c, r, (ox + r, oy, c, lw)),
+        "bottom": (ox + r, oy + r + c, c, r, (ox + r, oy + 2 * r + c - lw, c, lw)),
+        "left": (ox, oy + r, r, c, (ox, oy + r, lw, c)),
+        "right": (ox + r + c, oy + r, r, c, (ox + 2 * r + c - lw, oy + r, lw, c)),
     }
     for name, (x, y, w, h, (lx, ly, lw, lh)) in edges.items():
         body = f'<rect x="{x}" y="{y}" width="{w}" height="{h}" {fill}/>'
@@ -164,14 +165,15 @@ def hint(name, x, y, w, h):
     return f'<rect id="{name}" x="{x}" y="{y}" width="{w}" height="{h}" fill="#ff00ff" fill-opacity="0"/>'
 
 
-def frame_svg(cls, r, margin, s, a, opacity):
+def frame_svg(cls, r, margin, s, a, opacity, hc=False):
     c = CENTER
     size = 2 * r + c
     tsize = 2 * (s + r) + c
     mx = size + 20                        # mask frame to the right
     sy = size + 20                        # shadow frame below
     parts = []
-    parts += frame_elements("", 0, 0, r, cls, opacity, hairline=opacity < 1)
+    parts += frame_elements("", 0, 0, r, cls, opacity, hairline=opacity < 1 or hc,
+                            lw=2 if hc else 1, la=1 if hc else 0.08)
     parts += frame_elements("mask-", mx, 0, r, cls, 1, hairline=False)
     defs, shadow = shadow_elements(0, sy, r, s, a)
     parts += shadow
@@ -216,6 +218,16 @@ enabled=true
 enabled=true
 """
 
+PLASMARC_HC = """[ContrastEffect]
+enabled=false
+
+[BlurBehindEffect]
+enabled=false
+
+[AdaptiveTransparency]
+enabled=false
+"""
+
 METADATA = {
     "KPlugin": {
         "Authors": [{"Name": "AedwenOS"}],
@@ -239,21 +251,31 @@ def write_svgz(path, text):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", default=THEME)
+    ap.add_argument("--contrast", choices=("standard", "high"), default="standard",
+                    help="high: the aedwen-hc theme (opaque, no blur, 2px full-strength outline)")
+    ap.add_argument("--out", default=None)
     ap.add_argument("--acrylic", type=float, default=0.86,
                     help="background opacity of the blurred (non-solid) variants")
     args = ap.parse_args()
+    hc = args.contrast == "high"
+    out = args.out or (THEME + "-hc" if hc else THEME)
+    acrylic = 1.0 if hc else args.acrylic
 
     for name, (cls, r, margin, s, a) in FRAMES.items():
-        for variant, opacity in (("", args.acrylic), ("translucent/", args.acrylic),
+        for variant, opacity in (("", acrylic), ("translucent/", acrylic),
                                  ("solid/", 1.0), ("opaque/", 1.0)):
-            write_svgz(os.path.join(args.out, variant + name + ".svgz"),
-                       frame_svg(cls, r, margin, s, a, opacity))
-    with open(os.path.join(args.out, "metadata.json"), "w") as f:
-        json.dump(METADATA, f, indent=4)
+            write_svgz(os.path.join(out, variant + name + ".svgz"),
+                       frame_svg(cls, r, margin, s, a, opacity, hc))
+    meta = json.loads(json.dumps(METADATA))
+    if hc:
+        meta["KPlugin"].update({"Id": "aedwen-hc", "Name": "AedwenOS High Contrast",
+                                "Description": "AedwenOS shell surfaces: opaque, no blur, 2 px outline"})
+    with open(os.path.join(out, "metadata.json"), "w") as f:
+        json.dump(meta, f, indent=4)
         f.write("\n")
-    with open(os.path.join(args.out, "plasmarc"), "w") as f:
-        f.write(PLASMARC)
+    with open(os.path.join(out, "plasmarc"), "w") as f:
+        f.write(PLASMARC_HC if hc else PLASMARC)
+    args.out = out
     print(f"Wrote {len(FRAMES)} frames x 4 variants to {args.out}")
 
 

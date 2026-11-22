@@ -39,7 +39,12 @@ KCMUtils.SimpleKCM {
                 topRightRadius: on ? 18 : last ? 20 : 10
                 bottomRightRadius: on ? 18 : last ? 20 : 10
                 Behavior on color { ColorAnimation { duration: 200 } }
+                activeFocusOnTab: true
+                Keys.onReturnPressed: seg.picked(opt.modelData[0])
+                Keys.onEnterPressed: seg.picked(opt.modelData[0])
+                Keys.onSpacePressed: seg.picked(opt.modelData[0])
                 StateLayer { area: optMouse; tint: opt.on ? Theme.primaryFg : Theme.fg }
+                FocusRing { radius: 18 + 5 }
                 Label {
                     id: optLabel
                     anchors.centerIn: parent
@@ -53,6 +58,7 @@ KCMUtils.SimpleKCM {
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
+                    onPressed: opt.focus = false
                     onClicked: seg.picked(opt.modelData[0])
                 }
             }
@@ -308,7 +314,11 @@ KCMUtils.SimpleKCM {
                                             width: 32; height: 32
                                             Ring { on: kcm.seed === dot.modelData.name }
                                             Rectangle { anchors.fill: parent; radius: 16; color: dot.modelData.color }
-                                            MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: kcm.setSeed(dot.modelData.name) }
+                                            activeFocusOnTab: true
+                                            Keys.onReturnPressed: kcm.setSeed(dot.modelData.name)
+                                            Keys.onSpacePressed: kcm.setSeed(dot.modelData.name)
+                                            FocusRing { offset: 8; radius: 16 + 8 }
+                                            MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onPressed: dot.focus = false; onClicked: kcm.setSeed(dot.modelData.name) }
                                             Accessible.name: dot.modelData.label
                                         }
                                     }

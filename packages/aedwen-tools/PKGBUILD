@@ -6,7 +6,7 @@
 # this directory (makepkg owns src/ and pkg/; the sources live in source/).
 pkgname=aedwen-tools
 pkgver=0.1.0
-pkgrel=1
+pkgrel=2
 pkgdesc="AedwenOS search overlay, Welcome app, Appearance settings and theme helpers"
 arch=('x86_64')
 url="https://github.com/SECT19N/AedwenOS"
