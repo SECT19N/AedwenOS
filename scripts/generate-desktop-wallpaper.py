@@ -2,8 +2,9 @@
 """
 Generate the AedwenOS default desktop wallpaper: a giant eagle watermark
 on the --wall backdrop, matching the "Desktop - Material 3" design
-(oklch(0.2 0.03 H) backdrop, oklch(0.38 0.1 H) eagle, shifted up-left of
-centre, "AedwenOS" wordmark bottom-right), plus a light variant.
+(oklch(0.2 0.03 H) backdrop, oklch(0.38 0.1 H) eagle, "AedwenOS" wordmark
+bottom-right), plus a light variant. The eagle is centred on the screen (the
+design shifts it up-left; centred reads better).
 
 Writes a Plasma "Image" wallpaper package: contents/images_dark/ (the dark
 backdrop, used with a dark colour scheme) and contents/images/ (light), each
@@ -41,6 +42,21 @@ def rgb(hexc):
     return tuple(int(hexc[i:i + 2], 16) / 255 for i in (1, 3, 5))
 
 
+def artwork_box(img):
+    """Bounding box (x0, y0, x1, y1) of the visible pixels of a cairo image:
+    the logo file has padding, and not the same on every side."""
+    w, h, stride = img.get_width(), img.get_height(), img.get_stride()
+    data = bytes(img.get_data())  # ARGB32: alpha is byte 3 of each pixel
+    xs, ys = [], []
+    for y in range(h):
+        row = data[y * stride:y * stride + w * 4][3::4]
+        hit = [x for x, a in enumerate(row) if a > 16]
+        if hit:
+            xs += [hit[0], hit[-1]]
+            ys.append(y)
+    return min(xs), ys[0], max(xs) + 1, ys[-1] + 1
+
+
 def render(path, w, h, hue, dark, eagle_img):
     s = h / 1080  # the design is drawn at 1080p
     if dark:
@@ -53,12 +69,12 @@ def render(path, w, h, hue, dark, eagle_img):
     ctx.set_source_rgb(*rgb(wall))
     ctx.paint()
 
-    # Giant eagle watermark: min(46vh, 520px), shifted up-left of centre
-    # (translate(-30%,-54%) on a centred box).
-    size = min(h * 0.46, 520 * s)
+    # Giant eagle watermark: the logo box is min(46vh, 520px) wide, placed so
+    # the visible artwork (not the padded file) is centred on the screen.
+    x0, y0, x1, y1 = artwork_box(eagle_img)
+    k = min(h * 0.46, 520 * s) / eagle_img.get_width()
     ctx.save()
-    ctx.translate(w / 2 - size * 0.8, h / 2 - size * 1.04)
-    k = size / eagle_img.get_width()
+    ctx.translate(w / 2 - (x0 + x1) / 2 * k, h / 2 - (y0 + y1) / 2 * k)
     ctx.scale(k, k)
     ctx.set_source_rgb(*rgb(eagle))
     ctx.mask_surface(eagle_img, 0, 0)  # the logo's alpha, in the eagle tone

@@ -20,7 +20,7 @@ jobs:
       - name: Install tools
         # Pillow draws the wallpapers and boot assets, xcursorgen builds the
         # cursors; without them check-theme.py skips those generators.
-        run: pacman -Syu --noconfirm --needed git python python-pillow python-fonttools librsvg xorg-xcursorgen rsync
+        run: pacman -Syu --noconfirm --needed git python python-pillow python-cairo python-fonttools librsvg xorg-xcursorgen rsync
 
       - uses: actions/checkout@v4
 

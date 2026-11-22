@@ -6,6 +6,6 @@ Comment=AedwenOS · Blue (Light), generated from the system seed colour
 [X-GNOME-Metatheme]
 GtkTheme=AedwenOS-Blue-Light
 MetacityTheme=AedwenOS-Blue-Light
-IconTheme=breeze-dark
+IconTheme=Aedwen-Icons
 CursorTheme=Aedwen
 ButtonLayout=:minimize,maximize,close

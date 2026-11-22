@@ -101,6 +101,8 @@ kactivitymanagerd
 plasma-activities
 plasma-activities-stats
 plasma-integration
+## menus of GTK apps in the top bar's global menu
+appmenu-gtk-module
 plasma-browser-integration
 kdeplasma-addons
 kde-cli-tools

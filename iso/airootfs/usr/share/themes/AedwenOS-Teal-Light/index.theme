@@ -6,6 +6,6 @@ Comment=AedwenOS · Teal (Light), generated from the system seed colour
 [X-GNOME-Metatheme]
 GtkTheme=AedwenOS-Teal-Light
 MetacityTheme=AedwenOS-Teal-Light
-IconTheme=breeze-dark
+IconTheme=Aedwen-Icons
 CursorTheme=Aedwen
 ButtonLayout=:minimize,maximize,close

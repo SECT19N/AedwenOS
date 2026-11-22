@@ -6,6 +6,6 @@ Comment=AedwenOS · Rose (Dark), generated from the system seed colour
 [X-GNOME-Metatheme]
 GtkTheme=AedwenOS-Rose-Dark
 MetacityTheme=AedwenOS-Rose-Dark
-IconTheme=breeze-dark
+IconTheme=Aedwen-Icons
 CursorTheme=Aedwen
 ButtonLayout=:minimize,maximize,close

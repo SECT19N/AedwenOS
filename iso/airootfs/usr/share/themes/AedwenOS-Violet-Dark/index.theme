@@ -6,6 +6,6 @@ Comment=AedwenOS · Violet (Dark), generated from the system seed colour
 [X-GNOME-Metatheme]
 GtkTheme=AedwenOS-Violet-Dark
 MetacityTheme=AedwenOS-Violet-Dark
-IconTheme=breeze-dark
+IconTheme=Aedwen-Icons
 CursorTheme=Aedwen
 ButtonLayout=:minimize,maximize,close

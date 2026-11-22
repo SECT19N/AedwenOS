@@ -18,7 +18,7 @@ for (var j = 0; j < desktopsArray.length; j++) {
 // ---- top bar --------------------------------------------------------------
 var topBar = new Panel;
 topBar.location = "top";
-topBar.height = 44;
+topBar.height = 36;
 topBar.floating = true;
 topBar.opacity = "translucent";
 

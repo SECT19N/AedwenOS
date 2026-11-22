@@ -25,6 +25,7 @@ wallpaper you chose yourself is never replaced.
 """
 
 import argparse
+import configparser
 import os
 import subprocess
 import sys
@@ -127,9 +128,51 @@ def build_gtk(seed, variant, contrast):
                    check=False, stdout=subprocess.DEVNULL)
 
 
+GTK_USER_THEME = "AedwenOS-User"
+
+
+def build_gtk_theme(seed, variant, dark, contrast):
+    """GTK3 apps (and GTK4 ones that load a named theme) follow a named theme,
+    and the shipped ones only cover the six preset seeds: write a complete
+    theme for this accent, light or dark, contrast and variant, and point GTK
+    at it, with the icon theme KDE uses. Only while GTK still uses an AedwenOS
+    theme: a theme the user chose themselves is left alone."""
+    script = os.path.join(LIB, "generate-gtk-theme.py")
+    if not os.path.exists(script):
+        return
+    cfg = os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
+    files = [os.path.join(cfg, d, "settings.ini") for d in ("gtk-3.0", "gtk-4.0")]
+    parser = configparser.RawConfigParser()
+    parser.optionxform = str  # keep the keys' case
+    parser.read(files[0])
+    cur = parser.get("Settings", "gtk-theme-name", fallback="")
+    if cur and not cur.startswith("AedwenOS"):
+        return
+    cmd = [sys.executable, script, "--accent", seed, "--variant", variant, "--contrast", contrast,
+           "--user-theme-out", os.path.join(DATA, "themes")]
+    if not dark:
+        cmd.append("--light")
+    if subprocess.run(cmd, check=False, stdout=subprocess.DEVNULL).returncode != 0:
+        return
+    icons = kread("kdeglobals", "Icons", "Theme") or "Aedwen-Icons"
+    for path in files:
+        ini = configparser.RawConfigParser()
+        ini.optionxform = str
+        ini.read(path)
+        if not ini.has_section("Settings"):
+            ini.add_section("Settings")
+        ini.set("Settings", "gtk-theme-name", GTK_USER_THEME)
+        ini.set("Settings", "gtk-icon-theme-name", icons)
+        ini.set("Settings", "gtk-application-prefer-dark-theme", "1" if dark else "0")
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w") as f:
+            ini.write(f, space_around_delimiters=False)
+
+
 def build(seed, variant, dark, contrast, version=0):
     build_gtk(seed, variant, contrast)
-    cmd = [sys.executable, os.path.join(LIB, "generate-app-themes.py"),
+    build_gtk_theme(seed, variant, dark, contrast)
+    cmd =[sys.executable, os.path.join(LIB, "generate-app-themes.py"),
            "--accent", seed, "--variant", variant, "--contrast", contrast,
            "--konsole", os.path.join(DATA, "konsole"),
            "--kate", os.path.join(DATA, "org.kde.syntax-highlighting", "themes")]

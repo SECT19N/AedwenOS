@@ -36,7 +36,7 @@ GENERATORS = [
     ("generate-m3-shapes.py", [], None),
     ("generate-plymouth-assets.py", [], "PIL"),
     ("generate-limine-wallpaper.py", [], "PIL"),
-    ("generate-desktop-wallpaper.py", [], "PIL"),
+    ("generate-desktop-wallpaper.py", [], "cairo"),
     ("generate-icons.py", ["--all-static"], None),
     ("generate-cursors.py", ["--all-static"], "xcursorgen"),
 ]

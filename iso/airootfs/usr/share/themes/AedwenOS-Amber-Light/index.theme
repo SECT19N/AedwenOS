@@ -6,6 +6,6 @@ Comment=AedwenOS · Amber (Light), generated from the system seed colour
 [X-GNOME-Metatheme]
 GtkTheme=AedwenOS-Amber-Light
 MetacityTheme=AedwenOS-Amber-Light
-IconTheme=breeze-dark
+IconTheme=Aedwen-Icons
 CursorTheme=Aedwen
 ButtonLayout=:minimize,maximize,close

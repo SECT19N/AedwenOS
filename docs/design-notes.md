@@ -4,6 +4,19 @@ Why the system is built the way it is, and where things live. Back to the [READM
 
 ## Design notes and limitations
 
+- **What follows the theme, and what does not.** Qt 6 and KDE apps follow it
+  through the `Aedwen` widget style and the colour scheme (also for root, via
+  `/etc/xdg/kdeglobals`). GTK 3 and GTK 4 apps follow it through generated
+  themes: the shipped `AedwenOS-<Seed>-<Dark|Light>` ones for the preset
+  accents, and for any other accent, contrast or variant a per-user
+  `AedwenOS-User` theme that `aedwen-apps` writes and selects (while GTK still
+  uses an AedwenOS theme; a theme you chose yourself is left alone). Apps that
+  draw their own interface do not follow it: Firefox-based browsers (Zen),
+  Electron apps and most Flatpaks. Qt 5 apps are not styled (there is no Qt 5
+  build of the style, and none are on the ISO). A program started as root
+  through `pkexec` has no desktop environment set, so Qt does not load the KDE
+  platform theme for it; prefer the KDE-aware launchers.
+
 - **Disk encryption is not supported yet.** The bootloader entry and the
   initramfs can't unlock a LUKS root, so the installer hides the "Encrypt
   system" option in its automated modes. Calamares' manual-partitioning dialog

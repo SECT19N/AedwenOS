@@ -23,6 +23,10 @@ from palette_lib import (DEFAULT_SEED, SEEDS, VARIANTS, palette, palette_contras
 # use_variant() before any CSS is generated.
 R_WIN = R_INNER = R_CARD = CTL_HOVER = None
 
+# the per-user theme aedwen-apps writes for an accent that is not one of the
+# six shipped seeds
+USER_THEME = "AedwenOS-User"
+
 
 def use_variant(variant):
     global R_WIN, R_INNER, R_CARD, CTL_HOVER
@@ -388,12 +392,16 @@ switch {{
 
 
 def write_variant(out_root, seed, dark, variant, contrast="standard"):
-    use_variant(variant)
-    H = SEEDS[seed]
-    p = palette_contrast(H, dark, variant == "expressive", contrast)
     # Expressive keeps the original names; stock M3 gets a -Baseline suffix
     suffix = ("" if variant == "expressive" else "-Baseline") + ("-HighContrast" if contrast == "high" else "")
     theme_name = f"AedwenOS-{seed.capitalize()}-{'Dark' if dark else 'Light'}{suffix}"
+    return write_theme(out_root, theme_name, SEEDS[seed], seed.capitalize(), dark, variant, contrast)
+
+
+def write_theme(out_root, theme_name, H, label, dark, variant, contrast="standard"):
+    """Write one complete GTK3 + GTK4 theme directory for hue H."""
+    use_variant(variant)
+    p = palette_contrast(H, dark, variant == "expressive", contrast)
 
     for gtk_dir, css in (
         ("gtk-3.0", gtk3_css(p, dark) + (hc_css(p) if contrast == "high" else "")),
@@ -412,12 +420,12 @@ def write_variant(out_root, seed, dark, variant, contrast="standard"):
         f.write(f"""[Desktop Entry]
 Type=X-GNOME-Metatheme
 Name={theme_name}
-Comment=AedwenOS · {seed.capitalize()} ({"Dark" if dark else "Light"}), generated from the system seed colour
+Comment=AedwenOS · {label} ({"Dark" if dark else "Light"}), generated from the system seed colour
 
 [X-GNOME-Metatheme]
 GtkTheme={theme_name}
 MetacityTheme={theme_name}
-IconTheme=breeze-dark
+IconTheme=Aedwen-Icons
 CursorTheme=Aedwen
 ButtonLayout=:minimize,maximize,close
 """)
@@ -437,7 +445,17 @@ def main():
                     help="high: write the -HighContrast theme set (2px outlines, focus ring)")
     ap.add_argument("--accent", default=None,
                     help="#rrggbb accent: write only the libadwaita stylesheet for it (aedwen-apps)")
+    ap.add_argument("--user-theme-out", default=None, metavar="DIR",
+                    help="with --accent: write a complete AedwenOS-User theme (GTK3 + GTK4) "
+                         "into DIR, e.g. ~/.local/share/themes (aedwen-apps)")
+    ap.add_argument("--light", action="store_true", help="with --user-theme-out: the light theme")
     args = ap.parse_args()
+
+    if args.accent and args.user_theme_out:
+        H = srgb_hex_to_oklch(args.accent)[2]
+        write_theme(args.user_theme_out, USER_THEME, H, "Custom accent", not args.light,
+                    args.variant, args.contrast)
+        return
 
     if args.accent:
         use_variant(args.variant)
