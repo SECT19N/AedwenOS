@@ -194,8 +194,8 @@ QVariantList AppearanceKcm::details() const
     KConfig input(QStringLiteral("kcminputrc"));
     QString cursor = input.group(QStringLiteral("Mouse")).readEntry("cursorTheme", QStringLiteral("Aedwen"));
     const QString icons = m_globals->group(QStringLiteral("Icons")).readEntry("Theme", QStringLiteral("Aedwen-Icons"));
-    const QStringList font = m_globals->group(QStringLiteral("General")).readEntry("font", QStringLiteral("Roboto Flex,10")).split(QLatin1Char(','));
-    const QStringList fixed = m_globals->group(QStringLiteral("General")).readEntry("fixed", QStringLiteral("Roboto Mono,10")).split(QLatin1Char(','));
+    const QStringList font = m_globals->group(QStringLiteral("General")).readEntry("font", QStringLiteral("IBM Plex Sans,10")).split(QLatin1Char(','));
+    const QStringList fixed = m_globals->group(QStringLiteral("General")).readEntry("fixed", QStringLiteral("IBM Plex Mono,10")).split(QLatin1Char(','));
     const QString sounds = m_globals->group(QStringLiteral("Sounds")).readEntry("Theme", QStringLiteral("ocean"));
     auto f = [](const QStringList &l) { return l.value(0) + QLatin1Char(' ') + l.value(1); };
     auto row = [](const QString &icon, const QString &t, const QString &v, const QString &module) {

@@ -1,0 +1,46 @@
+# Optional software ("Extras"): the installer's Extras page (branding
+# notesqml.qml) and `aedwen-extras` read this file. One line per package group:
+#
+#   id|kind|packages (space separated)
+#
+# kind `local`:  already part of the ISO image. The installer removes the
+#                group when its id was not ticked.
+# kind `online`: not on the image. Installed from the repositories when ticked
+#                (during the install if there is a network, or later with
+#                `aedwen-extras install <id>`).
+# An id can have both kinds (e.g. a language: the runtime is on the image, the
+# language server and package managers are downloaded).
+# The ids match branding/aedwenos/notesqml.qml. This file is not under
+# /etc/calamares because the installer deletes that directory before it
+# applies the choices.
+
+# --- developer tools
+dev-core|local|base-devel git github-cli gdb strace ripgrep fd tmux
+python|local|uv
+python|online|python-pip python-pipx pyright
+javascript|local|nodejs npm
+javascript|online|pnpm typescript typescript-language-server
+
+# --- editors (Zed and Neovim are native; Code - OSS is an Electron app)
+zed|online|zed
+neovim|online|neovim
+helix|online|helix
+vscode|online|code
+
+# --- KDE apps
+okular|local|okular
+filelight|local|filelight
+kinfocenter|local|kinfocenter
+partitionmanager|local|partitionmanager
+kcalc|local|kcalc
+elisa|online|elisa
+haruna|online|haruna
+kdenlive|online|kdenlive
+krita|online|krita
+kdeconnect|online|kdeconnect
+kolourpaint|online|kolourpaint
+kfind|local|kfind
+
+# --- hardware
+print|local|cups print-manager
+bluetooth|local|bluez bluez-utils bluedevil

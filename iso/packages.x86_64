@@ -152,12 +152,13 @@ noto-fonts
 noto-fonts-emoji
 ttf-dejavu
 
-## AedwenOS System Surfaces theme: UI font + monospace used across the
-## Qt widget style, GTK theme and installer (design calls for Roboto Flex,
-## a variable-font superset). ttf-roboto-flex comes from [aedwen-local]
-## (packages/aedwen-fonts); ttf-roboto stays as a fallback for apps that ask
-## for plain Roboto.
-ttf-roboto-flex
+## AedwenOS UI font and monospace: IBM Plex Sans and IBM Plex Mono, used across
+## the Qt widget style, the shell, the GTK theme, the installer and the
+## terminal/editor themes (kdeglobals and the generators name them).
+## ttf-roboto and ttf-roboto-mono stay: apps that ask for plain Roboto get it,
+## and the boot-menu generator (aedwen-boot-accent) draws its wordmark in
+## Roboto Mono.
+ttf-ibm-plex
 ttf-roboto
 ttf-roboto-mono
 

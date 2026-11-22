@@ -162,7 +162,7 @@ QtObject {
     readonly property string font: Kirigami.Theme.defaultFont.family
     // +100 weight in high contrast (Font.Normal -> Medium, Medium -> DemiBold ...)
     function weight(w) { return highContrast ? Math.min(900, w + 100) : w }
-    readonly property string mono: "Roboto Mono"
+    readonly property string mono: "IBM Plex Mono"
     property FontLoader _symbols: FontLoader { source: Qt.resolvedUrl("fonts/MaterialSymbolsRounded.ttf") }
     readonly property string symbols: _symbols.name
 

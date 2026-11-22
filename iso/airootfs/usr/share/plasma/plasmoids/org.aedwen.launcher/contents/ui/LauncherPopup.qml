@@ -13,7 +13,21 @@ Item {
     required property var launcher
 
     property bool showAll: false
+    // row of the root model shown under "All apps": row 0 is "All
+    // Applications", the following rows (skipping separators) are the
+    // categories (Development, Internet, ...)
+    property int category: 0
     readonly property bool searching: search.text !== ""
+    readonly property var categories: {
+        const m = popup.launcher.rootModel
+        const out = []
+        for (let i = 0; i < m.count; ++i) {
+            const sub = m.modelForRow(i)
+            if (sub && sub.count > 0)
+                out.push({ row: i, name: i === 0 ? i18n("All") : String(m.data(m.index(i, 0), Qt.DisplayRole)) })
+        }
+        return out
+    }
 
     Layout.minimumWidth: 3 * 88 + 16      // three grid columns
     Layout.preferredWidth: 560
@@ -29,6 +43,7 @@ Item {
             if (popup.launcher.expanded) {
                 search.text = ""
                 popup.showAll = false
+                popup.category = 0
                 search.input.forceActiveFocus()
             }
         }
@@ -38,6 +53,9 @@ Item {
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: 8
+        // the resize grip sits in the bottom-right corner: keep the power
+        // button clear of it
+        anchors.bottomMargin: 26
         spacing: 16
 
         SearchField {
@@ -68,6 +86,32 @@ Item {
             }
         }
 
+        // categories of the all-apps list
+        Flickable {
+            visible: !popup.searching && popup.showAll && popup.categories.length > 1
+            Layout.fillWidth: true
+            implicitHeight: chips.implicitHeight
+            contentWidth: chips.implicitWidth
+            contentHeight: chips.implicitHeight
+            flickableDirection: Flickable.HorizontalFlick
+            boundsBehavior: Flickable.StopAtBounds
+            clip: true
+            Row {
+                id: chips
+                spacing: 6
+                Repeater {
+                    model: popup.categories
+                    PillButton {
+                        required property var modelData
+                        compact: true
+                        kind: popup.category === modelData.row ? "tonal" : "text"
+                        text: modelData.name
+                        onClicked: popup.category = modelData.row
+                    }
+                }
+            }
+        }
+
         // pinned
         AppGrid {
             visible: !popup.searching && !popup.showAll
@@ -77,12 +121,12 @@ Item {
             favorites: popup.launcher.rootModel.favoritesModel
             onLaunched: popup.launcher.expanded = false
         }
-        // all apps (row 1 of the root model is "All Applications")
+        // all apps, or one category of them
         AppList {
             visible: !popup.searching && popup.showAll
             Layout.fillWidth: true
             Layout.fillHeight: true
-            model: popup.launcher.rootModel.count > 1 ? popup.launcher.rootModel.modelForRow(1) : null
+            model: popup.launcher.rootModel.count > popup.category ? popup.launcher.rootModel.modelForRow(popup.category) : null
             favorites: popup.launcher.rootModel.favoritesModel
             onLaunched: popup.launcher.expanded = false
         }
@@ -106,6 +150,7 @@ Item {
         }
         RowLayout {
             Layout.fillWidth: true
+            Layout.rightMargin: 14
             spacing: 10
             Rectangle {
                 implicitWidth: 32

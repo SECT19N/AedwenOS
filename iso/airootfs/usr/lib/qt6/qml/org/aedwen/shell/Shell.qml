@@ -6,6 +6,13 @@ import org.kde.plasma.workspace.dbus as DBus
 import org.kde.kcmutils as KCMUtils
 
 QtObject {
+    // Pin an app to the dock. The widgets of one plasmashell share this
+    // singleton, so the dock listens for the signal and adds the launcher to
+    // its own task model (which it persists). `desktopId` is the desktop file
+    // name, e.g. "org.kde.dolphin.desktop".
+    signal pinToDockRequested(string desktopId)
+    function pinToDock(desktopId) { pinToDockRequested(desktopId) }
+
     function call(service, path, iface, member, args) {
         return DBus.SessionBus.asyncCall({
             service: service, path: path, iface: iface, member: member,

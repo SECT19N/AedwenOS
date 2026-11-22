@@ -72,6 +72,16 @@ PlasmoidItem {
     }
     TaskActions { id: actions; model: tasksModel }
 
+    // "Pin to Dock" from the launcher's menus
+    Connections {
+        target: Shell
+        function onPinToDockRequested(desktopId) {
+            const url = "applications:" + desktopId
+            if (!actions.isPinned(url))
+                tasksModel.requestAddLauncher(url)
+        }
+    }
+
     // Opens the trash in Dolphin directly. Qt.openUrlExternally("trash:/")
     // goes through the scheme-handler lookup, which only accepts apps that
     // declare x-scheme-handler/trash (Dolphin doesn't), so it asked "which

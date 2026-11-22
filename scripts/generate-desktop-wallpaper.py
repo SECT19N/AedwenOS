@@ -2,9 +2,9 @@
 """
 Generate the AedwenOS default desktop wallpaper: a giant eagle watermark
 on the --wall backdrop, matching the "Desktop - Material 3" design
-(oklch(0.2 0.03 H) backdrop, oklch(0.38 0.1 H) eagle, "AedwenOS" wordmark
-bottom-right), plus a light variant. The eagle is centred on the screen (the
-design shifts it up-left; centred reads better).
+(oklch(0.2 0.03 H) backdrop, oklch(0.38 0.1 H) eagle), plus a light variant.
+The eagle is centred on the screen (the design shifts it up-left; centred reads
+better). There is no wordmark: the logo alone.
 
 Writes a Plasma "Image" wallpaper package: contents/images_dark/ (the dark
 backdrop, used with a dark colour scheme) and contents/images/ (light), each
@@ -60,9 +60,9 @@ def artwork_box(img):
 def render(path, w, h, hue, dark, eagle_img):
     s = h / 1080  # the design is drawn at 1080p
     if dark:
-        wall, eagle, word = o(0.2, 0.03, hue), o(0.38, 0.1, hue), o(0.8, 0.025, hue)
+        wall, eagle = o(0.2, 0.03, hue), o(0.38, 0.1, hue)
     else:
-        wall, eagle, word = o(0.93, 0.025, hue), o(0.84, 0.06, hue), o(0.42, 0.025, hue)
+        wall, eagle = o(0.93, 0.025, hue), o(0.84, 0.06, hue)
 
     surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
     ctx = cairo.Context(surface)
@@ -79,15 +79,6 @@ def render(path, w, h, hue, dark, eagle_img):
     ctx.set_source_rgb(*rgb(eagle))
     ctx.mask_surface(eagle_img, 0, 0)  # the logo's alpha, in the eagle tone
     ctx.restore()
-
-    # "AedwenOS" wordmark, bottom-right.
-    ctx.select_font_face("sans-serif", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_NORMAL)
-    ctx.set_font_size(22 * s)
-    ctx.set_source_rgba(*rgb(word), 0.85)
-    text = "A E D W E N O S"
-    ext = ctx.text_extents(text)
-    ctx.move_to(w - ext.width - 48 * s, h - 96 * s)
-    ctx.show_text(text)
 
     os.makedirs(os.path.dirname(path), exist_ok=True)
     surface.write_to_png(path)

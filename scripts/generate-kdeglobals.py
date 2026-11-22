@@ -57,15 +57,15 @@ def build_kdeglobals(seed, dark, expressive):
     cp.read_string(base_text)
 
     # Extra keys layered on top of the generated colour/WM/effects sections.
-    cp.set("General", "font", "Roboto Flex,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
-    cp.set("General", "menuFont", "Roboto Flex,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
-    cp.set("General", "toolBarFont", "Roboto Flex,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
-    cp.set("General", "fixed", "Roboto Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
+    cp.set("General", "font", "IBM Plex Sans,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
+    cp.set("General", "menuFont", "IBM Plex Sans,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
+    cp.set("General", "toolBarFont", "IBM Plex Sans,9,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
+    cp.set("General", "fixed", "IBM Plex Mono,10,-1,5,400,0,0,0,0,0,0,0,0,0,0,1")
     # Window titles (Aurorae title bars, scripts/generate-aurorae-theme.py):
     # design 14 px semibold = 10.5 pt at 96 dpi, weight 600.
     if not cp.has_section("WM"):
         cp.add_section("WM")
-    cp.set("WM", "activeFont", "Roboto Flex,10.5,-1,5,600,0,0,0,0,0,0,0,0,0,0,1")
+    cp.set("WM", "activeFont", "IBM Plex Sans,10.5,-1,5,600,0,0,0,0,0,0,0,0,0,0,1")
 
     cp.set("KDE", "LookAndFeelPackage", "org.kde.aedwen.desktop" if dark else "org.kde.aedwen.light.desktop")
     # The pair the Quick Settings "Dark mode" tile (KDE's DarkModeControl)

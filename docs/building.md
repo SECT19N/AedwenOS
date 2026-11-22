@@ -41,7 +41,7 @@ installed (see `iso/pacman.conf` for the one-time setup commands).
 
 Some packages are no longer published anywhere prebuilt (`calamares` and
 `ckbcomp` were dropped from the official repos) or are AedwenOS's own
-(`aedwen-tools`, `aedwen-qstyle`, `aedwen-decoration`, `ttf-roboto-flex`, from
+(`aedwen-tools`, `aedwen-qstyle`, `aedwen-decoration`, from
 `packages/`). These are built by `scripts/build-localrepo.sh` into
 `iso/localrepo/`, which `mkarchiso` reads as the `[aedwen-local]` repo. **Run this script at least
 once before `build.sh`** (see [Building the ISO](#build-steps)); rerun it
@@ -52,7 +52,7 @@ clear message if anything is missing.
 On an installed system these packages have no repository behind them
 (`[aedwen-local]` exists only at build time), so plain `pacman -Syu` never
 updates them. `calamares` and `ckbcomp` are live-only and removed on install.
-The `aedwen-*` packages and `ttf-roboto-flex` are AedwenOS's own and are not in
+The `aedwen-*` packages are AedwenOS's own and are not in
 the AUR either, so an installed system only gets new versions of them by
 installing a newer ISO build; a hosted package repository is on the roadmap.
 

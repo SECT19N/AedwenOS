@@ -192,6 +192,29 @@ SYMBOLIC = {
         "system-search": "search", "archive-extract": "unarchive", "download": "download",
         "emblem-favorite": "favorite", "object-locked": "lock", "object-unlocked": "lock_open",
         "sync-synchronizing": "sync",
+        # names Plasma's menus, the tray, Dolphin and System Settings ask for,
+        # drawn with the glyphs we already have
+        "preferences-desktop-wallpaper": "image", "preferences-desktop-display": "monitor",
+        "preferences-system": "settings", "applications-system": "settings",
+        "preferences-desktop": "settings", "preferences-other": "settings",
+        "preferences-desktop-notification": "notifications", "preferences-desktop-keyboard": "keyboard",
+        "preferences-desktop-peripherals": "mouse", "preferences-desktop-screensaver": "lock",
+        "preferences-desktop-icons": "grid_view", "preferences-system-network": "lan",
+        "preferences-system-bluetooth": "bluetooth", "preferences-system-power-management": "battery_full",
+        "preferences-desktop-sound": "volume_up", "preferences-desktop-theme": "dark_mode",
+        "preferences-desktop-color": "dark_mode",
+        "widget-alternatives": "grid_view", "view-grid": "grid_view", "edit-entry": "edit",
+        "document-open-folder": "folder_open", "document-edit-decrypt": "lock_open",
+        "documentinfo": "info", "edit-delete-remove": "delete", "delete": "delete",
+        "edit-clear-all": "backspace", "edit-clear-history": "history", "dialog-ok-apply": "check",
+        "arrow-up": "arrow_upward", "arrow-down": "arrow_downward",
+        "arrow-left": "arrow_back", "arrow-right": "arrow_forward", "go-previous-view": "arrow_back",
+        "window-duplicate": "filter_none", "value-increase": "add", "value-decrease": "remove",
+        "view-sort-ascending-name": "sort", "search": "search", "unlock": "lock_open",
+        "mail-sent": "send", "message-new": "note_add", "get-hot-new-stuff": "download",
+        "network-disconnect": "wifi_off", "system-suspend-hibernate": "bedtime",
+        "system-run": "play_arrow", "edit-none": "cancel", "kt-restore-defaults": "restart_alt",
+        "document-revert": "undo", "view-media-playlist": "view_list",
     },
     "status": {
         "audio-volume-high": "volume_up", "audio-volume-medium": "volume_down",
@@ -438,8 +461,14 @@ def write_symbolic(out):
             for old in os.listdir(d):
                 os.remove(os.path.join(d, old))
             for name, glyph in names.items():
-                with open(os.path.join(d, name + "-symbolic.svg"), "w") as fh:
-                    fh.write(symbolic_svg(px, glyphs[glyph][str(px)]))
+                svg = symbolic_svg(px, glyphs[glyph][str(px)])
+                # menus ask for the plain name ("configure"), toolbars and the
+                # panel for the -symbolic one; the same recolourable glyph
+                # serves both (the devices keep their symbolic names only)
+                for fname in ((name, name + "-symbolic") if context in ("actions", "status")
+                              else (name + "-symbolic",)):
+                    with open(os.path.join(d, fname + ".svg"), "w") as fh:
+                        fh.write(svg)
                 count += 1
     return count // len(SYMBOLIC_SIZES)
 

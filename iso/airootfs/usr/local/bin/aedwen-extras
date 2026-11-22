@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# Optional software: list it, install it later, finish what the installer
+# could not download (no network during the install).
+#
+#   aedwen-extras list              every group and whether it is installed
+#   aedwen-extras install ID...     install groups (asks for the password)
+#   aedwen-extras pending           install the groups the installer skipped
+#
+# The groups are in /usr/share/aedwen/extras (id|kind|packages).
+CATALOGUE=/usr/share/aedwen/extras
+PENDING=/var/lib/aedwen/pending-extras
+
+groups() { # id kind packages
+    grep -vE '^\s*(#|$)' "$CATALOGUE"
+}
+
+installed() { # all packages of a group installed?
+    local p
+    for p in $1; do pacman -Qq "$p" > /dev/null 2>&1 || return 1; done
+}
+
+as_root() {
+    (( EUID == 0 )) && { "$@"; return; }
+    if command -v pkexec > /dev/null; then pkexec "$@"; else sudo "$@"; fi
+}
+
+install_ids() {
+    local want=",$(IFS=,; echo "$*")," id kind pkgs pk=() found=()
+    while IFS='|' read -r id kind pkgs; do
+        [[ $want == *",$id,"* ]] || continue
+        found+=("$id")
+        [[ $kind == online ]] && pk+=($pkgs)
+    done < <(groups)
+    for id in "$@"; do
+        [[ " ${found[*]} " == *" $id "* ]] || echo "unknown group: $id (see: aedwen-extras list)" >&2
+    done
+    (( ${#pk[@]} )) || { echo "nothing to download for: $*"; return 0; }
+    # -Syu: a partial upgrade (-Sy alone) is not supported on Arch
+    as_root pacman -Syu --needed --noconfirm "${pk[@]}" || return 1
+    if [[ -f $PENDING ]]; then
+        as_root sh -c 'grep -vxFf "$1" "$2" > "$2.new"; mv "$2.new" "$2"' _ <(printf '%s\n' "$@") "$PENDING" 2> /dev/null || true
+    fi
+}
+
+case "${1:-list}" in
+list)
+    printf '%-18s %-7s %s\n' GROUP KIND STATE
+    while IFS='|' read -r id kind pkgs; do
+        if installed "$pkgs"; then s=installed; else s=-; fi
+        printf '%-18s %-7s %s\n' "$id" "$kind" "$s"
+    done < <(groups)
+    ;;
+install)
+    shift
+    (( $# )) || { echo "usage: aedwen-extras install ID..." >&2; exit 2; }
+    install_ids "$@"
+    ;;
+pending)
+    if [[ -s $PENDING ]]; then
+        mapfile -t ids < <(sort -u "$PENDING")
+        echo "installing what the installer skipped: ${ids[*]}"
+        install_ids "${ids[@]}" && as_root rm -f "$PENDING"
+    else
+        echo "nothing pending"
+    fi
+    ;;
+*)
+    sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'
+    exit 2
+    ;;
+esac

@@ -29,11 +29,16 @@ marked `LIVE ONLY` in that file (via `iso/airootfs/etc/calamares/modules/package
 `aedwen-install` installs the same non-`LIVE ONLY` set directly with `pacstrap`.
 Changing the package list in one place therefore updates both installers.
 
-Calamares also has an **Extras** page: optional packs (developer tools,
-printing, Bluetooth, more KDE apps), none selected by default. They are all part
-of the image, and after the copy the installer removes the packs that were left
-off. The packs are listed in `iso/airootfs/etc/calamares/packs`. `aedwen-install`
-installs the full set.
+Calamares also has an **Extras** page: optional software, one switch per item,
+none selected by default. Developer tools come per language (Python,
+JavaScript/TypeScript, build tools), editors per editor (Zed, Neovim, Helix,
+Code - OSS), and the KDE apps one by one. Items that are part of the image are
+removed again after the copy if left off; the rest (marked "download" on the
+page) are fetched at the end of the install, which needs a network. If the
+install is offline they are skipped and listed, and `aedwen-extras pending`
+installs them later; `aedwen-extras list` and `aedwen-extras install <id>` do the
+same for anything else. The groups are in `iso/airootfs/usr/share/aedwen/extras`.
+`aedwen-install` installs the full image set and none of the downloadable items.
 
 ## Migrating from another distribution
 

@@ -73,7 +73,7 @@ fi
 aurpkgs=(ckbcomp)
 # AedwenOS's own packages: PKGBUILD dirs under packages/ in this repo.
 # calamares is the AUR PKGBUILD plus an AedwenOS patch (packages/calamares).
-localpkgs=(calamares aedwen-qstyle aedwen-decoration aedwen-tools ttf-roboto-flex)
+localpkgs=(calamares aedwen-qstyle aedwen-decoration aedwen-tools)
 pkgs=("${aurpkgs[@]}" "${localpkgs[@]}")
 
 mkdir -p "$repo"

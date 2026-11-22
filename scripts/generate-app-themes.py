@@ -7,7 +7,7 @@ Plasma colour scheme (kdeglobals) already.
 
 Konsole is the design's terminal (System Desktop design, window "Terminal"):
 always dark, surface oklch(0.15 0.012 H / .96), text #dde0ea, dim #8a90a6,
-the accent for the prompt (here: the cursor), Roboto Mono.
+the accent for the prompt (here: the cursor), IBM Plex Mono.
 
 Usage:
     scripts/generate-app-themes.py --all-static       # what the ISO ships (violet)
@@ -93,7 +93,7 @@ def konsole_profile(hue, expressive):
     accent = palette(hue, True, expressive)["primary"]
     return f"""[Appearance]
 ColorScheme=AedwenOS
-Font=Roboto Mono,11,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+Font=IBM Plex Mono,11,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
 
 [Cursor Options]
 CursorShape=1

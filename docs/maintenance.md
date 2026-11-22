@@ -12,7 +12,7 @@ paru -Syu             # the above, plus AUR packages
 
 `paru -Syu` is only needed for packages you installed from the AUR yourself.
 The AedwenOS-specific packages (`aedwen-tools`, `aedwen-qstyle`,
-`aedwen-decoration`, `ttf-roboto-flex`) and the shell and theme files come with
+`aedwen-decoration`) and the shell and theme files come with
 the ISO and are not updated by `pacman` yet (a hosted package repository is on
 the roadmap). A wrapper script
 (`aedwen-update`: mirror refresh, keyring-first upgrade, reboot hint) is

@@ -3,6 +3,7 @@
 import QtQuick
 import org.kde.plasma.extras as PlasmaExtras
 import org.aedwen.ui
+import org.aedwen.shell
 
 ListView {
     id: list
@@ -56,6 +57,12 @@ ListView {
         PlasmaExtras.Menu {
             id: menu
             visualParent: row
+            PlasmaExtras.MenuItem {
+                visible: !!row.model.favoriteId
+                text: i18n("Pin to Dock")
+                icon: "pin"
+                onClicked: Shell.pinToDock(row.model.favoriteId)
+            }
             PlasmaExtras.MenuItem {
                 readonly property bool pinned: row.model.favoriteId ? list.favorites.isFavorite(row.model.favoriteId) : false
                 visible: !!row.model.favoriteId

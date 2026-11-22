@@ -37,8 +37,8 @@ QtObject {
     readonly property var ease: [0.34, 1.45, 0.55, 1, 1, 1]
     readonly property int dur: 420
 
-    readonly property string font: "Roboto Flex"
-    readonly property string mono: "Roboto Mono"
+    readonly property string font: "IBM Plex Sans"
+    readonly property string mono: "IBM Plex Mono"
     property FontLoader symbolsLoader: FontLoader { source: "fonts/MaterialSymbolsRounded-subset.ttf" }
     readonly property string symbols: symbolsLoader.name
 

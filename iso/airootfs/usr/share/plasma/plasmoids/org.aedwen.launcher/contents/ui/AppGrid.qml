@@ -3,7 +3,9 @@
 // app to the dock to pin it there; right-click to unpin.
 import QtQuick
 import org.kde.plasma.extras as PlasmaExtras
+import org.kde.kirigami as Kirigami
 import org.aedwen.ui
+import org.aedwen.shell
 
 GridView {
     id: grid
@@ -13,7 +15,7 @@ GridView {
     readonly property int columns: Math.max(3, Math.floor(width / 88))
     clip: true
     cellWidth: Math.floor(width / columns)
-    cellHeight: 92
+    cellHeight: 96
     boundsBehavior: Flickable.StopAtBounds
     keyNavigationEnabled: true
 
@@ -35,11 +37,14 @@ GridView {
         Column {
             anchors.centerIn: parent
             spacing: 7
-            AppIcon {
+            // the app's own icon, drawn large with no tile around it (a bordered
+            // tile left the glyph tiny); the icon theme supplies the shape
+            Kirigami.Icon {
                 anchors.horizontalCenter: parent.horizontalCenter
                 source: cellItem.model.decoration
-                size: 44
-                hovered: mouse.containsMouse
+                width: 48
+                height: 48
+                animated: false
             }
             Label {
                 width: grid.cellWidth - 8
@@ -74,6 +79,12 @@ GridView {
         PlasmaExtras.Menu {
             id: menu
             visualParent: cellItem
+            PlasmaExtras.MenuItem {
+                text: i18n("Pin to Dock")
+                icon: "pin"
+                visible: !!cellItem.model.favoriteId
+                onClicked: Shell.pinToDock(cellItem.model.favoriteId)
+            }
             PlasmaExtras.MenuItem {
                 text: i18n("Unpin from Launcher")
                 icon: "window-unpin"

@@ -1,8 +1,8 @@
 // Popup (Desktop design: QUICK SETTINGS): now-playing card, a two-column
 // grid of tiles, sliders, removable drives, then a footer card with battery
-// status, keyboard layout and a gear that opens System Settings, and the
-// "Hold a tile" hint. Holding a tile with a chevron opens its details page
-// (DetailPage.qml), which slides over the main page.
+// status, keyboard layout and a gear that opens System Settings. Holding a
+// tile with a chevron opens its details page (DetailPage.qml), which slides
+// over the main page.
 import QtQuick
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts
@@ -17,7 +17,7 @@ Item {
     // design: 380 px wide (pop.qs.w), 16 px padding, height follows content
     Layout.minimumWidth: 380
     Layout.preferredWidth: 380
-    Layout.minimumHeight: Math.max(main.implicitHeight, stack.depth > 1 ? 420 : 0) + 32
+    Layout.minimumHeight: Math.max(main.implicitHeight, stack.depth > 1 ? 420 : 0) + 42
     Layout.preferredHeight: Layout.minimumHeight
 
     function openPage(file) {
@@ -36,6 +36,8 @@ Item {
         id: stack
         anchors.fill: parent
         anchors.margins: 16
+        // room for the resize grip in the bottom-left corner
+        anchors.bottomMargin: 26
         initialItem: main
         // M3 shared-axis (x): slide + fade
         pushEnter: Transition {
@@ -140,15 +142,6 @@ Item {
                     onClicked: Shell.openSettings("")
                 }
             }
-        }
-
-        Label {
-            Layout.fillWidth: true
-            Layout.topMargin: -6
-            horizontalAlignment: Text.AlignHCenter
-            text: i18n("Hold a tile with › for details")
-            font.pixelSize: 12
-            color: Theme.fgVariant
         }
     }
 

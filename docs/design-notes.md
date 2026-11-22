@@ -113,7 +113,7 @@ AedwenOS/
 ├── CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md
 ├── .github/                      Release workflow, issue forms, pull request template
 ├── packages/                     PKGBUILDs: aedwen-tools, aedwen-qstyle, aedwen-decoration,
-│                                 ttf-roboto-flex, calamares
+│                                 calamares
 ├── scripts/
 │   ├── build-localrepo.sh        Builds the packages above and AUR-only ones into iso/localrepo/
 │   ├── generate-*.py             Theme generators (colours, GTK, cursors, icons, Konsole

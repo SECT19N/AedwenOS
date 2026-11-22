@@ -27,7 +27,7 @@ live ISO) from source and to install the system to disk.
   a seed colour; the Plasma colour scheme, cursors, icons, GTK/libadwaita apps,
   Konsole, Kate and the wallpaper follow it. A High contrast option and a
   keyboard focus ring are built in.
-- **Own icon theme and font:** `Aedwen-Icons` and Roboto Flex.
+- **Own icon theme and font:** `Aedwen-Icons` and IBM Plex Sans.
 - **Two installers:** Calamares with custom pages (including an Extras step for
   optional software packs) or the scripted `aedwen-install`.
 - **Btrfs, snapshots and Limine:** `snapper` snapshots with bootable rollback.

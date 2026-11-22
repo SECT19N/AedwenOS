@@ -1,6 +1,6 @@
 [Appearance]
 ColorScheme=AedwenOS
-Font=Roboto Mono,11,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
+Font=IBM Plex Mono,11,-1,5,400,0,0,0,0,0,0,0,0,0,0,1
 
 [Cursor Options]
 CursorShape=1
